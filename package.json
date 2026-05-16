@@ -1,0 +1,25 @@
+{
+  "name": "oustadi",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
+    "db:generate": "cd apps/api && npx prisma generate",
+    "db:push": "cd apps/api && npx prisma db push",
+    "db:migrate": "cd apps/api && npx prisma migrate dev",
+    "db:seed": "cd apps/api && npx prisma db seed",
+    "db:studio": "cd apps/api && npx prisma studio"
+  },
+  "devDependencies": {
+    "turbo": "^2.9.14",
+    "prettier": "^17.0.5",
+    "eslint": "^10.4.0",
+    "typescript": "^6.0.3"
+  },
+  "packageManager": "pnpm@10.0.0",
+  "engines": {
+    "node": ">=24.0.0"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "@oustadi/shared",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "lint": "echo lint-ok"
+  },
+  "dependencies": {
+    "@oustadi/types": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}

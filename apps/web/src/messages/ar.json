@@ -1,0 +1,80 @@
+{
+  "common": {
+    "appName": "أستادي",
+    "tagline": "منصة تربط الأساتذة والطلاب في المغرب",
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "logout": "تسجيل الخروج",
+    "search": "بحث",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "send": "إرسال",
+    "loading": "جار التحميل...",
+    "noResults": "لا توجد نتائج",
+    "error": "حدث خطأ",
+    "back": "رجوع"
+  },
+  "home": {
+    "heroTitle": "ابحث عن أستاذك المثالي",
+    "heroSubtitle": "منصة مغربية تربط بين الأساتذة والطلاب بسهولة",
+    "searchPlaceholder": "ابحث عن أستاذ، مادة، أو مدينة...",
+    "howItWorks": "كيف تعمل المنصة",
+    "forStudents": "للطلاب",
+    "forTeachers": "للأساتذة",
+    "browseTeachers": "تصفح الأساتذة",
+    "createProfile": "أنشئ ملفك الشخصي",
+    "startLearning": "ابدأ التعلم"
+  },
+  "auth": {
+    "email": "البريد الإلكتروني",
+    "password": "كلمة السر",
+    "fullName": "الاسم الكامل",
+    "confirmPassword": "تأكيد كلمة السر",
+    "role": "نوع الحساب",
+    "student": "طالب",
+    "teacher": "أستاذ",
+    "noAccount": "ليس لديك حساب؟",
+    "hasAccount": "لديك حساب بالفعل؟",
+    "forgotPassword": "نسيت كلمة السر؟",
+    "registerSuccess": "تم إنشاء الحساب بنجاح"
+  },
+  "teacher": {
+    "profile": "الملف الشخصي",
+    "subjects": "المواد",
+    "experience": "الخبرة",
+    "price": "السعر",
+    "city": "المدينة",
+    "availability": "أوقات التوفر",
+    "contact": "معلومات التواصل",
+    "sendRequest": "إرسال طلب",
+    "addToFavorites": "إضافة إلى المفضلة",
+    "yearsExperience": "سنوات الخبرة",
+    "teachingMode": "نمط التدريس",
+    "online": "عن بعد",
+    "inPerson": "حضوري",
+    "both": "الاثنين معاً"
+  },
+  "dashboard": {
+    "myProfile": "ملفي الشخصي",
+    "myRequests": "طلباتي",
+    "myStudents": "طلابي",
+    "myTeachers": "أساتذتي",
+    "favorites": "المفضلة",
+    "settings": "الإعدادات",
+    "messages": "الرسائل",
+    "overview": "نظرة عامة"
+  },
+  "admin": {
+    "users": "المستخدمون",
+    "subjects": "المواد",
+    "reports": "البلاغات",
+    "documents": "الوثائق",
+    "dashboard": "لوحة التحكم",
+    "suspend": "تعليق",
+    "activate": "تفعيل",
+    "verify": "توثيق",
+    "resolve": "حل"
+  }
+}

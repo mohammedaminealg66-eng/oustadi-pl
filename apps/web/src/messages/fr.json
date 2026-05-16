@@ -1,0 +1,80 @@
+{
+  "common": {
+    "appName": "Oustadi",
+    "tagline": "La plateforme qui connecte enseignants et étudiants au Maroc",
+    "login": "Connexion",
+    "register": "Créer un compte",
+    "logout": "Déconnexion",
+    "search": "Rechercher",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "send": "Envoyer",
+    "loading": "Chargement...",
+    "noResults": "Aucun résultat",
+    "error": "Une erreur est survenue",
+    "back": "Retour"
+  },
+  "home": {
+    "heroTitle": "Trouvez votre professeur idéal",
+    "heroSubtitle": "Plateforme marocaine qui connecte enseignants et étudiants facilement",
+    "searchPlaceholder": "Rechercher un professeur, matière ou ville...",
+    "howItWorks": "Comment ça marche",
+    "forStudents": "Pour les étudiants",
+    "forTeachers": "Pour les enseignants",
+    "browseTeachers": "Parcourir les enseignants",
+    "createProfile": "Créer votre profil",
+    "startLearning": "Commencez à apprendre"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Mot de passe",
+    "fullName": "Nom complet",
+    "confirmPassword": "Confirmer le mot de passe",
+    "role": "Type de compte",
+    "student": "Étudiant",
+    "teacher": "Enseignant",
+    "noAccount": "Pas de compte ?",
+    "hasAccount": "Déjà un compte ?",
+    "forgotPassword": "Mot de passe oublié ?",
+    "registerSuccess": "Compte créé avec succès"
+  },
+  "teacher": {
+    "profile": "Profil",
+    "subjects": "Matières",
+    "experience": "Expérience",
+    "price": "Prix",
+    "city": "Ville",
+    "availability": "Disponibilités",
+    "contact": "Contact",
+    "sendRequest": "Envoyer une demande",
+    "addToFavorites": "Ajouter aux favoris",
+    "yearsExperience": "années d'expérience",
+    "teachingMode": "Mode d'enseignement",
+    "online": "En ligne",
+    "inPerson": "En présentiel",
+    "both": "Les deux"
+  },
+  "dashboard": {
+    "myProfile": "Mon profil",
+    "myRequests": "Mes demandes",
+    "myStudents": "Mes étudiants",
+    "myTeachers": "Mes enseignants",
+    "favorites": "Favoris",
+    "settings": "Paramètres",
+    "messages": "Messages",
+    "overview": "Aperçu"
+  },
+  "admin": {
+    "users": "Utilisateurs",
+    "subjects": "Matières",
+    "reports": "Signalements",
+    "documents": "Documents",
+    "dashboard": "Tableau de bord",
+    "suspend": "Suspendre",
+    "activate": "Activer",
+    "verify": "Vérifier",
+    "resolve": "Résoudre"
+  }
+}

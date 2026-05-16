@@ -1,0 +1,18 @@
+FROM node:24-alpine AS builder
+WORKDIR /app
+RUN corepack enable && corepack prepare pnpm@latest --activate
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY apps/api/package.json apps/api/
+COPY packages/ packages/
+RUN pnpm install --frozen-lockfile
+COPY . .
+RUN pnpm --filter @oustadi/api run build
+RUN pnpm --filter @oustadi/api --prod deploy /dist
+
+FROM node:24-alpine
+WORKDIR /app
+COPY --from=builder /dist ./dist
+COPY --from=builder /app/apps/api/prisma ./prisma
+RUN npx prisma generate
+EXPOSE 3000
+CMD ["node", "dist/main.js"]

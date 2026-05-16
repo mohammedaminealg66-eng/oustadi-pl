@@ -1,0 +1,296 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum TeachingMode {
+  ONLINE
+  IN_PERSON
+  BOTH
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  passwordHash   String
+  fullName       String
+  role           Role      @default(STUDENT)
+  phone          String?
+  avatarKey      String?
+  language       String    @default("ar")
+  emailVerified  Boolean   @default(false)
+  isActive       Boolean   @default(true)
+  isSuspended    Boolean   @default(false)
+  suspensionReason String?
+
+  studentProfile   StudentProfile?
+  teacherProfile   TeacherProfile?
+  sentRequests     LessonRequest[]  @relation("StudentRequests")
+  receivedRequests LessonRequest[]  @relation("TeacherRequests")
+  conversations    Conversation[]   @relation("UserConversations")
+  messages         Message[]
+  favorites        Favorite[]
+  reports          Report[]         @relation("Reporter")
+  notifications    Notification[]
+  sessions         Session[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  @@index([email])
+  @@index([role])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshToken String   @unique
+  userAgent    String?
+  ipAddress    String?
+  expiresAt    DateTime
+  isRevoked    Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([refreshToken])
+}
+
+model TeacherProfile {
+  id          String       @id @default(cuid())
+  userId      String       @unique
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio         String?
+  experience  Int?
+  price       Decimal?     @db.Decimal(10, 2)
+  teachingMode TeachingMode @default(BOTH)
+  city        String?
+  showContact Boolean      @default(false)
+  isVerified  Boolean      @default(false)
+
+  subjects      TeacherSubject[]
+  availability  AvailabilitySlot[]
+  documents     UploadedDocument[]
+  favorites     Favorite[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  @@index([city])
+  @@index([price])
+}
+
+model StudentProfile {
+  id        String @id @default(cuid())
+  userId    String @unique
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio       String?
+  city      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([city])
+}
+
+model Subject {
+  id          String          @id @default(cuid())
+  nameAr      String
+  nameFr      String
+  slug        String          @unique
+  isActive    Boolean         @default(true)
+  icon        String?
+
+  teachers    TeacherSubject[]
+  requests    LessonRequest[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([slug])
+  @@index([nameAr])
+}
+
+model TeacherSubject {
+  id          String    @id @default(cuid())
+  teacherId   String
+  teacher     TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  subjectId   String
+  subject     Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  levels      String[]
+  price       Decimal?  @db.Decimal(10, 2)
+
+  @@unique([teacherId, subjectId])
+  @@index([teacherId])
+  @@index([subjectId])
+}
+
+model AvailabilitySlot {
+  id        String   @id @default(cuid())
+  teacherId String
+  teacher   TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  dayOfWeek Int
+  startTime String
+  endTime   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([teacherId])
+}
+
+model LessonRequest {
+  id            String        @id @default(cuid())
+  studentId     String
+  student       User          @relation("StudentRequests", fields: [studentId], references: [id], onDelete: Cascade)
+  teacherId     String
+  teacher       User          @relation("TeacherRequests", fields: [teacherId], references: [id], onDelete: Cascade)
+  subjectId     String
+  subject       Subject       @relation(fields: [subjectId], references: [id])
+  message       String
+  status        RequestStatus @default(PENDING)
+  proposedSchedule String?
+  teacherNotes  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  @@index([studentId])
+  @@index([teacherId])
+  @@index([status])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  studentId String
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacherId String
+  teacher   TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([studentId, teacherId])
+  @@index([studentId])
+}
+
+model Conversation {
+  id            String    @id @default(cuid())
+  studentId     String
+  teacherId     String
+  teacher       User      @relation("UserConversations", fields: [teacherId], references: [id], onDelete: Cascade)
+  student       User      @relation("UserConversations", fields: [studentId], references: [id], onDelete: Cascade)
+  lastMessageAt DateTime?
+  lastMessagePreview String?
+
+  messages      Message[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([studentId])
+  @@index([teacherId])
+  @@unique([studentId, teacherId])
+}
+
+model Message {
+  id             String        @id @default(cuid())
+  conversationId String
+  conversation   Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User          @relation(fields: [senderId], references: [id])
+  content        String
+  status         MessageStatus @default(SENT)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([conversationId])
+  @@index([senderId])
+}
+
+model UploadedDocument {
+  id           String   @id @default(cuid())
+  teacherId    String
+  teacher      TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  fileName     String
+  originalName String
+  mimeType     String
+  size         Int
+  type         String
+  isVerified   Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([teacherId])
+  @@index([type])
+}
+
+model Report {
+  id          String   @id @default(cuid())
+  reporterId  String
+  reporter    User     @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  targetId    String
+  reason      String
+  description String?
+  isResolved  Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([targetId])
+  @@index([isResolved])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  type      String
+  isRead    Boolean  @default(false)
+  link      String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+}
+
+model AdminLog {
+  id        String   @id @default(cuid())
+  adminId   String
+  action    String
+  targetId  String?
+  details   String?
+
+  createdAt DateTime @default(now())
+
+  @@index([adminId])
+  @@index([action])
+}
