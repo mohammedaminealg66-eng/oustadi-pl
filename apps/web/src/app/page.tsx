@@ -1,32 +1,8 @@
-'use client';
-
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/providers/auth-provider';
 import Link from 'next/link';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 
 export default function HomePage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (loading) return;
-    if (user) {
-      if (user.role === 'TEACHER') router.replace('/teacher');
-      else if (user.role === 'ADMIN') router.replace('/admin');
-      else router.replace('/student');
-    }
-  }, [user, loading, router]);
-
-  if (loading || user) return (
-    <>
-      <Header />
-      <main className="flex min-h-[60vh] items-center justify-center"><p className="text-gray-500">جار التحميل...</p></main>
-    </>
-  );
-
   return (
     <>
       <Header />
