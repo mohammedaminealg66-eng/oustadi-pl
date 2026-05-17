@@ -16,6 +16,7 @@ interface Conversation {
 
 interface Message {
   id: string;
+  conversationId: string;
   content: string;
   senderId: string;
   sender: { id: string; fullName: string };
@@ -37,8 +38,7 @@ export default function ChatPage() {
     });
 
     const token = getTokens().accessToken;
-    const s = io('http://localhost:3001', {
-      path: '/ws',
+    const s = io('/', {
       auth: { token },
     });
     setSocket(s);
