@@ -80,6 +80,24 @@ async function main() {
     });
   }
 
+  const math = await prisma.subject.findUnique({ where: { slug: 'mathematiques' } });
+  const physics = await prisma.subject.findUnique({ where: { slug: 'physique-chimie' } });
+
+  if (teacher.teacherProfile && math) {
+    await prisma.teacherSubject.upsert({
+      where: { teacherId_subjectId: { teacherId: teacher.teacherProfile.id, subjectId: math.id } },
+      update: {},
+      create: { teacherId: teacher.teacherProfile.id, subjectId: math.id, levels: ['Tronc commun', '1 Bac', '2 Bac'] },
+    });
+  }
+  if (teacher.teacherProfile && physics) {
+    await prisma.teacherSubject.upsert({
+      where: { teacherId_subjectId: { teacherId: teacher.teacherProfile.id, subjectId: physics.id } },
+      update: {},
+      create: { teacherId: teacher.teacherProfile.id, subjectId: physics.id, levels: ['Tronc commun', '1 Bac', '2 Bac'] },
+    });
+  }
+
   console.log('Seed completed successfully');
   console.log(`Admin: admin@oustadi.ma / admin123`);
   console.log(`Teacher: teacher@oustadi.ma / teacher123`);

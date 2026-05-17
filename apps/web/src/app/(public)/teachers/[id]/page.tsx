@@ -33,6 +33,7 @@ export default function TeacherProfilePage() {
   const [profile, setProfile] = useState<TeacherProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [requestMsg, setRequestMsg] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('');
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
@@ -46,14 +47,19 @@ export default function TeacherProfilePage() {
 
   async function sendRequest() {
     if (!user) { router.push('/login'); return; }
+    if (!selectedSubject) { alert('الرجاء اختيار المادة'); return; }
     setSending(true);
-    await apiRequest('/requests', {
+    const res = await apiRequest('/requests', {
       method: 'POST',
-      body: JSON.stringify({ teacherId: profile?.userId, subjectId: profile?.subjects[0]?.subject?.id, message: requestMsg }),
+      body: JSON.stringify({ teacherId: profile?.userId, subjectId: selectedSubject, message: requestMsg }),
     });
     setSending(false);
-    setRequestMsg('');
-    alert('تم إرسال الطلب بنجاح');
+    if (res.success) {
+      setRequestMsg('');
+      alert('تم إرسال الطلب بنجاح');
+    } else {
+      alert(res.error || 'فشل إرسال الطلب');
+    }
   }
 
   if (loading) return <><Header /><main className="mx-auto max-w-4xl px-4 py-8"><div className="h-96 animate-pulse rounded-xl bg-gray-100" /></main></>;
@@ -122,6 +128,18 @@ export default function TeacherProfilePage() {
 
             <div className="mt-8 border-t pt-6">
               <h2 className="text-lg font-semibold text-gray-900">إرسال طلب درس</h2>
+              {profile.subjects.length > 0 && (
+                <select
+                  value={selectedSubject}
+                  onChange={(e) => setSelectedSubject(e.target.value)}
+                  className="mt-3 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                >
+                  <option value="">اختر المادة</option>
+                  {profile.subjects.map((s) => (
+                    <option key={s.id} value={s.subject.id}>{s.subject.nameAr}</option>
+                  ))}
+                </select>
+              )}
               <textarea
                 value={requestMsg}
                 onChange={(e) => setRequestMsg(e.target.value)}
