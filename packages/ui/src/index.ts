@@ -1,4 +1,4 @@
 export { cn } from './utils/cn';
 export { Button } from './components/button';
 export { Input } from './components/input';
-export { Card } from './components/card';
+export { Card, CardHeader, CardContent } from './components/card';
