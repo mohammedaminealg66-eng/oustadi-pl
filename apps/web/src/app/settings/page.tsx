@@ -13,7 +13,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (user) {
-      setForm((f) => ({ ...f, fullName: user.email.split('@')[0] }));
+      setForm((f) => ({ ...f, fullName: user.email?.split('@')[0] || '' }));
     }
   }, [user]);
 
