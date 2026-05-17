@@ -12,8 +12,8 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      setForm((f) => ({ ...f, fullName: user.email?.split('@')[0] || '' }));
+    if (user?.email && !form.fullName) {
+      setForm((f) => ({ ...f, fullName: user.email.split('@')[0] }));
     }
   }, [user]);
 
