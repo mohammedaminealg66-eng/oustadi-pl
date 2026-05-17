@@ -100,11 +100,11 @@ export class AuthService {
     const payload = { sub: userId, email, role };
 
     const accessToken = this.jwt.sign(payload, {
-      expiresIn: process.env.JWT_ACCESS_EXPIRY || '15m',
+      expiresIn: (process.env.JWT_ACCESS_EXPIRY || '15m') as any,
     });
 
     const refreshToken = this.jwt.sign(payload, {
-      expiresIn: process.env.JWT_REFRESH_EXPIRY || '7d',
+      expiresIn: (process.env.JWT_REFRESH_EXPIRY || '7d') as any,
       secret: process.env.JWT_SECRET + '_refresh',
     });
 
