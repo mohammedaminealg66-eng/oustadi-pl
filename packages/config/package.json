@@ -8,6 +8,6 @@
     "lint": "echo lint-ok"
   },
   "devDependencies": {
-    "typescript": "^6.0.3"
+    "typescript": "^5.0.0"
   }
 }

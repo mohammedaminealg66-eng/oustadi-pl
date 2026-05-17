@@ -1,15 +1,15 @@
-FROM node:24-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY pnpm-workspace.yaml package.json ./
 COPY apps/api/package.json apps/api/
 COPY packages/ packages/
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 COPY . .
 RUN pnpm --filter @oustadi/api run build
 RUN pnpm --filter @oustadi/api --prod deploy /dist
 
-FROM node:24-alpine
+FROM node:22-alpine
 WORKDIR /app
 COPY --from=builder /dist ./dist
 COPY --from=builder /app/apps/api/prisma ./prisma
