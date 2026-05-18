@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/providers/auth-provider';
 import { Button } from '@oustadi/ui';
 
@@ -11,16 +12,23 @@ const languages = [
   { code: 'en', label: 'EN', name: 'English' },
 ];
 
+function switchLocale(code: string) {
+  document.cookie = `NEXT_LOCALE=${code}; path=/; max-age=31536000; SameSite=Lax`;
+  document.documentElement.lang = code;
+  document.documentElement.dir = code === 'ar' ? 'rtl' : 'ltr';
+}
+
 export function Header() {
+  const t = useTranslations();
   const { user, logout, isAuthenticated } = useAuth();
   const [langOpen, setLangOpen] = useState(false);
-  const currentLang = languages.find((l) => l.code === (user?.language || 'ar')) || languages[0];
+  const currentLang = languages.find((l) => l.code === (typeof window !== 'undefined' ? document.documentElement.lang : 'ar')) || languages[0];
 
   return (
     <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur-sm">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
         <Link href="/" className="text-xl font-bold text-primary-600">
-          أستادي
+          {t('common.appName')}
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
@@ -29,7 +37,7 @@ export function Header() {
           </Link>
           {isAuthenticated && (
             <Link href={user?.role === 'ADMIN' ? '/admin' : user?.role === 'TEACHER' ? '/teacher' : '/student'} className="text-sm font-medium text-gray-600 hover:text-primary-600">
-              لوحة التحكم
+              {t('dashboard.overview')}
             </Link>
           )}
         </nav>
@@ -40,7 +48,7 @@ export function Header() {
             {langOpen && (
               <div className="absolute left-0 mt-1 w-24 rounded border bg-white shadow-lg z-50">
                 {languages.map((lang) => (
-                  <button key={lang.code} onClick={() => { setLangOpen(false); document.documentElement.lang = lang.code; document.documentElement.dir = lang.code === 'ar' ? 'rtl' : 'ltr'; }} className="block w-full px-3 py-1 text-sm text-right text-gray-700 hover:bg-gray-100">{lang.name}</button>
+                  <button key={lang.code} onClick={() => { setLangOpen(false); switchLocale(lang.code); window.location.reload(); }} className="block w-full px-3 py-1 text-sm text-right text-gray-700 hover:bg-gray-100">{lang.name}</button>
                 ))}
               </div>
             )}
@@ -50,12 +58,12 @@ export function Header() {
               <Link href="/settings">
                 <Button variant="ghost" size="sm">{user?.email}</Button>
               </Link>
-              <Button variant="outline" size="sm" onClick={logout}>تسجيل الخروج</Button>
+              <Button variant="outline" size="sm" onClick={logout}>{t('common.logout')}</Button>
             </>
           ) : (
             <>
-              <Link href="/login"><Button variant="ghost" size="sm">تسجيل الدخول</Button></Link>
-              <Link href="/register"><Button size="sm">إنشاء حساب</Button></Link>
+              <Link href="/login"><Button variant="ghost" size="sm">{t('common.login')}</Button></Link>
+              <Link href="/register"><Button size="sm">{t('common.register')}</Button></Link>
             </>
           )}
         </div>
