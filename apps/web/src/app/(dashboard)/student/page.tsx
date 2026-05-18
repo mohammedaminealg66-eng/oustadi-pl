@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { apiRequest } from '@/lib/api';
-import { Card, CardContent, CardHeader } from '@oustadi/ui';
+import { Card, CardContent, CardHeader, Button } from '@oustadi/ui';
 
 export default function StudentDashboard() {
   const [requests, setRequests] = useState<any>({ sent: [], received: [] });
@@ -33,16 +34,21 @@ export default function StudentDashboard() {
           {requests.sent?.map((req: any) => (
             <Card key={req.id}>
               <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-gray-900">{req.teacher?.fullName}</p>
-                    <p className="text-sm text-gray-500">{req.subject?.nameAr}</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-gray-900">{req.teacher?.fullName}</p>
+                      <p className="text-sm text-gray-500">{req.subject?.nameAr}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`rounded-full px-3 py-1 text-xs font-medium ${
+                        req.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :
+                        req.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
+                      }`}>{req.status === 'ACCEPTED' ? 'مقبول' : req.status === 'REJECTED' ? 'مرفوض' : 'قيد الانتظار'}</span>
+                      {req.status === 'ACCEPTED' && (
+                        <Link href="/chat"><Button size="sm" variant="outline">مراسلة</Button></Link>
+                      )}
+                    </div>
                   </div>
-                  <span className={`rounded-full px-3 py-1 text-xs font-medium ${
-                    req.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :
-                    req.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
-                  }`}>{req.status === 'ACCEPTED' ? 'مقبول' : req.status === 'REJECTED' ? 'مرفوض' : 'قيد الانتظار'}</span>
-                </div>
                 {req.status === 'REJECTED' && req.teacherNotes && (
                   <p className="mt-2 text-sm text-red-600 bg-red-50 rounded-lg p-2">سبب الرفض: {req.teacherNotes}</p>
                 )}

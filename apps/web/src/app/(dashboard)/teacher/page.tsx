@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { apiRequest } from '@/lib/api';
 import { Card, CardContent, Button } from '@oustadi/ui';
 
@@ -73,6 +74,9 @@ export default function TeacherDashboard() {
                         </div>
                       )}
                     </div>
+                  )}
+                  {req.status === 'ACCEPTED' && (
+                    <Link href="/chat"><Button size="sm" variant="outline">مراسلة</Button></Link>
                   )}
                   <span className={`rounded-full px-3 py-1 text-xs font-medium ${
                     req.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :

@@ -169,6 +169,14 @@ function FavoriteButton({ profileId }: { profileId: string }) {
   const [faved, setFaved] = useState(false);
   const [toggling, setToggling] = useState(false);
 
+  useEffect(() => {
+    apiRequest<any[]>('/students/favorites').then((res) => {
+      if (res.success && res.data) {
+        setFaved(res.data.some((fav: any) => fav.teacherId === profileId));
+      }
+    });
+  }, [profileId]);
+
   async function toggle() {
     setToggling(true);
     const res = await apiRequest(`/students/favorites/${profileId}`, { method: 'POST' });

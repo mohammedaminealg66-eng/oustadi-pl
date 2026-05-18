@@ -53,7 +53,7 @@ export class RequestsService {
     if (!request) throw new NotFoundException('Request not found');
     if (request.teacherId !== userId) throw new ForbiddenException('Only the teacher can accept/reject');
 
-    return this.prisma.lessonRequest.update({
+    const updated = await this.prisma.lessonRequest.update({
       where: { id: requestId },
       data: { status, teacherNotes },
       include: {
@@ -61,5 +61,33 @@ export class RequestsService {
         subject: true,
       },
     });
+
+    if (status === 'ACCEPTED') {
+      await this.prisma.conversation.upsert({
+        where: { studentId_teacherId: { studentId: request.studentId, teacherId: request.teacherId } },
+        update: {},
+        create: { studentId: request.studentId, teacherId: request.teacherId },
+      });
+      await this.prisma.notification.create({
+        data: {
+          userId: request.studentId,
+          title: 'تم قبول طلبك',
+          body: `قبل الأستاذ طلب درس في ${updated.subject?.nameAr || 'المادة'}`,
+          type: 'request_accepted',
+          link: '/chat',
+        },
+      });
+    } else if (status === 'REJECTED') {
+      await this.prisma.notification.create({
+        data: {
+          userId: request.studentId,
+          title: 'تم رفض طلبك',
+          body: `رفض الأستاذ طلب درس في ${updated.subject?.nameAr || 'المادة'}${teacherNotes ? ': ' + teacherNotes : ''}`,
+          type: 'request_rejected',
+        },
+      });
+    }
+
+    return updated;
   }
 }
