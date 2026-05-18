@@ -7,6 +7,8 @@ import { Card, CardContent, Button } from '@oustadi/ui';
 export default function TeacherDashboard() {
   const [requests, setRequests] = useState<any>({ sent: [], received: [] });
   const [loading, setLoading] = useState(true);
+  const [rejectNotes, setRejectNotes] = useState<Record<string, string>>({});
+  const [rejecting, setRejecting] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     apiRequest('/requests').then((res) => {
@@ -16,7 +18,11 @@ export default function TeacherDashboard() {
   }, []);
 
   async function handleAction(requestId: string, action: 'accept' | 'reject') {
-    await apiRequest(`/requests/${requestId}/${action}`, { method: 'PATCH' });
+    const notes = action === 'reject' ? rejectNotes[requestId] : undefined;
+    await apiRequest(`/requests/${requestId}/${action}`, {
+      method: 'PATCH',
+      body: notes ? JSON.stringify({ notes }) : undefined,
+    });
     const res = await apiRequest('/requests');
     if (res.success && res.data) setRequests(res.data);
   }
@@ -44,10 +50,29 @@ export default function TeacherDashboard() {
                 </div>
                 <div className="flex gap-2">
                   {req.status === 'PENDING' && (
-                    <>
-                      <Button size="sm" onClick={() => handleAction(req.id, 'accept')}>قبول</Button>
-                      <Button size="sm" variant="outline" onClick={() => handleAction(req.id, 'reject')}>رفض</Button>
-                    </>
+                    <div className="flex flex-col gap-2">
+                      {rejecting[req.id] ? (
+                        <>
+                          <textarea
+                            value={rejectNotes[req.id] || ''}
+                            onChange={(e) => setRejectNotes((r) => ({ ...r, [req.id]: e.target.value }))}
+                            placeholder="سبب الرفض..."
+                            className="w-48 rounded border px-2 py-1 text-xs"
+                            rows={2}
+                          />
+                          <div className="flex gap-1">
+                            <Button size="sm" onClick={() => handleAction(req.id, 'accept')}>قبول</Button>
+                            <Button size="sm" variant="outline" onClick={() => { handleAction(req.id, 'reject'); setRejecting((r) => ({ ...r, [req.id]: false })); }}>رفض</Button>
+                            <button onClick={() => setRejecting((r) => ({ ...r, [req.id]: false }))} className="text-xs text-gray-400">إلغاء</button>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex gap-1">
+                          <Button size="sm" onClick={() => handleAction(req.id, 'accept')}>قبول</Button>
+                          <Button size="sm" variant="outline" onClick={() => setRejecting((r) => ({ ...r, [req.id]: true }))}>رفض</Button>
+                        </div>
+                      )}
+                    </div>
                   )}
                   <span className={`rounded-full px-3 py-1 text-xs font-medium ${
                     req.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :

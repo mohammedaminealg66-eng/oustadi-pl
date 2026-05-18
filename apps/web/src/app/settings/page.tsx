@@ -7,21 +7,36 @@ import { Button, Input, Card, CardContent, CardHeader } from '@oustadi/ui';
 
 export default function SettingsPage() {
   const { user } = useAuth();
+  const [profile, setProfile] = useState<any>(null);
   const [form, setForm] = useState({ fullName: '', phone: '', language: 'ar' });
+  const [studentForm, setStudentForm] = useState({ city: '', bio: '' });
+  const [teacherForm, setTeacherForm] = useState({ city: '', bio: '', experience: 0, price: 0, teachingMode: 'onsite' });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    if (user?.email && !form.fullName) {
-      const name = typeof user.email === 'string' ? user.email.split('@')[0] : '';
-      setForm((f) => ({ ...f, fullName: name }));
-    }
-  }, [user]);
+    apiRequest('/users/me').then((res) => {
+      if (res.success && res.data) {
+        setProfile(res.data);
+        setForm({ fullName: res.data.fullName || '', phone: res.data.phone || '', language: res.data.language || 'ar' });
+        if (res.data.studentProfile) setStudentForm({ city: res.data.studentProfile.city || '', bio: res.data.studentProfile.bio || '' });
+        if (res.data.teacherProfile) setTeacherForm({
+          city: res.data.teacherProfile.city || '',
+          bio: res.data.teacherProfile.bio || '',
+          experience: res.data.teacherProfile.experience || 0,
+          price: res.data.teacherProfile.price || 0,
+          teachingMode: res.data.teacherProfile.teachingMode || 'onsite',
+        });
+      }
+    });
+  }, []);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     await apiRequest('/users/me', { method: 'PATCH', body: JSON.stringify(form) });
+    if (user?.role === 'STUDENT') await apiRequest('/students/profile', { method: 'PATCH', body: JSON.stringify(studentForm) });
+    if (user?.role === 'TEACHER') await apiRequest('/teachers/profile', { method: 'PATCH', body: JSON.stringify(teacherForm) });
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
@@ -32,6 +47,7 @@ export default function SettingsPage() {
       <Card>
         <CardHeader>
           <h1 className="text-xl font-bold text-gray-900">الإعدادات</h1>
+          {profile && <p className="text-sm text-gray-500">{profile.email} · {profile.role === 'TEACHER' ? 'أستاذ' : profile.role === 'ADMIN' ? 'مشرف' : 'طالب'}</p>}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSave} className="space-y-4">
@@ -44,6 +60,39 @@ export default function SettingsPage() {
                 <option value="fr">Français</option>
               </select>
             </div>
+
+            {user?.role === 'STUDENT' && (
+              <div className="space-y-3 rounded-lg border p-4">
+                <h2 className="text-sm font-semibold text-gray-900">الملف الشخصي للطالب</h2>
+                <Input id="city" label="المدينة" value={studentForm.city} onChange={(e) => setStudentForm({ ...studentForm, city: e.target.value })} />
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-700">نبذة عني</label>
+                  <textarea value={studentForm.bio} onChange={(e) => setStudentForm({ ...studentForm, bio: e.target.value })} className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" rows={3} />
+                </div>
+              </div>
+            )}
+
+            {user?.role === 'TEACHER' && (
+              <div className="space-y-3 rounded-lg border p-4">
+                <h2 className="text-sm font-semibold text-gray-900">الملف الشخصي للأستاذ</h2>
+                <Input id="tcity" label="المدينة" value={teacherForm.city} onChange={(e) => setTeacherForm({ ...teacherForm, city: e.target.value })} />
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-700">نبذة عني</label>
+                  <textarea value={teacherForm.bio} onChange={(e) => setTeacherForm({ ...teacherForm, bio: e.target.value })} className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" rows={3} />
+                </div>
+                <Input id="exp" label="سنوات الخبرة" type="number" value={teacherForm.experience} onChange={(e) => setTeacherForm({ ...teacherForm, experience: Number(e.target.value) })} />
+                <Input id="price" label="السعر (د.ج)" type="number" value={teacherForm.price} onChange={(e) => setTeacherForm({ ...teacherForm, price: Number(e.target.value) })} />
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-700">طريقة التدريس</label>
+                  <select value={teacherForm.teachingMode} onChange={(e) => setTeacherForm({ ...teacherForm, teachingMode: e.target.value })} className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                    <option value="onsite">حضوري</option>
+                    <option value="online">عن بعد</option>
+                    <option value="both">الاثنين</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
             <Button type="submit" disabled={saving}>
               {saving ? 'جار الحفظ...' : 'حفظ التغييرات'}
             </Button>

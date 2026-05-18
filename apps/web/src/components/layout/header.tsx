@@ -6,6 +6,7 @@ import { Button } from '@oustadi/ui';
 
 export function Header() {
   const { user, logout, isAuthenticated } = useAuth();
+  const [langOpen, setLangOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur-sm">
@@ -26,6 +27,7 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
+          <button className="text-sm text-gray-600 hover:text-primary-600 px-2 py-1 rounded border">AR</button>
           {isAuthenticated ? (
             <>
               <Link href="/settings">

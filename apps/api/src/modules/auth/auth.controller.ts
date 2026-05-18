@@ -41,9 +41,9 @@ export class AuthController {
     return this.auth.logout(token);
   }
 
-  @Get('me')
-  @UseGuards(AuthGuard('jwt'))
-  me(@CurrentUser() user: any) {
-    return { success: true, data: user };
-  }
+@Get('me')
+@UseGuards(AuthGuard('jwt'))
+me(@CurrentUser() user: any) {
+    return user;
+}
 }

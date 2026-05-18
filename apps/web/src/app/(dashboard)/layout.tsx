@@ -32,10 +32,15 @@ const adminNav = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
 
   useEffect(() => {
-    if (!loading && !user) router.push('/login');
-  }, [user, loading, router]);
+    if (loading) return;
+    if (!user) { router.push('/login'); return; }
+    if (pathname.startsWith('/student') && user.role !== 'STUDENT') router.replace('/' + user.role.toLowerCase());
+    else if (pathname.startsWith('/teacher') && user.role !== 'TEACHER') router.replace('/' + user.role.toLowerCase());
+    else if (pathname.startsWith('/admin') && user.role !== 'ADMIN') router.replace('/' + user.role.toLowerCase());
+  }, [user, loading, router, pathname]);
 
   if (loading || !user) return <div className="flex min-h-screen items-center justify-center">جار التحميل...</div>;
 
