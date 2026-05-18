@@ -7,7 +7,7 @@ import { useAuth } from '@/providers/auth-provider';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Button, Card, CardContent } from '@oustadi/ui';
-import { MapPin, BookOpen, Clock, Award, MessageSquare, Heart } from 'lucide-react';
+import { MapPin, BookOpen, Clock, Award, MessageSquare, Heart, HeartOff } from 'lucide-react';
 
 interface TeacherProfile {
   id: string;
@@ -18,7 +18,7 @@ interface TeacherProfile {
   teachingMode: string;
   city: string | null;
   showContact: boolean;
-  user: { id: string; fullName: string; avatarKey: string | null; createdAt: string };
+  user: { id: string; fullName: string; avatarKey: string | null; phone: string | null; createdAt: string };
   subjects: { id: string; subject: { id: string; nameAr: string; nameFr: string }; levels: string[]; price: number | null }[];
   availability: { id: string; dayOfWeek: number; startTime: string; endTime: string }[];
   _count: { favorites: number };
@@ -80,7 +80,8 @@ export default function TeacherProfilePage() {
                 {profile.city && <p className="mt-1 flex items-center gap-1 text-gray-500"><MapPin className="h-4 w-4" /> {profile.city}</p>}
                 <div className="mt-2 flex gap-4 text-sm text-gray-500">
                   <span className="flex items-center gap-1"><Award className="h-4 w-4" /> {profile.experience || 0} سنوات خبرة</span>
-                  <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {profile.teachingMode === 'ONLINE' ? 'عن بعد' : profile.teachingMode === 'IN_PERSON' ? 'حضوري' : 'الاثنين معاً'}</span>
+                  <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {profile.teachingMode === 'ONLINE' ? 'عن بعد' : profile.teachingMode === 'IN_PERSON' ? 'حضوري' : profile.teachingMode === 'BOTH' ? 'الاثنين معاً' : 'الاثنين معاً'}</span>
+                  {profile.showContact && profile.user.phone && <span className="text-sm text-gray-500">📞 {profile.user.phone}</span>}
                 </div>
               </div>
               {profile.price && (
@@ -128,18 +129,18 @@ export default function TeacherProfilePage() {
 
             <div className="mt-8 border-t pt-6">
               <h2 className="text-lg font-semibold text-gray-900">إرسال طلب درس</h2>
-              {profile.subjects.length > 0 && (
-                <select
-                  value={selectedSubject}
-                  onChange={(e) => setSelectedSubject(e.target.value)}
-                  className="mt-3 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                >
-                  <option value="">اختر المادة</option>
-                  {profile.subjects.map((s) => (
-                    <option key={s.id} value={s.subject.id}>{s.subject.nameAr}</option>
-                  ))}
-                </select>
-              )}
+              <select
+                value={selectedSubject}
+                onChange={(e) => setSelectedSubject(e.target.value)}
+                className="mt-3 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              >
+                <option value="">اختر المادة</option>
+                {profile.subjects.length > 0 ? profile.subjects.map((s) => (
+                  <option key={s.id} value={s.subject.id}>{s.subject.nameAr}</option>
+                )) : (
+                  <option disabled>هذا الأستاذ لم يضف مواد بعد</option>
+                )}
+              </select>
               <textarea
                 value={requestMsg}
                 onChange={(e) => setRequestMsg(e.target.value)}
@@ -148,15 +149,11 @@ export default function TeacherProfilePage() {
                 rows={3}
               />
               <div className="mt-4 flex gap-3">
-                <Button onClick={sendRequest} disabled={sending || !requestMsg}>
+                <Button onClick={sendRequest} disabled={sending || !requestMsg || profile.subjects.length === 0}>
                   {sending ? 'جار الإرسال...' : 'إرسال الطلب'}
                 </Button>
-                {user && user.role === 'STUDENT' && (
-                  <Button variant="outline" onClick={async () => {
-                    await apiRequest(`/students/favorites/${profile.id}`, { method: 'POST' });
-                  }}>
-                    <Heart className="ml-1 h-4 w-4" /> حفظ في المفضلة
-                  </Button>
+                {user && user.role === 'STUDENT' && profile && (
+                  <FavoriteButton profileId={profile.id} />
                 )}
               </div>
             </div>
@@ -165,5 +162,24 @@ export default function TeacherProfilePage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+function FavoriteButton({ profileId }: { profileId: string }) {
+  const [faved, setFaved] = useState(false);
+  const [toggling, setToggling] = useState(false);
+
+  async function toggle() {
+    setToggling(true);
+    const res = await apiRequest(`/students/favorites/${profileId}`, { method: 'POST' });
+    setToggling(false);
+    if (res.success) setFaved(res.data?.favorited ?? !faved);
+  }
+
+  return (
+    <Button variant="outline" onClick={toggle} disabled={toggling}>
+      {faved ? <HeartOff className="ml-1 h-4 w-4" /> : <Heart className="ml-1 h-4 w-4" />}
+      {faved ? 'إزالة من المفضلة' : 'حفظ في المفضلة'}
+    </Button>
   );
 }

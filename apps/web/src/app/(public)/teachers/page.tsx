@@ -106,6 +106,7 @@ export default function TeachersPage() {
                     </div>
                     <div className="mt-4 flex items-center justify-between text-sm">
                       <span className="text-gray-500">{teacher.experience || 0} سنوات خبرة</span>
+                      <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">{teacher.teachingMode === 'ONLINE' ? 'عن بعد' : teacher.teachingMode === 'IN_PERSON' ? 'حضوري' : 'الاثنين معاً'}</span>
                       {teacher.price && <span className="font-semibold text-primary-600">{teacher.price} درهم</span>}
                     </div>
                   </CardContent>

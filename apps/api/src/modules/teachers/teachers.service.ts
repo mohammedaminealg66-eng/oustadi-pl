@@ -82,7 +82,7 @@ export class TeachersService {
     const profile = await this.prisma.teacherProfile.findUnique({
       where: { id: teacherId },
       include: {
-        user: { select: { id: true, fullName: true, avatarKey: true, createdAt: true } },
+        user: { select: { id: true, fullName: true, avatarKey: true, phone: true, createdAt: true } },
         subjects: { include: { subject: true } },
         availability: true,
         documents: { select: { id: true, type: true, createdAt: true } },

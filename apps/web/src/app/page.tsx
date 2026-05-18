@@ -1,6 +1,6 @@
-import Link from 'next/link';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
+import { CtaButtons } from '@/components/cta-buttons';
 
 export default function HomePage() {
   return (
@@ -16,18 +16,7 @@ export default function HomePage() {
               منصة مغربية تربط بين الأساتذة والطلاب بسهولة. ابحث، تصفح، وتواصل مع أفضل الأساتذة في جميع المدن المغربية.
             </p>
             <div className="mt-8 flex items-center justify-center gap-4">
-              <Link
-                href="/teachers"
-                className="rounded-xl bg-primary-600 px-8 py-3 text-sm font-medium text-white transition hover:bg-primary-700"
-              >
-                تصفح الأساتذة
-              </Link>
-              <Link
-                href="/register"
-                className="rounded-xl border border-gray-300 bg-white px-8 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-              >
-                إنشاء حساب مجاني
-              </Link>
+              <CtaButtons />
             </div>
           </div>
         </section>

@@ -10,7 +10,7 @@ export default function SettingsPage() {
   const [profile, setProfile] = useState<any>(null);
   const [form, setForm] = useState({ fullName: '', phone: '', language: 'ar' });
   const [studentForm, setStudentForm] = useState({ city: '', bio: '' });
-  const [teacherForm, setTeacherForm] = useState({ city: '', bio: '', experience: 0, price: 0, teachingMode: 'onsite' });
+  const [teacherForm, setTeacherForm] = useState({ city: '', bio: '', experience: 0, price: 0, teachingMode: 'BOTH', showContact: false });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -25,7 +25,8 @@ export default function SettingsPage() {
           bio: res.data.teacherProfile.bio || '',
           experience: res.data.teacherProfile.experience || 0,
           price: res.data.teacherProfile.price || 0,
-          teachingMode: res.data.teacherProfile.teachingMode || 'onsite',
+          teachingMode: res.data.teacherProfile.teachingMode || 'BOTH',
+          showContact: res.data.teacherProfile.showContact ?? false,
         });
       }
     });
@@ -85,11 +86,15 @@ export default function SettingsPage() {
                 <div className="space-y-1">
                   <label className="block text-sm font-medium text-gray-700">طريقة التدريس</label>
                   <select value={teacherForm.teachingMode} onChange={(e) => setTeacherForm({ ...teacherForm, teachingMode: e.target.value })} className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
-                    <option value="onsite">حضوري</option>
-                    <option value="online">عن بعد</option>
-                    <option value="both">الاثنين</option>
+                    <option value="IN_PERSON">حضوري</option>
+                    <option value="ONLINE">عن بعد</option>
+                    <option value="BOTH">الاثنين</option>
                   </select>
                 </div>
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={teacherForm.showContact} onChange={(e) => setTeacherForm({ ...teacherForm, showContact: e.target.checked })} className="rounded border-gray-300" />
+                  إظهار رقم الهاتف في الملف الشخصي
+                </label>
               </div>
             )}
 
