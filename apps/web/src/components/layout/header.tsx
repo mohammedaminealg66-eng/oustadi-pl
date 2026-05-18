@@ -19,7 +19,7 @@ export function Header() {
             الأساتذة
           </Link>
           {isAuthenticated && (
-            <Link href={user?.role === 'TEACHER' ? '/teacher' : '/student'} className="text-sm font-medium text-gray-600 hover:text-primary-600">
+            <Link href={user?.role === 'ADMIN' ? '/admin' : user?.role === 'TEACHER' ? '/teacher' : '/student'} className="text-sm font-medium text-gray-600 hover:text-primary-600">
               لوحة التحكم
             </Link>
           )}

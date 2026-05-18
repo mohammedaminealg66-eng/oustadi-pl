@@ -9,7 +9,7 @@ export default function StudentFavorites() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiRequest<any[]>('/favorites').then((res) => {
+    apiRequest<any[]>('/students/favorites').then((res) => {
       if (res.success && res.data) setFavorites(res.data);
       setLoading(false);
     });
@@ -24,8 +24,8 @@ export default function StudentFavorites() {
         {favorites.map((fav: any) => (
           <Card key={fav.id}>
             <CardContent className="p-4">
-              <p className="font-medium text-gray-900">{fav.teacher?.fullName}</p>
-              <p className="text-sm text-gray-500">{fav.subject?.nameAr}</p>
+              <p className="font-medium text-gray-900">{fav.teacher?.user?.fullName || 'أستاذ'}</p>
+              <p className="text-sm text-gray-500">{fav.teacher?.subjects?.[0]?.subject?.nameAr || ''}</p>
             </CardContent>
           </Card>
         ))}
