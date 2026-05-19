@@ -51,7 +51,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex min-h-screen">
       <aside className="w-64 border-l bg-white p-4">
-        <Link href="/" className="mb-6 block text-xl font-bold text-primary-600">أستادي</Link>
+        <Link href="/" className="mb-6 block text-xl font-bold text-primary-600">{t('common.appName')}</Link>
         <nav className="space-y-1">
           {nav.map((item) => (
             <Link

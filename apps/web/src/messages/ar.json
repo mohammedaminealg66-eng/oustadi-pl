@@ -55,7 +55,8 @@
     "welcomeBack": "أهلاً بك مجدداً في أستادي",
     "createAccount": "إنشاء حساب جديد",
     "joinPlatform": "انضم إلى منصة أستادي",
-    "registerButton": "إنشاء الحساب"
+    "registerButton": "إنشاء الحساب",
+    "admin": "مشرف"
   },
   "teacher": {
     "profile": "الملف الشخصي",
@@ -120,6 +121,12 @@
     "rejectionReason": "سبب الرفض:",
     "studentDashboard": "لوحة تحكم الطالب",
     "teacherDashboard": "لوحة تحكم الأستاذ",
+    "phone": "رقم الهاتف",
+    "language": "اللغة",
+    "studentProfile": "الملف الشخصي للطالب",
+    "teacherProfile": "الملف الشخصي للأستاذ",
+    "aboutMe": "نبذة عني",
+    "showPhone": "إظهار رقم الهاتف في الملف الشخصي",
     "chatTitle": "الرسائل",
     "editProfileHint": "يمكنك تعديل معلومات ملفك الشخصي العامة من",
     "noSubjectsYet": "لم تضف أي مادة بعد",

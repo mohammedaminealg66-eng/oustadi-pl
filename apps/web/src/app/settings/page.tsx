@@ -63,14 +63,14 @@ export default function SettingsPage() {
       <Card>
         <CardHeader>
           <h1 className="text-xl font-bold text-gray-900">{d('settings')}</h1>
-          {profile && <p className="text-sm text-gray-500">{profile.email} · {user?.role === 'TEACHER' ? a('teacher') : user?.role === 'ADMIN' ? 'مشرف' : a('student')}</p>}
+          {profile && <p className="text-sm text-gray-500">{profile.email} · {user?.role === 'TEACHER' ? a('teacher') : user?.role === 'ADMIN' ? a('admin') : a('student')}</p>}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSave} className="space-y-4">
             <Input id="fullName" label={a('fullName')} value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
-            <Input id="phone" label="رقم الهاتف" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+            <Input id="phone" label={d('phone')} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
             <div className="space-y-1">
-              <label className="block text-sm font-medium text-gray-700">اللغة</label>
+              <label className="block text-sm font-medium text-gray-700">{d('language')}</label>
               <select value={form.language} onChange={(e) => setForm({ ...form, language: e.target.value })} className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
                 <option value="ar">العربية</option>
                 <option value="fr">Français</option>
@@ -79,10 +79,10 @@ export default function SettingsPage() {
 
             {user?.role === 'STUDENT' && (
               <div className="space-y-3 rounded-lg border p-4">
-                <h2 className="text-sm font-semibold text-gray-900">الملف الشخصي للطالب</h2>
+                <h2 className="text-sm font-semibold text-gray-900">{d('studentProfile')}</h2>
                 <Input id="city" label={t('city')} value={studentForm.city} onChange={(e) => setStudentForm({ ...studentForm, city: e.target.value })} />
                 <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">نبذة عني</label>
+                  <label className="block text-sm font-medium text-gray-700">{d('aboutMe')}</label>
                   <textarea value={studentForm.bio} onChange={(e) => setStudentForm({ ...studentForm, bio: e.target.value })} className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" rows={3} />
                 </div>
               </div>
@@ -90,10 +90,10 @@ export default function SettingsPage() {
 
             {user?.role === 'TEACHER' && (
               <div className="space-y-3 rounded-lg border p-4">
-                <h2 className="text-sm font-semibold text-gray-900">الملف الشخصي للأستاذ</h2>
+                <h2 className="text-sm font-semibold text-gray-900">{d('teacherProfile')}</h2>
                 <Input id="tcity" label={t('city')} value={teacherForm.city} onChange={(e) => setTeacherForm({ ...teacherForm, city: e.target.value })} />
                 <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">نبذة عني</label>
+                  <label className="block text-sm font-medium text-gray-700">{d('aboutMe')}</label>
                   <textarea value={teacherForm.bio} onChange={(e) => setTeacherForm({ ...teacherForm, bio: e.target.value })} className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" rows={3} />
                 </div>
                 <Input id="exp" label={t('yearsExperience')} type="number" value={teacherForm.experience} onChange={(e) => setTeacherForm({ ...teacherForm, experience: Number(e.target.value) })} />
@@ -108,7 +108,7 @@ export default function SettingsPage() {
                 </div>
                 <label className="flex items-center gap-2 text-sm">
                   <input type="checkbox" checked={teacherForm.showContact} onChange={(e) => setTeacherForm({ ...teacherForm, showContact: e.target.checked })} className="rounded border-gray-300" />
-                  إظهار رقم الهاتف في الملف الشخصي
+                  {d('showPhone')}
                 </label>
               </div>
             )}

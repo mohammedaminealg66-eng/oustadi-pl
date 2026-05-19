@@ -55,7 +55,8 @@
     "welcomeBack": "Bienvenue à nouveau sur Oustadi",
     "createAccount": "Créer un nouveau compte",
     "joinPlatform": "Rejoignez la plateforme Oustadi",
-    "registerButton": "Créer le compte"
+    "registerButton": "Créer le compte",
+    "admin": "Administrateur"
   },
   "teacher": {
     "profile": "Profil",
@@ -120,6 +121,12 @@
     "rejectionReason": "Raison du refus :",
     "studentDashboard": "Tableau de bord étudiant",
     "teacherDashboard": "Tableau de bord enseignant",
+    "phone": "Téléphone",
+    "language": "Langue",
+    "studentProfile": "Profil étudiant",
+    "teacherProfile": "Profil enseignant",
+    "aboutMe": "À propos de moi",
+    "showPhone": "Afficher le téléphone sur le profil",
     "chatTitle": "Messages",
     "editProfileHint": "Vous pouvez modifier vos informations depuis",
     "noSubjectsYet": "Vous n'avez pas encore ajouté de matières",

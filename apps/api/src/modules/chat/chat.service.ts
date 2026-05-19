@@ -55,6 +55,17 @@ export class ChatService {
       data: { lastMessageAt: new Date(), lastMessagePreview: content.substring(0, 100) },
     });
 
+    const recipientId = conversation.studentId === senderId ? conversation.teacherId : conversation.studentId;
+    await this.prisma.notification.create({
+      data: {
+        userId: recipientId,
+        title: 'رسالة جديدة',
+        body: content.substring(0, 100),
+        type: 'new_message',
+        link: '/chat',
+      },
+    });
+
     return message;
   }
 
