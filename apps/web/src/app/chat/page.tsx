@@ -78,7 +78,13 @@ export default function ChatPage() {
     if (activeConv) {
       apiRequest<Message[]>(`/conversations/${activeConv}/messages`).then((res) => {
         if (res.success && res.data) setMessages(res.data as Message[]);
-        apiRequest(`/conversations/${activeConv}/read`, { method: 'POST' });
+        apiRequest(`/conversations/${activeConv}/read`, { method: 'POST' }).then(() => {
+          setConversations((prev) =>
+            prev.map((c) =>
+              c.id === activeConvRef.current ? { ...c, _count: { messages: 0 } } : c
+            )
+          );
+        });
       });
       socket?.emit('chat:join', activeConv);
     }
