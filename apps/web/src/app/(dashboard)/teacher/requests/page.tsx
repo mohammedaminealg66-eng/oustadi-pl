@@ -1,11 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { apiRequest } from '@/lib/api';
 import { Card, CardContent, Button } from '@oustadi/ui';
+import { MessageSquare } from 'lucide-react';
 
 export default function TeacherRequests() {
+  const router = useRouter();
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const d = useTranslations('dashboard');
@@ -43,6 +46,11 @@ export default function TeacherRequests() {
                     <Button size="sm" onClick={() => handleAction(req.id, 'accept')}>{d('accept')}</Button>
                     <Button size="sm" variant="outline" onClick={() => handleAction(req.id, 'reject')}>{d('reject')}</Button>
                   </>
+                )}
+                {req.status === 'ACCEPTED' && (
+                  <Button size="sm" variant="outline" onClick={() => router.push('/chat')}>
+                    <MessageSquare className="ml-1 h-4 w-4" /> {d('message')}
+                  </Button>
                 )}
                 <span className={`rounded-full px-3 py-1 text-xs font-medium ${req.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' : req.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
                   {req.status === 'ACCEPTED' ? d('accepted') : req.status === 'REJECTED' ? d('rejected') : d('pending')}
