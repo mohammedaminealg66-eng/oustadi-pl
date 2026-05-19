@@ -54,6 +54,7 @@ model User {
   messages         Message[]
   favorites        Favorite[]
   reports          Report[]         @relation("Reporter")
+  reviews          Review[]
   notifications    Notification[]
   sessions         Session[]
 
