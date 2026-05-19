@@ -2,7 +2,7 @@
 
 import { LiveNotifier } from './live-notifier';
 
-export function ClientLayout({ children }: { children: React.ReactNode }) {
+export function NotifierShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       {children}

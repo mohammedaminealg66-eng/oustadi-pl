@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { io, Socket } from 'socket.io-client';
 import { useAuth } from '@/providers/auth-provider';
 import { getTokens } from '@/lib/api';
+import { getSocket } from '@/lib/socket-client';
 import { X, MessageSquare } from 'lucide-react';
 
 interface Toast {
@@ -23,18 +23,19 @@ export function LiveNotifier() {
     if (!isAuthenticated || !user) return;
 
     const token = getTokens().accessToken;
-    const s = io('/ws', {
-      auth: { token },
-    });
+    if (!token) return;
 
-    s.on('chat:message', (msg: any) => {
+    const s = getSocket(token);
+
+    const handler = (msg: any) => {
       if (msg.senderId === user.userId) return;
       const id = Date.now().toString();
       setToasts((prev) => [...prev, { id, title: msg.sender?.fullName || 'رسالة جديدة', body: msg.content, link: '/chat' }]);
       window.dispatchEvent(new CustomEvent('refresh-notifications'));
-    });
+    };
 
-    return () => { s.disconnect(); };
+    s.on('chat:message', handler);
+    return () => { s.off('chat:message', handler); };
   }, [isAuthenticated, user]);
 
   const dismiss = useCallback((id: string) => {
@@ -46,6 +47,8 @@ export function LiveNotifier() {
     const timer = setTimeout(() => setToasts((prev) => prev.slice(1)), 5000);
     return () => clearTimeout(timer);
   }, [toasts]);
+
+  if (toasts.length === 0) return null;
 
   return (
     <div className="fixed left-4 top-20 z-[100] flex flex-col gap-2">

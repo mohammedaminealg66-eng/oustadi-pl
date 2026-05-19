@@ -3,10 +3,11 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { io, Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/providers/auth-provider';
 import { apiRequest, getTokens } from '@/lib/api';
+import { getSocket } from '@/lib/socket-client';
 import { Button, Input } from '@oustadi/ui';
 import { ArrowRight, Send, User, MessageSquare } from 'lucide-react';
 
@@ -52,13 +53,12 @@ export default function ChatPage() {
     });
 
     const token = getTokens().accessToken;
-    const s = io('/ws', {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-    });
+    if (!token) return;
+
+    const s = getSocket(token);
     setSocket(s);
 
-    s.on('chat:message', (msg: Message) => {
+    const handler = (msg: Message) => {
       if (msg.conversationId === activeConvRef.current) {
         setMessages((prev) => [...prev, msg]);
       }
@@ -69,9 +69,10 @@ export default function ChatPage() {
             : c
         )
       );
-    });
+    };
 
-    return () => { s.disconnect(); };
+    s.on('chat:message', handler);
+    return () => { s.off('chat:message', handler); };
   }, [authLoading, user, router]);
 
   useEffect(() => {
