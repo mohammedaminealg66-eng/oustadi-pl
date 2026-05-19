@@ -27,15 +27,14 @@ export function LiveNotifier() {
 
     const s = getSocket(token);
 
-    const handler = (msg: any) => {
-      if (msg.senderId === user.userId) return;
+    const handler = (data: any) => {
       const id = Date.now().toString();
-      setToasts((prev) => [...prev, { id, title: msg.sender?.fullName || 'رسالة جديدة', body: msg.content, link: '/chat' }]);
+      setToasts((prev) => [...prev, { id, title: data.title, body: data.body, link: data.link }]);
       window.dispatchEvent(new CustomEvent('refresh-notifications'));
     };
 
-    s.on('chat:message', handler);
-    return () => { s.off('chat:message', handler); };
+    s.on('notification:new', handler);
+    return () => { s.off('notification:new', handler); };
   }, [isAuthenticated, user]);
 
   const dismiss = useCallback((id: string) => {

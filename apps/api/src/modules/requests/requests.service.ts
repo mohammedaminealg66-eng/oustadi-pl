@@ -1,16 +1,20 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../config/database/prisma.service';
 import { RequestStatus } from '@prisma/client';
+import { ChatGateway } from '../chat/chat.gateway';
 
 @Injectable()
 export class RequestsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private chatGateway: ChatGateway,
+  ) {}
 
   async create(data: { studentId: string; teacherUserId: string; subjectId: string; message: string; proposedSchedule?: string }) {
     const teacherProfile = await this.prisma.teacherProfile.findUnique({ where: { userId: data.teacherUserId } });
     if (!teacherProfile) throw new NotFoundException('Teacher not found');
 
-    return this.prisma.lessonRequest.create({
+    const lessonRequest = await this.prisma.lessonRequest.create({
       data: {
         studentId: data.studentId,
         teacherId: data.teacherUserId,
@@ -24,6 +28,25 @@ export class RequestsService {
         subject: true,
       },
     });
+
+    await this.prisma.notification.create({
+      data: {
+        userId: data.teacherUserId,
+        title: 'طلب تدريس جديد',
+        body: `طلب من ${lessonRequest.student.fullName} تدريس ${lessonRequest.subject?.nameAr || 'المادة'}`,
+        type: 'new_request',
+        link: '/teacher/requests',
+      },
+    });
+
+    this.chatGateway.sendToUser(data.teacherUserId, 'notification:new', {
+      type: 'new_request',
+      title: 'طلب تدريس جديد',
+      body: `طلب من ${lessonRequest.student.fullName}`,
+      link: '/teacher/requests',
+    });
+
+    return lessonRequest;
   }
 
   async findByUser(userId: string) {
@@ -77,6 +100,12 @@ export class RequestsService {
           link: '/chat',
         },
       });
+      this.chatGateway.sendToUser(request.studentId, 'notification:new', {
+        type: 'request_accepted',
+        title: 'تم قبول طلبك',
+        body: `قبل الأستاذ طلب درس في ${updated.subject?.nameAr || 'المادة'}`,
+        link: '/chat',
+      });
     } else if (status === 'REJECTED') {
       await this.prisma.notification.create({
         data: {
@@ -85,6 +114,12 @@ export class RequestsService {
           body: `رفض الأستاذ طلب درس في ${updated.subject?.nameAr || 'المادة'}${teacherNotes ? ': ' + teacherNotes : ''}`,
           type: 'request_rejected',
         },
+      });
+      this.chatGateway.sendToUser(request.studentId, 'notification:new', {
+        type: 'request_rejected',
+        title: 'تم رفض طلبك',
+        body: `رفض الأستاذ طلب درس في ${updated.subject?.nameAr || 'المادة'}`,
+        link: '#',
       });
     }
 

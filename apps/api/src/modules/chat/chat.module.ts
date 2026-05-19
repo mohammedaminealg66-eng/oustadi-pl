@@ -8,6 +8,6 @@ import { ChatController } from './chat.controller';
   imports: [JwtModule.register({})],
   controllers: [ChatController],
   providers: [ChatGateway, ChatService],
-  exports: [ChatService],
+  exports: [ChatService, ChatGateway],
 })
 export class ChatModule {}

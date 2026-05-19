@@ -66,7 +66,7 @@ export class ChatService {
       },
     });
 
-    return message;
+    return { message, recipientId };
   }
 
   async markAsRead(conversationId: string, userId: string) {

@@ -84,7 +84,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: { conversationId: string; content: string },
   ) {
     try {
-      const message = await this.chat.sendMessage(
+      const { message, recipientId } = await this.chat.sendMessage(
         data.conversationId,
         client.data.userId,
         data.content,
@@ -92,6 +92,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       this.server.to(`conv:${data.conversationId}`).emit('chat:message', message);
       this.server.to(`conv:${data.conversationId}`).emit('chat:received', { messageId: message.id });
+      this.server.to(`user:${recipientId}`).emit('notification:new', {
+        type: 'new_message',
+        title: 'رسالة جديدة',
+        body: message.content.substring(0, 100),
+        link: '/chat',
+      });
     } catch (err: any) {
       client.emit('chat:error', { message: err.message });
     }
@@ -104,6 +110,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     await this.chat.markAsRead(conversationId, client.data.userId);
     this.server.to(`conv:${conversationId}`).emit('chat:read', { userId: client.data.userId });
+  }
+
+  sendToUser(userId: string, event: string, data: any) {
+    this.server.to(`user:${userId}`).emit(event, data);
   }
 
   @SubscribeMessage('typing:start')
