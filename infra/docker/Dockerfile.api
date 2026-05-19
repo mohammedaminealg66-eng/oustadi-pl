@@ -7,4 +7,5 @@ RUN pnpm install
 RUN cd apps/api && npx prisma generate
 RUN pnpm --filter @oustadi/api run build
 EXPOSE 3000
-CMD ["node", "apps/api/dist/main.js"]
+RUN printf '#!/bin/sh\ncd apps/api && npx prisma migrate deploy && node dist/main.js\n' > /entrypoint.sh && chmod +x /entrypoint.sh
+CMD ["/entrypoint.sh"]
