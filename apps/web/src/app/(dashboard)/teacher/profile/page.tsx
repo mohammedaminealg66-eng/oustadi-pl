@@ -1,17 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiRequest } from '@/lib/api';
-import { useAuth } from '@/providers/auth-provider';
 import { Button, Card, CardContent, CardHeader } from '@oustadi/ui';
 
 export default function TeacherProfile() {
-  const { user } = useAuth();
   const [profile, setProfile] = useState<any>(null);
   const [allSubjects, setAllSubjects] = useState<any[]>([]);
   const [selectedSubject, setSelectedSubject] = useState('');
   const [levels, setLevels] = useState('');
   const [adding, setAdding] = useState(false);
+  const d = useTranslations('dashboard');
+  const t = useTranslations('teacher');
+  const a = useTranslations('auth');
+  const c = useTranslations('common');
 
   useEffect(() => {
     apiRequest('/users/me').then((res) => {
@@ -50,11 +53,11 @@ export default function TeacherProfile() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900">ملفي الشخصي</h1>
+      <h1 className="text-2xl font-bold text-gray-900">{d('myProfile')}</h1>
 
       <Card className="mt-6">
         <CardHeader>
-          <h2 className="text-lg font-semibold text-gray-900">المواد التي أدرسها</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('subjects')}</h2>
         </CardHeader>
         <CardContent className="space-y-4">
           {profile?.teacherProfile?.subjects?.length > 0 ? (
@@ -69,22 +72,22 @@ export default function TeacherProfile() {
                       </div>
                     )}
                   </div>
-                  <Button size="sm" variant="outline" onClick={() => removeSubject(s.id)}>حذف</Button>
+                  <Button size="sm" variant="outline" onClick={() => removeSubject(s.id)}>{c('delete')}</Button>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-400">لم تضف أي مادة بعد</p>
+            <p className="text-sm text-gray-400">{d('noSubjectsYet')}</p>
           )}
 
           {available.length > 0 && (
             <div className="flex flex-wrap items-end gap-2 border-t pt-4">
               <select value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)} className="rounded-lg border border-gray-300 px-3 py-2 text-sm">
-                <option value="">اختر مادة</option>
+                <option value="">{t('chooseSubject')}</option>
                 {available.map((s: any) => <option key={s.id} value={s.id}>{s.nameAr}</option>)}
               </select>
-              <input value={levels} onChange={(e) => setLevels(e.target.value)} placeholder="المستويات (مفصولة بفواصل)" className="rounded-lg border border-gray-300 px-3 py-2 text-sm w-48" />
-              <Button size="sm" onClick={addSubject} disabled={adding || !selectedSubject}>إضافة</Button>
+              <input value={levels} onChange={(e) => setLevels(e.target.value)} placeholder={t('levelsPlaceholder')} className="rounded-lg border border-gray-300 px-3 py-2 text-sm w-48" />
+              <Button size="sm" onClick={addSubject} disabled={adding || !selectedSubject}>{d('add')}</Button>
             </div>
           )}
         </CardContent>
@@ -92,23 +95,22 @@ export default function TeacherProfile() {
 
       <Card className="mt-6">
         <CardHeader>
-          <h2 className="text-lg font-semibold text-gray-900">الملف العام</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('profile')}</h2>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-gray-500">
-            يمكنك تعديل معلومات ملفك الشخصي العامة (الاسم، المدينة، السيرة الذاتية، السعر، طريقة التدريس) من
-            <a href="/settings" className="mx-1 text-primary-600 hover:underline">الإعدادات</a>
+            {d('editProfileHint')} <a href="/settings" className="mx-1 text-primary-600 hover:underline">{d('settings')}</a>
           </p>
           {profile && (
             <div className="mt-4 space-y-2 text-sm text-gray-600">
-              <p><span className="font-medium text-gray-900">الاسم:</span> {profile.fullName}</p>
-              <p><span className="font-medium text-gray-900">البريد:</span> {profile.email}</p>
-              {profile.teacherProfile?.city && <p><span className="font-medium text-gray-900">المدينة:</span> {profile.teacherProfile.city}</p>}
-              {profile.teacherProfile?.price && <p><span className="font-medium text-gray-900">السعر:</span> {profile.teacherProfile.price} درهم/للساعة</p>}
+              <p><span className="font-medium text-gray-900">{a('fullName')}:</span> {profile.fullName}</p>
+              <p><span className="font-medium text-gray-900">{a('email')}:</span> {profile.email}</p>
+              {profile.teacherProfile?.city && <p><span className="font-medium text-gray-900">{t('city')}:</span> {profile.teacherProfile.city}</p>}
+              {profile.teacherProfile?.price && <p><span className="font-medium text-gray-900">{t('price')}:</span> {profile.teacherProfile.price} {t('dhPerHour')}</p>}
               {profile.teacherProfile?.teachingMode && (
-                <p><span className="font-medium text-gray-900">طريقة التدريس:</span> {
-                  profile.teacherProfile.teachingMode === 'ONLINE' ? 'عن بعد' :
-                  profile.teacherProfile.teachingMode === 'IN_PERSON' ? 'حضوري' : 'الاثنين معاً'
+                <p><span className="font-medium text-gray-900">{t('teachingMode')}:</span> {
+                  profile.teacherProfile.teachingMode === 'ONLINE' ? t('online') :
+                  profile.teacherProfile.teachingMode === 'IN_PERSON' ? t('inPerson') : t('both')
                 }</p>
               )}
             </div>

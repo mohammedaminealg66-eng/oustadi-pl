@@ -1,37 +1,16 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/providers/auth-provider';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { LayoutDashboard, MessageSquare, Heart, Settings, Users, BookOpen, FileText, BarChart3 } from 'lucide-react';
 
-const studentNav = [
-  { href: '/student', label: 'نظرة عامة', icon: LayoutDashboard },
-  { href: '/student/favorites', label: 'المفضلة', icon: Heart },
-  { href: '/chat', label: 'الرسائل', icon: MessageSquare },
-  { href: '/settings', label: 'الإعدادات', icon: Settings },
-];
-
-const teacherNav = [
-  { href: '/teacher', label: 'نظرة عامة', icon: LayoutDashboard },
-  { href: '/teacher/profile', label: 'ملفي الشخصي', icon: FileText },
-  { href: '/teacher/requests', label: 'الطلبات', icon: Users },
-  { href: '/chat', label: 'الرسائل', icon: MessageSquare },
-  { href: '/settings', label: 'الإعدادات', icon: Settings },
-];
-
-const adminNav = [
-  { href: '/admin', label: 'لوحة التحكم', icon: BarChart3 },
-  { href: '/admin/users', label: 'المستخدمون', icon: Users },
-  { href: '/admin/subjects', label: 'المواد', icon: BookOpen },
-  { href: '/admin/reports', label: 'البلاغات', icon: FileText },
-  { href: '/settings', label: 'الإعدادات', icon: Settings },
-];
-
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const t = useTranslations();
   const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
 
   useEffect(() => {
@@ -42,7 +21,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     else if (pathname.startsWith('/admin') && user.role !== 'ADMIN') router.replace('/' + user.role.toLowerCase());
   }, [user, loading, router, pathname]);
 
-  if (loading || !user) return <div className="flex min-h-screen items-center justify-center">جار التحميل...</div>;
+  if (loading || !user) return <div className="flex min-h-screen items-center justify-center text-gray-500">{t('common.loading')}</div>;
+
+  const studentNav = [
+    { href: '/student', label: t('dashboard.overview'), icon: LayoutDashboard },
+    { href: '/student/favorites', label: t('dashboard.favorites'), icon: Heart },
+    { href: '/chat', label: t('dashboard.messages'), icon: MessageSquare },
+    { href: '/settings', label: t('dashboard.settings'), icon: Settings },
+  ];
+
+  const teacherNav = [
+    { href: '/teacher', label: t('dashboard.overview'), icon: LayoutDashboard },
+    { href: '/teacher/profile', label: t('dashboard.myProfile'), icon: FileText },
+    { href: '/teacher/requests', label: t('dashboard.requests'), icon: Users },
+    { href: '/chat', label: t('dashboard.messages'), icon: MessageSquare },
+    { href: '/settings', label: t('dashboard.settings'), icon: Settings },
+  ];
+
+  const adminNav = [
+    { href: '/admin', label: t('admin.dashboard'), icon: BarChart3 },
+    { href: '/admin/users', label: t('admin.users'), icon: Users },
+    { href: '/admin/subjects', label: t('admin.subjects'), icon: BookOpen },
+    { href: '/admin/reports', label: t('admin.reports'), icon: FileText },
+    { href: '/settings', label: t('dashboard.settings'), icon: Settings },
+  ];
 
   const nav = user.role === 'TEACHER' ? teacherNav : user.role === 'ADMIN' ? adminNav : studentNav;
 
