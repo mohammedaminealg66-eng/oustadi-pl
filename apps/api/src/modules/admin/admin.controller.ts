@@ -55,4 +55,19 @@ export class AdminController {
   rejectDocument(@Param('id') id: string) {
     return this.admin.rejectDocument(id);
   }
+
+  @Patch('teachers/:id/verify')
+  toggleVerify(@Param('id') id: string) {
+    return this.admin.toggleVerify(id);
+  }
+
+  @Patch('teachers/:id/official')
+  toggleOfficial(@Param('id') id: string) {
+    return this.admin.toggleOfficial(id);
+  }
+
+  @Get('teachers')
+  listTeachers(@Query('page') page?: string, @Query('limit') limit?: string) {
+    return this.admin.listTeachers(page ? parseInt(page) : 1, limit ? parseInt(limit) : 20);
+  }
 }

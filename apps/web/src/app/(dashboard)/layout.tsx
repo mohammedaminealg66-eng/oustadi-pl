@@ -41,6 +41,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const adminNav = [
     { href: '/admin', label: t('admin.dashboard'), icon: BarChart3 },
     { href: '/admin/users', label: t('admin.users'), icon: Users },
+    { href: '/admin/teachers', label: t('admin.manageTeachers'), icon: FileText },
     { href: '/admin/subjects', label: t('admin.subjects'), icon: BookOpen },
     { href: '/admin/documents', label: t('admin.documents'), icon: FileText },
     { href: '/admin/reports', label: t('admin.reports'), icon: FileText },

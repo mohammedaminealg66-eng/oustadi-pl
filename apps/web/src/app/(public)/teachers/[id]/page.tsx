@@ -70,6 +70,7 @@ export default function TeacherProfilePage() {
   const [reportDesc, setReportDesc] = useState('');
   const [reporting, setReporting] = useState(false);
   const [reportDone, setReportDone] = useState(false);
+  const [reportError, setReportError] = useState('');
   const [shareDone, setShareDone] = useState(false);
 
   const dn = locale === 'fr' ? dayNamesFr : dayNames;
@@ -404,12 +405,20 @@ export default function TeacherProfilePage() {
                     )}
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={async () => {
-                        if (typeof navigator.share === 'function') {
-                          await navigator.share({ title: profile.user.fullName, url: window.location.href });
-                        } else {
-                          await navigator.clipboard.writeText(window.location.href);
+                        try {
+                          if (typeof navigator.share === 'function') {
+                            await navigator.share({ title: profile.user.fullName, url: window.location.href });
+                          } else {
+                            await navigator.clipboard.writeText(window.location.href);
+                          }
                           setShareDone(true);
                           setTimeout(() => setShareDone(false), 2000);
+                        } catch {
+                          try {
+                            await navigator.clipboard.writeText(window.location.href);
+                            setShareDone(true);
+                            setTimeout(() => setShareDone(false), 2000);
+                          } catch {}
                         }
                       }}>
                         <Share2 className="ml-1 h-3 w-3" /> {shareDone ? t('shareSuccess') : t('share')}
@@ -505,13 +514,19 @@ export default function TeacherProfilePage() {
                   <option value="other">{t('reportReasons.other')}</option>
                 </select>
                 <textarea value={reportDesc} onChange={(e) => setReportDesc(e.target.value)} placeholder={t('reportDescription')} className="mt-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" rows={3} />
+                {reportError && <p className="mt-2 text-sm text-red-500">{reportError}</p>}
                 <Button className="mt-4 w-full" onClick={async () => {
-                  setReporting(true);
-                  const res = await apiRequest(`/teachers/${id}/report`, {
-                    method: 'POST', body: JSON.stringify({ reason: reportReason, description: reportDesc }),
-                  });
+                  setReporting(true); setReportError('');
+                  try {
+                    const res = await apiRequest(`/teachers/${id}/report`, {
+                      method: 'POST', body: JSON.stringify({ reason: reportReason, description: reportDesc }),
+                    });
+                    if (res.success) setReportDone(true);
+                    else setReportError((res as any).message || (res as any).error || c('error'));
+                  } catch {
+                    setReportError(c('error'));
+                  }
                   setReporting(false);
-                  if (res.success) setReportDone(true);
                 }} disabled={reporting}>
                   {reporting ? c('loading') : t('report')}
                 </Button>

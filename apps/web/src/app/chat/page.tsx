@@ -13,8 +13,8 @@ import { ArrowRight, Send, User, MessageSquare } from 'lucide-react';
 
 interface Conversation {
   id: string;
-  student: { id: string; fullName: string; avatarKey: string | null };
-  teacher: { id: string; fullName: string; avatarKey: string | null };
+  student: { id: string; fullName: string; avatarKey: string | null; isOnline: boolean; lastSeen: string | null };
+  teacher: { id: string; fullName: string; avatarKey: string | null; isOnline: boolean; lastSeen: string | null };
   _count: { messages: number };
   lastMessagePreview: string | null;
   lastMessageAt: string | null;
@@ -128,11 +128,17 @@ export default function ChatPage() {
                 className={`w-full border-b p-4 text-right transition hover:bg-gray-50 ${activeConv === conv.id ? 'bg-primary-50' : ''}`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-600">
-                    {other.fullName?.charAt(0) || <User className="h-4 w-4" />}
+                  <div className="relative shrink-0">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-600">
+                      {other.fullName?.charAt(0) || <User className="h-4 w-4" />}
+                    </div>
+                    {other.isOnline && <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border border-white bg-green-500" />}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium text-gray-900">{other.fullName}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="truncate font-medium text-gray-900">{other.fullName}</p>
+                      {other.isOnline && <span className="shrink-0 text-[10px] text-green-600">{c('online')}</span>}
+                    </div>
                     {conv.lastMessagePreview && (
                       <p className="truncate text-sm text-gray-500">{conv.lastMessagePreview}</p>
                     )}

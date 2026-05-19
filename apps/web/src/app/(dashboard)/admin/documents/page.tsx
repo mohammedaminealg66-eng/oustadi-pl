@@ -13,28 +13,37 @@ export default function AdminDocuments() {
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState<string | null>(null);
   const [rejecting, setRejecting] = useState<string | null>(null);
+  const [error, setError] = useState('');
 
   const fetchDocs = async () => {
-    const res = await apiRequest('/admin/documents/pending');
-    if (res.success && Array.isArray(res.data)) setDocs(res.data);
-    else setDocs([]);
+    try {
+      const res = await apiRequest('/admin/documents/pending');
+      if (res.success && Array.isArray(res.data)) setDocs(res.data);
+      else setDocs([]);
+    } catch { setDocs([]); }
     setLoading(false);
   };
 
   useEffect(() => { fetchDocs(); }, []);
 
   const verifyDoc = async (id: string) => {
-    setVerifying(id);
-    await apiRequest(`/admin/documents/${id}/verify`, { method: 'PATCH' });
-    setDocs((prev) => prev.filter((d) => d.id !== id));
+    setVerifying(id); setError('');
+    try {
+      const res = await apiRequest(`/admin/documents/${id}/verify`, { method: 'PATCH' });
+      if (res.success) setDocs((prev) => prev.filter((d) => d.id !== id));
+      else setError((res as any).message || (res as any).error || '');
+    } catch { setError(t('errorLoading')); }
     setVerifying(null);
   };
 
   const rejectDoc = async (id: string) => {
     if (!confirm(t('rejectConfirm'))) return;
-    setRejecting(id);
-    await apiRequest(`/admin/documents/${id}`, { method: 'DELETE' });
-    setDocs((prev) => prev.filter((d) => d.id !== id));
+    setRejecting(id); setError('');
+    try {
+      const res = await apiRequest(`/admin/documents/${id}`, { method: 'DELETE' });
+      if (res.success) setDocs((prev) => prev.filter((d) => d.id !== id));
+      else setError((res as any).message || (res as any).error || '');
+    } catch { setError(t('errorLoading')); }
     setRejecting(null);
   };
 
@@ -46,6 +55,7 @@ export default function AdminDocuments() {
     <div>
       <h1 className="text-2xl font-bold text-gray-900">{t('pendingDocumentsTitle')}</h1>
       <p className="mt-1 text-sm text-gray-500">{t('reviewCertificates')}</p>
+      {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
       {docs.length === 0 ? (
         <Card className="mt-6">
           <CardContent className="flex items-center justify-center gap-2 p-8 text-gray-400">

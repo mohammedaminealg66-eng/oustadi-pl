@@ -20,6 +20,7 @@
     "notifications": "التنبيهات",
     "markAllRead": "تحديد الكل كمقروء",
     "noNotifications": "لا توجد تنبيهات",
+    "online": "متصل",
     "copyright": "© {year} أستادي — منصة التعليم المغربية. جميع الحقوق محفوظة."
   },
   "home": {
@@ -256,6 +257,13 @@
     "reject": "رفض",
     "rejecting": "جاري الرفض...",
     "rejectConfirm": "هل أنت متأكد من رفض هذه الوثيقة؟ سيتم حذفها نهائياً.",
-    "dashboardTitle": "لوحة تحكم الإدارة"
+    "dashboardTitle": "لوحة تحكم الإدارة",
+    "manageTeachers": "الأساتذة",
+    "manageTeachersTitle": "إدارة الأساتذة",
+    "verified": "موثق",
+    "notVerified": "غير موثق",
+    "official": "حساب رسمي",
+    "notOfficial": "ليس رسمياً",
+    "noTeachers": "لا يوجد أساتذة"
   }
 }

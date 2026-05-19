@@ -18,7 +18,7 @@ export class TeachersService {
     limit?: number;
   }) {
     const limit = params.limit || 20;
-    const where: any = { isVerified: false, deletedAt: null };
+    const where: any = { deletedAt: null };
 
     where.user = { role: 'TEACHER', isActive: true, isSuspended: false };
 

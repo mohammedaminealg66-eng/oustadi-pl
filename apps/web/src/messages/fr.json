@@ -20,6 +20,7 @@
     "notifications": "Notifications",
     "markAllRead": "Tout marquer comme lu",
     "noNotifications": "Aucune notification",
+    "online": "En ligne",
     "copyright": "© {year} Oustadi — Plateforme éducative marocaine. Tous droits réservés."
   },
   "home": {
@@ -257,6 +258,13 @@
     "reject": "Refuser",
     "rejecting": "Refus...",
     "rejectConfirm": "Êtes-vous sûr de vouloir refuser ce document ? Il sera supprimé définitivement.",
-    "dashboardTitle": "Tableau de bord"
+    "dashboardTitle": "Tableau de bord",
+    "manageTeachers": "Enseignants",
+    "manageTeachersTitle": "Gestion des enseignants",
+    "verified": "Vérifié",
+    "notVerified": "Non vérifié",
+    "official": "Compte officiel",
+    "notOfficial": "Non officiel",
+    "noTeachers": "Aucun enseignant"
   }
 }

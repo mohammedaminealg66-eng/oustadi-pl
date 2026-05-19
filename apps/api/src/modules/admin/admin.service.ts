@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../config/database/prisma.service';
 
 @Injectable()
@@ -80,6 +80,36 @@ export class AdminService {
   async rejectDocument(docId: string) {
     return this.prisma.uploadedDocument.delete({
       where: { id: docId },
+    });
+  }
+
+  async toggleVerify(teacherProfileId: string) {
+    const profile = await this.prisma.teacherProfile.findUnique({ where: { id: teacherProfileId } });
+    if (!profile) throw new NotFoundException('Teacher profile not found');
+    return this.prisma.teacherProfile.update({
+      where: { id: teacherProfileId },
+      data: { isVerified: !profile.isVerified },
+    });
+  }
+
+  async toggleOfficial(teacherProfileId: string) {
+    const profile = await this.prisma.teacherProfile.findUnique({ where: { id: teacherProfileId } });
+    if (!profile) throw new NotFoundException('Teacher profile not found');
+    return this.prisma.teacherProfile.update({
+      where: { id: teacherProfileId },
+      data: { isOfficial: !profile.isOfficial },
+    });
+  }
+
+  async listTeachers(page = 1, limit = 20) {
+    return this.prisma.teacherProfile.findMany({
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: { select: { id: true, fullName: true, email: true } },
+        _count: { select: { documents: true, favorites: true } },
+      },
     });
   }
 }

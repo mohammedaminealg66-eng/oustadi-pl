@@ -12,8 +12,8 @@ export class ChatService {
         OR: [{ studentId: userId }, { teacherId: userId }],
       },
       include: {
-        student: { select: { id: true, fullName: true, avatarKey: true } },
-        teacher: { select: { id: true, fullName: true, avatarKey: true } },
+        student: { select: { id: true, fullName: true, avatarKey: true, isOnline: true, lastSeen: true } },
+        teacher: { select: { id: true, fullName: true, avatarKey: true, isOnline: true, lastSeen: true } },
         _count: {
           select: {
             messages: { where: { senderId: { not: userId }, status: { not: MessageStatus.READ } } },

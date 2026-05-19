@@ -1,9 +1,9 @@
 # Oustadi / أستادي — Project Map
 
-> Generated: 2026-05-16
-> Status: Phase 1 — Implementation In Progress
+> Generated: 2026-05-19
+> Status: Phase 1 — Implementation Complete
 > Author: Staff Software Engineer / SaaS Architect
-> Last Updated: 2026-05-16 14:59 UTC
+> Last Updated: 2026-05-19 12:00 UTC
 
 ## CODE IMPLEMENTATION STATUS
 
@@ -412,6 +412,8 @@ model User {
   isActive       Boolean   @default(true)
   isSuspended    Boolean   @default(false)
   suspensionReason String?
+  lastSeen       DateTime?
+  isOnline       Boolean   @default(false)
 
   studentProfile   StudentProfile?
   teacherProfile   TeacherProfile?
@@ -464,6 +466,12 @@ model TeacherProfile {
   city        String?
   showContact Boolean      @default(false)
   isVerified  Boolean      @default(false)
+  isOfficial  Boolean      @default(false)
+  facebookUrl  String?
+  instagramUrl String?
+  linkedinUrl  String?
+  youtubeUrl   String?
+  websiteUrl   String?
 
   subjects      TeacherSubject[]
   availability  AvailabilitySlot[]
@@ -653,6 +661,7 @@ model Report {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([reporterId])
   @@index([targetId])
   @@index([isResolved])
 }
@@ -747,9 +756,10 @@ POST   /api/upload/avatar              # Upload avatar
 POST   /api/upload/document            # Upload certificate/doc
 DELETE /api/upload/:id                 # Delete upload
 
-POST   /api/reports                    # Submit report
-GET    /api/reports                    # List reports (admin)
-PATCH  /api/reports/:id/resolve        # Resolve report (admin)
+POST   /api/teachers/:id/report        # Submit report (student)
+POST   /api/auth/heartbeat             # Update online status
+GET    /api/admin/reports              # List reports (admin)
+PATCH  /api/admin/reports/:id/resolve  # Resolve report (admin)
 
 GET    /api/admin/users                # List users (admin)
 PATCH  /api/admin/users/:id/suspend    # Suspend user
@@ -761,6 +771,10 @@ PATCH  /api/admin/subjects/:id
 DELETE /api/admin/subjects/:id
 GET    /api/admin/documents/pending    # Pending verifications
 PATCH  /api/admin/documents/:id/verify # Verify document
+DELETE /api/admin/documents/:id        # Reject document
+GET    /api/admin/teachers             # List teachers (admin)
+PATCH  /api/admin/teachers/:id/verify  # Toggle isVerified
+PATCH  /api/admin/teachers/:id/official # Toggle isOfficial
 ```
 
 ---
@@ -1250,11 +1264,15 @@ Phase 3 (Scale)
 | AI teacher matching | 🔴 Deferred | Needs data first |
 | Error monitoring (Sentry) | 🔴 Deferred | Phase 1.5 |
 | Testing (Jest + Playwright) | 🟡 Planning | To be implemented |
+| Social links management in teacher dashboard | ✅ Complete | All 5 social link fields, form in teacher profile page |
+| Online status display in chat | ✅ Complete | Green dot + "En ligne" in conversation list + header |
+| Admin teacher verification management | ✅ Complete | `/admin/teachers` page with isVerified/isOfficial toggles |
 | i18n message interpolation in components | 🟡 Partial | JSON files exist, dynamic switching pending |
-| Forgot/reset password flow | 🟡 Partial | No email provider yet, endpoints ready |
 | Teacher profile create/edit form UI | 🟡 Partial | Backend complete, frontend form pending |
-| Admin user management UI | 🟡 Partial | Backend complete, full UI pending |
-| Admin subjects management UI | 🟡 Partial | Backend complete, full UI pending |
+| Admin user management UI | ✅ Complete | Full UI for listing/suspending/activating users |
+| Admin subjects management UI | ✅ Complete | Full UI for subject CRUD |
+| Admin reports management UI | ✅ Complete | Listing + resolving reports |
+| Admin document verification UI | ✅ Complete | View/verify/reject documents |
 | File upload UI components | 🟡 Partial | Backend complete, frontend uploaders pending |
 
 ---
@@ -1383,6 +1401,12 @@ Phase 3 (Scale)
 - [x] Empty states (no results, no conversations, no requests)
 - [x] Error boundary (error.tsx)
 - [x] 404 page
+- [x] Social links management in teacher dashboard
+- [x] Online status display in chat
+- [x] Admin teacher verification (isVerified/isOfficial toggle)
+- [x] Share profile button with navigator.share + clipboard fallback
+- [x] Report teacher system with admin resolution
+- [x] Fixed critical search bug (isVerified: false → removed filter)
 
 **Pending:**
 - [ ] Production deployment on Ubuntu VPS

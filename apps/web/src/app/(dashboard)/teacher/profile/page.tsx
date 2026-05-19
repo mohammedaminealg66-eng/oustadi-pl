@@ -8,13 +8,13 @@ import { getAvatarUrl, getYouTubeEmbedUrl } from '@/lib/asset';
 import { Button, Card, CardContent } from '@oustadi/ui';
 import {
   Save, Camera, Plus, Trash2, ChevronDown, ChevronUp, CheckCircle, Clock,
-  BookOpen, Award, GraduationCap, Video, Calendar, Eye, Upload, X,
+  BookOpen, Award, GraduationCap, Video, Calendar, Eye, Upload, X, Share2,
 } from 'lucide-react';
 
 const dayNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 const dayNamesFr = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
 
-type SectionName = 'basic' | 'subjects' | 'experience' | 'certificates' | 'video' | 'availability';
+type SectionName = 'basic' | 'subjects' | 'experience' | 'certificates' | 'video' | 'social' | 'availability';
 
 function ProfileSection({ id, title, icon: Icon, openSection, onToggle, children }: {
   id: SectionName; title: string; icon: any; openSection: SectionName | '';
@@ -48,7 +48,7 @@ export default function TeacherProfile() {
   const [saved, setSaved] = useState(false);
   const [openSection, setOpenSection] = useState<SectionName | ''>('basic');
 
-  const [form, setForm] = useState({ fullName: '', phone: '', city: '', price: '', teachingMode: 'BOTH', bio: '', introVideo: '' });
+  const [form, setForm] = useState({ fullName: '', phone: '', city: '', price: '', teachingMode: 'BOTH', bio: '', introVideo: '', facebookUrl: '', instagramUrl: '', linkedinUrl: '', youtubeUrl: '', websiteUrl: '' });
   const [newExp, setNewExp] = useState({ institution: '', position: '', duration: '' });
   const [addingSubj, setAddingSubj] = useState({ subjectId: '', levels: [] as string[], price: '' });
   const [availForm, setAvailForm] = useState<Record<number, { enabled: boolean; start: string; end: string }>>({});
@@ -67,6 +67,11 @@ export default function TeacherProfile() {
         teachingMode: tp?.teachingMode || 'BOTH',
         bio: tp?.bio || '',
         introVideo: tp?.introVideo || '',
+        facebookUrl: tp?.facebookUrl || '',
+        instagramUrl: tp?.instagramUrl || '',
+        linkedinUrl: tp?.linkedinUrl || '',
+        youtubeUrl: tp?.youtubeUrl || '',
+        websiteUrl: tp?.websiteUrl || '',
       });
       const av: Record<number, { enabled: boolean; start: string; end: string }> = {};
       for (let i = 0; i < 7; i++) av[i] = { enabled: false, start: '09:00', end: '17:00' };
@@ -112,6 +117,8 @@ export default function TeacherProfile() {
       body: JSON.stringify({
         city: form.city, price: form.price ? parseFloat(form.price) : null,
         teachingMode: form.teachingMode, bio: form.bio, introVideo: form.introVideo,
+        facebookUrl: form.facebookUrl, instagramUrl: form.instagramUrl,
+        linkedinUrl: form.linkedinUrl, youtubeUrl: form.youtubeUrl, websiteUrl: form.websiteUrl,
       }),
     });
     await apiRequest('/users/me', {
@@ -396,6 +403,32 @@ export default function TeacherProfile() {
             <iframe src={getYouTubeEmbedUrl(form.introVideo)} className="h-full w-full" allowFullScreen />
           </div>
         )}
+      </ProfileSection>
+
+      <ProfileSection id="social" title={d('socialLinks')} icon={Share2} openSection={openSection} onToggle={setOpenSection}>
+        <p className="mb-3 text-xs text-gray-500">{t('socialHelp')}</p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">{t('facebook')}</label>
+            <input value={form.facebookUrl} onChange={(e) => setForm((f) => ({ ...f, facebookUrl: e.target.value }))} placeholder="https://facebook.com/..." className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">{t('instagram')}</label>
+            <input value={form.instagramUrl} onChange={(e) => setForm((f) => ({ ...f, instagramUrl: e.target.value }))} placeholder="https://instagram.com/..." className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">{t('linkedin')}</label>
+            <input value={form.linkedinUrl} onChange={(e) => setForm((f) => ({ ...f, linkedinUrl: e.target.value }))} placeholder="https://linkedin.com/..." className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">{t('youtube')}</label>
+            <input value={form.youtubeUrl} onChange={(e) => setForm((f) => ({ ...f, youtubeUrl: e.target.value }))} placeholder="https://youtube.com/..." className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-sm font-medium text-gray-700">{t('website')}</label>
+            <input value={form.websiteUrl} onChange={(e) => setForm((f) => ({ ...f, websiteUrl: e.target.value }))} placeholder="https://..." className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+          </div>
+        </div>
       </ProfileSection>
 
       <ProfileSection id="availability" title={d('availability')} icon={Calendar} openSection={openSection} onToggle={setOpenSection}>
