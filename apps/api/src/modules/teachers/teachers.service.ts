@@ -117,6 +117,7 @@ export class TeachersService {
         teachingMode: data.teachingMode,
         city: data.city,
         showContact: data.showContact,
+        introVideo: data.introVideo,
       },
     });
   }

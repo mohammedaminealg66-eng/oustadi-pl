@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import { apiRequest } from '@/lib/api';
 import { subjectName } from '@/lib/subject';
+import { getAvatarUrl } from '@/lib/asset';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Input, Card, CardContent } from '@oustadi/ui';
@@ -90,8 +91,10 @@ export default function TeachersPage() {
                 <Card className="transition hover:shadow-md">
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-100 text-lg font-bold text-primary-600">
-                        {teacher.fullName?.charAt(0)}
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-lg font-bold text-primary-600">
+                        {teacher.avatarKey
+                          ? <img src={getAvatarUrl(teacher.avatarKey)} alt="" className="h-full w-full object-cover" />
+                          : teacher.fullName?.charAt(0)}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-gray-900 truncate">{teacher.fullName}</h3>
