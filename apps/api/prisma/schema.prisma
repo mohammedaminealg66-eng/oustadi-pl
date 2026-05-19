@@ -97,11 +97,12 @@ model TeacherProfile {
   responseTime String?
   introVideo   String?
 
-  subjects      TeacherSubject[]
-  availability  AvailabilitySlot[]
-  documents     UploadedDocument[]
-  favorites     Favorite[]
-  reviews       Review[]
+  subjects        TeacherSubject[]
+  availability    AvailabilitySlot[]
+  documents       UploadedDocument[]
+  workExperiences WorkExperience[]
+  favorites       Favorite[]
+  reviews         Review[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -253,6 +254,18 @@ model Message {
   @@index([senderId])
 }
 
+model WorkExperience {
+  id          String   @id @default(cuid())
+  teacherId   String
+  teacher     TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  institution String
+  position    String
+  duration    String
+  createdAt   DateTime @default(now())
+
+  @@index([teacherId])
+}
+
 model UploadedDocument {
   id           String   @id @default(cuid())
   teacherId    String
@@ -263,6 +276,9 @@ model UploadedDocument {
   size         Int
   type         String
   isVerified   Boolean  @default(false)
+  certTitle    String?
+  certInstitution String?
+  certYear     Int?
 
   createdAt DateTime @default(now())
 

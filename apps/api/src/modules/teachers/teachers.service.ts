@@ -145,6 +145,20 @@ export class TeachersService {
     });
   }
 
+  async addWorkExperience(userId: string, data: { institution: string; position: string; duration: string }) {
+    const profile = await this.prisma.teacherProfile.findUnique({ where: { userId } });
+    if (!profile) throw new NotFoundException('Teacher profile not found');
+    return this.prisma.workExperience.create({
+      data: { teacherId: profile.id, ...data },
+    });
+  }
+
+  async removeWorkExperience(userId: string, expId: string) {
+    const profile = await this.prisma.teacherProfile.findUnique({ where: { userId } });
+    if (!profile) throw new NotFoundException('Teacher profile not found');
+    await this.prisma.workExperience.deleteMany({ where: { teacherId: profile.id, id: expId } });
+  }
+
   async addAvailability(userId: string, data: { dayOfWeek: number; startTime: string; endTime: string }) {
     const profile = await this.prisma.teacherProfile.findUnique({ where: { userId } });
     if (!profile) throw new NotFoundException('Teacher profile not found');

@@ -59,6 +59,20 @@ export class TeachersController {
     return this.teachers.removeSubject(userId, id);
   }
 
+  @Post('experience')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.TEACHER)
+  addWorkExperience(@CurrentUser('userId') userId: string, @Body() body: { institution: string; position: string; duration: string }) {
+    return this.teachers.addWorkExperience(userId, body);
+  }
+
+  @Delete('experience/:id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.TEACHER)
+  removeWorkExperience(@CurrentUser('userId') userId: string, @Param('id') id: string) {
+    return this.teachers.removeWorkExperience(userId, id);
+  }
+
   @Post('availability')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.TEACHER)
