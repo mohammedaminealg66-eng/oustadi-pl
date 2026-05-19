@@ -40,6 +40,8 @@ export default function ChatPage() {
   const [newMessage, setNewMessage] = useState('');
   const [socket, setSocket] = useState<Socket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const activeConvRef = useRef(activeConv);
+  activeConvRef.current = activeConv;
 
   useEffect(() => {
     if (authLoading) return;
@@ -57,7 +59,7 @@ export default function ChatPage() {
     setSocket(s);
 
     s.on('chat:message', (msg: Message) => {
-      if (msg.conversationId === activeConv) {
+      if (msg.conversationId === activeConvRef.current) {
         setMessages((prev) => [...prev, msg]);
       }
       setConversations((prev) =>
