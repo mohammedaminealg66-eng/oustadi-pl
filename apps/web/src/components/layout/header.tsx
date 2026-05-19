@@ -27,11 +27,18 @@ export function Header() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const currentLang = languages.find((l) => l.code === (typeof window !== 'undefined' ? document.documentElement.lang : 'ar')) || languages[0];
 
-  useEffect(() => {
+  function fetchNotifications() {
     if (!isAuthenticated) return;
     apiRequest('/notifications').then((res) => {
       if (res.success && res.data) setNotifications(res.data);
     });
+  }
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000);
+    window.addEventListener('refresh-notifications', fetchNotifications);
+    return () => { clearInterval(interval); window.removeEventListener('refresh-notifications', fetchNotifications); };
   }, [isAuthenticated]);
 
   async function markAllRead() {

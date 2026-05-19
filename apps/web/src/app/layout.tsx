@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getLocale } from 'next-intl/server';
 import { Providers } from '@/providers/providers';
+import { ClientLayout } from '@/components/client-layout';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -23,7 +24,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'} suppressHydrationWarning>
       <body className="min-h-screen bg-gray-50 text-gray-900 antialiased">
         <NextIntlClientProvider messages={messages}>
-          <Providers>{children}</Providers>
+          <Providers><ClientLayout>{children}</ClientLayout></Providers>
         </NextIntlClientProvider>
       </body>
     </html>
