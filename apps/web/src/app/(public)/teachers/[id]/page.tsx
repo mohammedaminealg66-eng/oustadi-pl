@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { apiRequest } from '@/lib/api';
 import { subjectName } from '@/lib/subject';
+import { getAvatarUrl } from '@/lib/asset';
 import { useAuth } from '@/providers/auth-provider';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
@@ -135,7 +136,7 @@ export default function TeacherProfilePage() {
                   <div className="flex shrink-0 flex-col items-center gap-3 sm:items-start">
                     <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-3xl font-bold text-primary-600 ring-4 ring-primary-50 lg:h-28 lg:w-28">
                       {profile.user.avatarKey
-                        ? <img src={profile.user.avatarKey} alt="" className="h-full w-full object-cover" />
+                        ? <img src={getAvatarUrl(profile.user.avatarKey)} alt="" className="h-full w-full object-cover" />
                         : profile.user.fullName.charAt(0)}
                     </div>
                     {profile.isVerified && (
@@ -295,7 +296,7 @@ export default function TeacherProfilePage() {
                       <div key={r.id} className="rounded-xl border bg-white p-4">
                         <div className="flex items-center gap-3">
                           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-600">
-                            {r.student.avatarKey ? <img src={r.student.avatarKey} alt="" className="h-full w-full rounded-full object-cover" /> : r.student.fullName.charAt(0)}
+                            {r.student.avatarKey ? <img src={getAvatarUrl(r.student.avatarKey)} alt="" className="h-full w-full rounded-full object-cover" /> : r.student.fullName.charAt(0)}
                           </div>
                           <div>
                             <p className="text-sm font-medium text-gray-900">{r.student.fullName}</p>
