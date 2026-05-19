@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiRequest } from '@/lib/api';
 import { Card, CardContent } from '@oustadi/ui';
 
@@ -14,6 +15,7 @@ interface DashboardData {
 }
 
 export default function AdminDashboard() {
+  const t = useTranslations('admin');
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -24,20 +26,20 @@ export default function AdminDashboard() {
     });
   }, []);
 
-  if (loading) return <p>جار التحميل...</p>;
-  if (!data) return <p>خطأ في تحميل البيانات</p>;
+  if (loading) return <p>{t('loading')}</p>;
+  if (!data) return <p>{t('errorLoading')}</p>;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900">لوحة تحكم الإدارة</h1>
+      <h1 className="text-2xl font-bold text-gray-900">{t('dashboardTitle')}</h1>
       <div className="mt-6 grid gap-6 md:grid-cols-3">
         {[
-          { label: 'إجمالي المستخدمين', value: data.users, color: 'text-primary-600' },
-          { label: 'الأساتذة', value: data.teachers, color: 'text-emerald-600' },
-          { label: 'الطلاب', value: data.students, color: 'text-blue-600' },
-          { label: 'الطلبات', value: data.requests, color: 'text-purple-600' },
-          { label: 'الوثائق غير الموثقة', value: data.pendingDocuments, color: 'text-yellow-600' },
-          { label: 'البلاغات المفتوحة', value: data.pendingReports, color: 'text-red-600' },
+          { label: t('totalUsers'), value: data.users, color: 'text-primary-600' },
+          { label: t('teachers'), value: data.teachers, color: 'text-emerald-600' },
+          { label: t('students'), value: data.students, color: 'text-blue-600' },
+          { label: t('requests'), value: data.requests, color: 'text-purple-600' },
+          { label: t('pendingDocuments'), value: data.pendingDocuments, color: 'text-yellow-600' },
+          { label: t('openReports'), value: data.pendingReports, color: 'text-red-600' },
         ].map((item) => (
           <Card key={item.label}>
             <CardContent className="p-6">

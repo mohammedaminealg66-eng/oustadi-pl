@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useLocale } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { apiRequest } from '@/lib/api';
 import { subjectName } from '@/lib/subject';
 import { Card, CardContent } from '@oustadi/ui';
 
 export default function AdminSubjects() {
+  const t = useTranslations('admin');
   const [subjects, setSubjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const locale = useLocale();
@@ -18,11 +19,11 @@ export default function AdminSubjects() {
     });
   }, []);
 
-  if (loading) return <p>جار التحميل...</p>;
+  if (loading) return <p>{t('loading')}</p>;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900">المواد</h1>
+      <h1 className="text-2xl font-bold text-gray-900">{t('subjectsTitle')}</h1>
       <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {subjects.map((subj: any) => (
           <Card key={subj.id}>

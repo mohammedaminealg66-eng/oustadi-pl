@@ -1,11 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiRequest } from '@/lib/api';
+import { getAvatarUrl } from '@/lib/asset';
 import { Card, CardContent } from '@oustadi/ui';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, ExternalLink } from 'lucide-react';
 
 export default function AdminDocuments() {
+  const t = useTranslations('admin');
   const [docs, setDocs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState<string | null>(null);
@@ -26,37 +29,49 @@ export default function AdminDocuments() {
     setVerifying(null);
   };
 
-  if (loading) return <p>جار التحميل...</p>;
+  const docUrl = (doc: any) => getAvatarUrl(`uploads/documents/${doc.fileName}`);
+
+  if (loading) return <p>{t('loading')}</p>;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900">الوثائق غير الموثقة</h1>
-      <p className="mt-1 text-sm text-gray-500">مراجعة وتوثيق شهادات الأساتذة</p>
+      <h1 className="text-2xl font-bold text-gray-900">{t('pendingDocumentsTitle')}</h1>
+      <p className="mt-1 text-sm text-gray-500">{t('reviewCertificates')}</p>
       {docs.length === 0 ? (
         <Card className="mt-6">
           <CardContent className="flex items-center justify-center gap-2 p-8 text-gray-400">
             <CheckCircle className="h-5 w-5 text-green-500" />
-            لا توجد وثائق في انتظار التحقق
+            {t('noPendingDocuments')}
           </CardContent>
         </Card>
       ) : (
         <div className="mt-6 space-y-4">
           {docs.map((doc) => (
             <Card key={doc.id}>
-              <CardContent className="flex items-center justify-between p-5">
+              <CardContent className="flex items-center justify-between gap-4 p-5">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-gray-900">{doc.originalName}</p>
                   <p className="text-xs text-gray-500">
-                    {doc.teacher?.user?.fullName || 'غير معروف'} — {new Date(doc.createdAt).toLocaleDateString()}
+                    {doc.teacher?.user?.fullName || t('teacher')} — {new Date(doc.createdAt).toLocaleDateString()}
                   </p>
                 </div>
-                <button
-                  onClick={() => verifyDoc(doc.id)}
-                  disabled={verifying === doc.id}
-                  className="flex shrink-0 items-center gap-1 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700 disabled:opacity-50"
-                >
-                  {verifying === doc.id ? 'جاري...' : <><CheckCircle className="h-4 w-4" /> توثيق</>}
-                </button>
+                <div className="flex shrink-0 items-center gap-2">
+                  <a
+                    href={docUrl(doc)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                  >
+                    <ExternalLink className="h-4 w-4" /> {t('view')}
+                  </a>
+                  <button
+                    onClick={() => verifyDoc(doc.id)}
+                    disabled={verifying === doc.id}
+                    className="flex items-center gap-1 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700 disabled:opacity-50"
+                  >
+                    {verifying === doc.id ? t('verifying') : <><CheckCircle className="h-4 w-4" /> {t('verify')}</>}
+                  </button>
+                </div>
               </CardContent>
             </Card>
           ))}
