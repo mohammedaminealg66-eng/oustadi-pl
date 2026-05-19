@@ -84,14 +84,24 @@ export class TeachersService {
       include: {
         user: { select: { id: true, fullName: true, avatarKey: true, phone: true, createdAt: true } },
         subjects: { include: { subject: true } },
-        availability: true,
-        documents: { select: { id: true, type: true, createdAt: true } },
-        _count: { select: { favorites: true } },
+        availability: { orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }] },
+        documents: { select: { id: true, type: true, fileName: true, originalName: true, createdAt: true, isVerified: true } },
+        reviews: { include: { student: { select: { id: true, fullName: true, avatarKey: true } } }, orderBy: { createdAt: 'desc' } },
+        _count: { select: { favorites: true, reviews: true } },
       },
     });
 
     if (!profile) throw new NotFoundException('Teacher not found');
-    return profile;
+
+    const studentCount = await this.prisma.lessonRequest.count({
+      where: { teacherId: profile.userId, status: 'ACCEPTED' },
+    });
+
+    const avgRating = profile.reviews.length > 0
+      ? profile.reviews.reduce((sum, r) => sum + r.rating, 0) / profile.reviews.length
+      : null;
+
+    return { ...profile, studentCount, avgRating };
   }
 
   async updateProfile(userId: string, data: any) {

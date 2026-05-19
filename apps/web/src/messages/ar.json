@@ -87,7 +87,20 @@
     "pleaseSelectSubject": "الرجاء اختيار المادة",
     "removeFromFavorites": "إزالة من المفضلة",
     "saveToFavorites": "حفظ في المفضلة",
-    "levelsPlaceholder": "المستويات (مفصولة بفواصل)"
+    "levelsPlaceholder": "المستويات (مفصولة بفواصل)",
+    "verified": "أستاذ موثق",
+    "reviews": "تقييم",
+    "students": "تلميذ",
+    "availableToday": "متاح اليوم",
+    "notAvailableToday": "غير متاح اليوم",
+    "introVideo": "فيديو تعريفي",
+    "certificates": "الشهادات",
+    "noReviewsYet": "لا توجد تقييمات بعد",
+    "similarTeachers": "أساتذة مشابهون",
+    "messageTeacher": "مراسلة الأستاذ",
+    "reserveLesson": "حجز درس",
+    "unavailable": "غير متاح",
+    "hour": "ساعة"
   },
   "dashboard": {
     "myProfile": "ملفي الشخصي",
