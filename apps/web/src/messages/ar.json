@@ -100,7 +100,35 @@
     "messageTeacher": "مراسلة الأستاذ",
     "reserveLesson": "حجز درس",
     "unavailable": "غير متاح",
-    "hour": "ساعة"
+    "hour": "ساعة",
+    "online": "متصل الآن",
+    "offline": "غير متصل",
+    "lastSeen": "آخر نشاط",
+    "minutesAgo": "منذ {n} دقيقة",
+    "hoursAgo": "منذ {n} ساعة",
+    "daysAgo": "منذ {n} يوم",
+    "officialTeacher": "أستاذ معتمد",
+    "report": "إبلاغ",
+    "reportTitle": "الإبلاغ عن هذا الحساب",
+    "reportReason": "سبب الإبلاغ",
+    "reportDescription": "اشرح المشكلة...",
+    "reportSuccess": "تم استلام بلاغك، سنقوم بمراجعته",
+    "reportReasons": {
+      "fake": "حساب مزيف",
+      "wrong": "معلومات خاطئة",
+      "harassment": "سلوك غير لائق",
+      "spam": "إعلانات مزعجة",
+      "other": "أخرى"
+    },
+    "share": "مشاركة",
+    "shareSuccess": "تم نسخ الرابط",
+    "socialLinks": "روابط التواصل",
+    "facebook": "فيسبوك",
+    "instagram": "إنستغرام",
+    "linkedin": "لينكد إن",
+    "youtube": "يوتيوب",
+    "website": "موقع إلكتروني",
+    "socialHelp": "إضافة روابط حقيقية تزيد من ثقة التلاميذ"
   },
   "dashboard": {
     "myProfile": "ملفي الشخصي",
@@ -179,7 +207,14 @@
     "completionAvailability": "أوقات التوفر",
     "completionCertificate": "شهادة موثقة",
     "completionVideo": "فيديو",
-    "completionReviews": "تقييمات"
+    "completionReviews": "تقييمات",
+    "socialLinks": "روابط التواصل الاجتماعي",
+    "socialHelp": "إضافة روابط حقيقية تزيد من ثقة التلاميذ",
+    "facebook": "فيسبوك",
+    "instagram": "إنستغرام",
+    "linkedin": "لينكد إن",
+    "youtube": "يوتيوب",
+    "website": "موقع إلكتروني"
   },
   "admin": {
     "users": "المستخدمون",

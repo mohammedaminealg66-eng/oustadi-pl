@@ -100,7 +100,35 @@
     "messageTeacher": "Envoyer un message",
     "reserveLesson": "Réserver un cours",
     "unavailable": "Indisponible",
-    "hour": "heure"
+    "hour": "heure",
+    "online": "En ligne",
+    "offline": "Hors ligne",
+    "lastSeen": "Dernière activité",
+    "minutesAgo": "il y a {n} min",
+    "hoursAgo": "il y a {n} h",
+    "daysAgo": "il y a {n} j",
+    "officialTeacher": "Enseignant certifié",
+    "report": "Signaler",
+    "reportTitle": "Signaler ce compte",
+    "reportReason": "Motif du signalement",
+    "reportDescription": "Décrivez le problème...",
+    "reportSuccess": "Votre signalement a été reçu, nous allons le examiner",
+    "reportReasons": {
+      "fake": "Compte faux",
+      "wrong": "Informations erronées",
+      "harassment": "Comportement inapproprié",
+      "spam": "Spam",
+      "other": "Autre"
+    },
+    "share": "Partager",
+    "shareSuccess": "Lien copié",
+    "socialLinks": "Réseaux sociaux",
+    "facebook": "Facebook",
+    "instagram": "Instagram",
+    "linkedin": "LinkedIn",
+    "youtube": "YouTube",
+    "website": "Site web",
+    "socialHelp": "Ajouter des liens réels augmente la confiance des élèves"
   },
   "dashboard": {
     "myProfile": "Mon profil",
@@ -180,7 +208,14 @@
     "completionAvailability": "Disponibilités",
     "completionCertificate": "Certificat vérifié",
     "completionVideo": "Vidéo",
-    "completionReviews": "Avis"
+    "completionReviews": "Avis",
+    "socialLinks": "Réseaux sociaux",
+    "socialHelp": "Ajouter des liens réels augmente la confiance des élèves",
+    "facebook": "Facebook",
+    "instagram": "Instagram",
+    "linkedin": "LinkedIn",
+    "youtube": "YouTube",
+    "website": "Site web"
   },
   "admin": {
     "users": "Utilisateurs",

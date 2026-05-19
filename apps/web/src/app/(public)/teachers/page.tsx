@@ -15,6 +15,10 @@ interface TeacherCard {
   id: string;
   fullName: string;
   avatarKey: string | null;
+  isOnline: boolean;
+  lastSeen: string | null;
+  isOfficial: boolean;
+  isVerified: boolean;
   bio: string | null;
   experience: number | null;
   price: number | null;
@@ -22,6 +26,18 @@ interface TeacherCard {
   city: string | null;
   subjects: { id: string; nameAr: string; nameFr: string; levels: string[] }[];
   favoriteCount: number;
+}
+
+function lastSeenText(lastSeen: string | null, locale: string, t: any): string {
+  if (!lastSeen) return '';
+  const diff = Date.now() - new Date(lastSeen).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return t('online');
+  if (mins < 60) return locale === 'fr' ? `il y a ${mins} min` : `منذ ${mins} دقيقة`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return locale === 'fr' ? `il y a ${hours} h` : `منذ ${hours} ساعة`;
+  const days = Math.floor(hours / 24);
+  return locale === 'fr' ? `il y a ${days} j` : `منذ ${days} يوم`;
 }
 
 export default function TeachersPage() {
@@ -91,18 +107,28 @@ export default function TeachersPage() {
                 <Card className="transition hover:shadow-md">
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-lg font-bold text-primary-600">
-                        {teacher.avatarKey
-                          ? <img src={getAvatarUrl(teacher.avatarKey)} alt="" className="h-full w-full object-cover" />
-                          : teacher.fullName?.charAt(0)}
+                      <div className="relative shrink-0">
+                        <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-lg font-bold text-primary-600">
+                          {teacher.avatarKey
+                            ? <img src={getAvatarUrl(teacher.avatarKey)} alt="" className="h-full w-full object-cover" />
+                            : teacher.fullName?.charAt(0)}
+                        </div>
+                        {teacher.isOnline && <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-green-500" />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 truncate">{teacher.fullName}</h3>
+                        <div className="flex items-center gap-1">
+                          <h3 className="font-semibold text-gray-900 truncate">{teacher.fullName}</h3>
+                          {teacher.isOfficial && <span className="shrink-0 text-sm">🔵</span>}
+                          {teacher.isVerified && !teacher.isOfficial && <span className="shrink-0 text-xs text-green-600">✅</span>}
+                        </div>
                         {teacher.city && (
                           <p className="mt-1 flex items-center gap-1 text-sm text-gray-500">
                             <MapPin className="h-3 w-3" /> {teacher.city}
                           </p>
                         )}
+                        <p className="mt-0.5 text-xs text-gray-400">
+                          {teacher.isOnline ? t('online') : lastSeenText(teacher.lastSeen, locale, t)}
+                        </p>
                       </div>
                     </div>
                     {teacher.bio && <p className="mt-3 text-sm text-gray-600 line-clamp-2">{teacher.bio}</p>}

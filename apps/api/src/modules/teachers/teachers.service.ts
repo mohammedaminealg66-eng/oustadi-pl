@@ -44,7 +44,7 @@ export class TeachersService {
       ...(params.cursor ? { skip: 1, cursor: { id: params.cursor } } : {}),
       orderBy: { createdAt: 'desc' },
       include: {
-        user: { select: { id: true, fullName: true, avatarKey: true } },
+        user: { select: { id: true, fullName: true, avatarKey: true, isOnline: true, lastSeen: true } },
         subjects: { include: { subject: true } },
         _count: { select: { favorites: true } },
       },
@@ -59,6 +59,10 @@ export class TeachersService {
         userId: t.userId,
         fullName: t.user.fullName,
         avatarKey: t.user.avatarKey,
+        isOnline: t.user.isOnline,
+        lastSeen: t.user.lastSeen?.toISOString(),
+        isOfficial: t.isOfficial,
+        isVerified: t.isVerified,
         bio: t.bio,
         experience: t.experience,
         price: t.price,
@@ -82,7 +86,7 @@ export class TeachersService {
     const profile = await this.prisma.teacherProfile.findUnique({
       where: { id: teacherId },
       include: {
-        user: { select: { id: true, fullName: true, avatarKey: true, phone: true, createdAt: true } },
+        user: { select: { id: true, fullName: true, avatarKey: true, phone: true, createdAt: true, isOnline: true, lastSeen: true } },
         subjects: { include: { subject: true } },
         availability: { orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }] },
         documents: { select: { id: true, type: true, fileName: true, originalName: true, createdAt: true, isVerified: true } },
@@ -118,6 +122,11 @@ export class TeachersService {
         city: data.city,
         showContact: data.showContact,
         introVideo: data.introVideo,
+        facebookUrl: data.facebookUrl,
+        instagramUrl: data.instagramUrl,
+        linkedinUrl: data.linkedinUrl,
+        youtubeUrl: data.youtubeUrl,
+        websiteUrl: data.websiteUrl,
       },
     });
   }
@@ -180,6 +189,20 @@ export class TeachersService {
 
     await this.prisma.availabilitySlot.deleteMany({
       where: { teacherId: profile.id, id: slotId },
+    });
+  }
+
+  async reportTeacher(reporterId: string, teacherId: string, reason: string, description?: string) {
+    const profile = await this.prisma.teacherProfile.findUnique({ where: { userId: teacherId } });
+    if (!profile) throw new NotFoundException('Teacher not found');
+
+    return this.prisma.report.create({
+      data: {
+        reporterId,
+        targetId: teacherId,
+        reason,
+        description,
+      },
     });
   }
 }

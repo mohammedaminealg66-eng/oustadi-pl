@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { apiRequest } from '@/lib/api';
@@ -13,6 +13,7 @@ import { Button, Card, CardContent } from '@oustadi/ui';
 import {
   MapPin, BookOpen, Clock, Award, Heart, HeartOff, Star, MessageSquare,
   GraduationCap, Video, CheckCircle, Users, Zap, Calendar, ChevronLeft,
+  Flag, Share2, ExternalLink, Globe, X,
 } from 'lucide-react';
 
 interface Review {
@@ -22,9 +23,11 @@ interface Review {
 interface TeacherProfile {
   id: string; userId: string; bio: string | null; experience: number | null;
   price: number | null; teachingMode: string; city: string | null;
-  showContact: boolean; isVerified: boolean; responseTime: string | null;
+  showContact: boolean; isVerified: boolean; isOfficial: boolean; responseTime: string | null;
   introVideo: string | null; avgRating: number | null; studentCount: number;
-  user: { id: string; fullName: string; avatarKey: string | null; phone: string | null; createdAt: string };
+  facebookUrl: string | null; instagramUrl: string | null; linkedinUrl: string | null;
+  youtubeUrl: string | null; websiteUrl: string | null;
+  user: { id: string; fullName: string; avatarKey: string | null; phone: string | null; createdAt: string; isOnline: boolean; lastSeen: string | null };
   subjects: { id: string; subject: { id: string; nameAr: string; nameFr: string }; levels: string[]; price: number | null }[];
   availability: { id: string; dayOfWeek: number; startTime: string; endTime: string }[];
   documents: { id: string; type: string; fileName: string; originalName: string; createdAt: string; isVerified: boolean }[];
@@ -62,8 +65,24 @@ export default function TeacherProfilePage() {
   const [sending, setSending] = useState(false);
   const [faved, setFaved] = useState(false);
   const [toggling, setToggling] = useState(false);
+  const [showReport, setShowReport] = useState(false);
+  const [reportReason, setReportReason] = useState('fake');
+  const [reportDesc, setReportDesc] = useState('');
+  const [reporting, setReporting] = useState(false);
+  const [reportDone, setReportDone] = useState(false);
+  const [shareDone, setShareDone] = useState(false);
 
   const dn = locale === 'fr' ? dayNamesFr : dayNames;
+
+  function timeAgo(dateStr: string, loc: string) {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const min = Math.floor(diff / 60000);
+    if (min < 60) return loc === 'fr' ? `il y a ${min} min` : `${min} دقيقة`;
+    const hr = Math.floor(min / 60);
+    if (hr < 24) return loc === 'fr' ? `il y a ${hr} h` : `${hr} ساعات`;
+    const d = Math.floor(hr / 24);
+    return loc === 'fr' ? `il y a ${d} j` : `${d} أيام`;
+  }
 
   useEffect(() => {
     async function fetch() {
@@ -134,16 +153,27 @@ export default function TeacherProfilePage() {
               <CardContent className="p-6 lg:p-8">
                 <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
                   <div className="flex shrink-0 flex-col items-center gap-3 sm:items-start">
-                    <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-3xl font-bold text-primary-600 ring-4 ring-primary-50 lg:h-28 lg:w-28">
-                      {profile.user.avatarKey
-                        ? <img src={getAvatarUrl(profile.user.avatarKey)} alt="" className="h-full w-full object-cover" />
-                        : profile.user.fullName.charAt(0)}
+                    <div className="relative">
+                      <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-3xl font-bold text-primary-600 ring-4 ring-primary-50 lg:h-28 lg:w-28">
+                        {profile.user.avatarKey
+                          ? <img src={getAvatarUrl(profile.user.avatarKey)} alt="" className="h-full w-full object-cover" />
+                          : profile.user.fullName.charAt(0)}
+                      </div>
+                      {profile.user.isOnline && <span className="absolute bottom-0.5 right-0.5 h-4 w-4 rounded-full border-2 border-white bg-green-500" />}
                     </div>
-                    {profile.isVerified && (
-                      <span className="flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700">
-                        <CheckCircle className="h-3 w-3" /> {t('verified')}
-                      </span>
-                    )}
+                    <div className="flex items-center gap-1">
+                      {profile.user.isOnline ? (
+                        <span className="flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-medium text-green-700 before:inline-block before:h-2 before:w-2 before:rounded-full before:bg-green-500 before:content-['']">{t('online')}</span>
+                      ) : profile.user.lastSeen ? (
+                        <span className="text-[11px] text-gray-400">{t('lastSeen')} {timeAgo(profile.user.lastSeen, locale)}</span>
+                      ) : null}
+                      {profile.isOfficial && <span className="flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">🔵 {t('officialTeacher')}</span>}
+                      {profile.isVerified && !profile.isOfficial && (
+                        <span className="flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700">
+                          <CheckCircle className="h-3 w-3" /> {t('verified')}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="min-w-0 flex-1 text-center sm:text-right">
                     <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl">{profile.user.fullName}</h1>
@@ -264,6 +294,41 @@ export default function TeacherProfilePage() {
               </Card>
             )}
 
+            {(profile.facebookUrl || profile.instagramUrl || profile.linkedinUrl || profile.youtubeUrl || profile.websiteUrl) && (
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="text-lg font-semibold text-gray-900">{t('socialLinks')}</h2>
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    {profile.facebookUrl && (
+                      <a href={profile.facebookUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs text-gray-600 transition hover:bg-gray-50">
+                        <ExternalLink className="h-3.5 w-3.5" /> Facebook
+                      </a>
+                    )}
+                    {profile.instagramUrl && (
+                      <a href={profile.instagramUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs text-gray-600 transition hover:bg-gray-50">
+                        <ExternalLink className="h-3.5 w-3.5" /> Instagram
+                      </a>
+                    )}
+                    {profile.linkedinUrl && (
+                      <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs text-gray-600 transition hover:bg-gray-50">
+                        <ExternalLink className="h-3.5 w-3.5" /> LinkedIn
+                      </a>
+                    )}
+                    {profile.youtubeUrl && (
+                      <a href={profile.youtubeUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs text-gray-600 transition hover:bg-gray-50">
+                        <ExternalLink className="h-3.5 w-3.5" /> YouTube
+                      </a>
+                    )}
+                    {profile.websiteUrl && (
+                      <a href={profile.websiteUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs text-gray-600 transition hover:bg-gray-50">
+                        <Globe className="h-3.5 w-3.5" /> {t('website')}
+                      </a>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {profile.availability.length > 0 && (
               <Card>
                 <CardContent className="p-6">
@@ -337,6 +402,24 @@ export default function TeacherProfilePage() {
                         {faved ? t('removeFromFavorites') : t('saveToFavorites')}
                       </Button>
                     )}
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={async () => {
+                        if (typeof navigator.share === 'function') {
+                          await navigator.share({ title: profile.user.fullName, url: window.location.href });
+                        } else {
+                          await navigator.clipboard.writeText(window.location.href);
+                          setShareDone(true);
+                          setTimeout(() => setShareDone(false), 2000);
+                        }
+                      }}>
+                        <Share2 className="ml-1 h-3 w-3" /> {shareDone ? t('shareSuccess') : t('share')}
+                      </Button>
+                      {user && user.role === 'STUDENT' && (
+                        <Button variant="outline" size="sm" className="flex-1 text-xs text-red-600 hover:text-red-700" onClick={() => setShowReport(true)}>
+                          <Flag className="ml-1 h-3 w-3" /> {t('report')}
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -402,6 +485,41 @@ export default function TeacherProfilePage() {
           </Button>
         </div>
       </div>
+
+      {showReport && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">{t('reportTitle')}</h3>
+              <button onClick={() => { setShowReport(false); setReportDone(false); }}><X className="h-5 w-5 text-gray-400" /></button>
+            </div>
+            {reportDone ? (
+              <p className="mt-4 text-sm text-green-600">{t('reportSuccess')}</p>
+            ) : (
+              <>
+                <select value={reportReason} onChange={(e) => setReportReason(e.target.value)} className="mt-4 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                  <option value="fake">{t('reportReasons.fake')}</option>
+                  <option value="wrong">{t('reportReasons.wrong')}</option>
+                  <option value="harassment">{t('reportReasons.harassment')}</option>
+                  <option value="spam">{t('reportReasons.spam')}</option>
+                  <option value="other">{t('reportReasons.other')}</option>
+                </select>
+                <textarea value={reportDesc} onChange={(e) => setReportDesc(e.target.value)} placeholder={t('reportDescription')} className="mt-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" rows={3} />
+                <Button className="mt-4 w-full" onClick={async () => {
+                  setReporting(true);
+                  const res = await apiRequest(`/teachers/${id}/report`, {
+                    method: 'POST', body: JSON.stringify({ reason: reportReason, description: reportDesc }),
+                  });
+                  setReporting(false);
+                  if (res.success) setReportDone(true);
+                }} disabled={reporting}>
+                  {reporting ? c('loading') : t('report')}
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="pb-20 lg:pb-0">
         <Footer />

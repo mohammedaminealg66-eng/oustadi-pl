@@ -58,6 +58,11 @@ export class AuthService {
       },
     });
 
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { lastSeen: new Date(), isOnline: true },
+    });
+
     return tokens;
   }
 
@@ -89,10 +94,28 @@ export class AuthService {
     return tokens;
   }
 
-  async logout(refreshToken: string) {
+  async logout(userId: string, refreshToken: string) {
     await this.prisma.session.updateMany({
       where: { refreshToken, isRevoked: false },
       data: { isRevoked: true },
+    });
+
+    const activeSessions = await this.prisma.session.count({
+      where: { userId, isRevoked: false },
+    });
+
+    if (activeSessions === 0) {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { isOnline: false, lastSeen: new Date() },
+      });
+    }
+  }
+
+  async heartbeat(userId: string) {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { lastSeen: new Date(), isOnline: true },
     });
   }
 

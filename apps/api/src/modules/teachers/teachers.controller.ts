@@ -86,4 +86,14 @@ export class TeachersController {
   removeAvailability(@CurrentUser('userId') userId: string, @Param('id') id: string) {
     return this.teachers.removeAvailability(userId, id);
   }
+
+  @Post(':id/report')
+  @UseGuards(AuthGuard('jwt'))
+  reportTeacher(
+    @CurrentUser('userId') userId: string,
+    @Param('id') teacherId: string,
+    @Body() body: { reason: string; description?: string },
+  ) {
+    return this.teachers.reportTeacher(userId, teacherId, body.reason, body.description);
+  }
 }

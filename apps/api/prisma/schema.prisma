@@ -44,6 +44,8 @@ model User {
   isActive       Boolean   @default(true)
   isSuspended    Boolean   @default(false)
   suspensionReason String?
+  lastSeen       DateTime?
+  isOnline       Boolean   @default(false)
 
   studentProfile   StudentProfile?
   teacherProfile   TeacherProfile?
@@ -94,8 +96,14 @@ model TeacherProfile {
   city         String?
   showContact  Boolean      @default(false)
   isVerified   Boolean      @default(false)
+  isOfficial   Boolean      @default(false)
   responseTime String?
   introVideo   String?
+  facebookUrl  String?
+  instagramUrl String?
+  linkedinUrl  String?
+  youtubeUrl   String?
+  websiteUrl   String?
 
   subjects        TeacherSubject[]
   availability    AvailabilitySlot[]

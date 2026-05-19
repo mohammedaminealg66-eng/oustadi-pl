@@ -37,13 +37,20 @@ export class AuthController {
   @Post('logout')
   @HttpCode(200)
   @UseGuards(AuthGuard('jwt'))
-  logout(@Body('refreshToken') token: string) {
-    return this.auth.logout(token);
+  logout(@CurrentUser('userId') userId: string, @Body('refreshToken') token: string) {
+    return this.auth.logout(userId, token);
   }
 
-@Get('me')
-@UseGuards(AuthGuard('jwt'))
-me(@CurrentUser() user: any) {
+  @Post('heartbeat')
+  @HttpCode(200)
+  @UseGuards(AuthGuard('jwt'))
+  heartbeat(@CurrentUser('userId') userId: string) {
+    return this.auth.heartbeat(userId);
+  }
+
+  @Get('me')
+  @UseGuards(AuthGuard('jwt'))
+  me(@CurrentUser() user: any) {
     return user;
-}
+  }
 }
