@@ -4,9 +4,9 @@ import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
-  const adminPassword = await bcrypt.hash('admin123', 12);
-  const teacherPassword = await bcrypt.hash('teacher123', 12);
-  const studentPassword = await bcrypt.hash('student123', 12);
+  const adminPassword = await bcrypt.hash('Oust4d1@2026!', 12);
+  const teacherPassword = await bcrypt.hash('Teacher@2026!', 12);
+  const studentPassword = await bcrypt.hash('Student@2026!', 12);
 
   const admin = await prisma.user.upsert({
     where: { email: 'admin@oustadi.ma' },
@@ -99,9 +99,9 @@ async function main() {
   }
 
   console.log('Seed completed successfully');
-  console.log(`Admin: admin@oustadi.ma / admin123`);
-  console.log(`Teacher: teacher@oustadi.ma / teacher123`);
-  console.log(`Student: student@oustadi.ma / student123`);
+  console.log(`Admin:    admin@oustadi.ma / Oust4d1@2026!`);
+  console.log(`Teacher:  teacher@oustadi.ma / Teacher@2026!`);
+  console.log(`Student:  student@oustadi.ma / Student@2026!`);
 }
 
 main()

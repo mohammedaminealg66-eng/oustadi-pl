@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { apiRequest } from '@/lib/api';
 import { subjectName } from '@/lib/subject';
-import { getAvatarUrl } from '@/lib/asset';
+import { getAvatarUrl, getYouTubeEmbedUrl } from '@/lib/asset';
 import { useAuth } from '@/providers/auth-provider';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
@@ -239,7 +239,7 @@ export default function TeacherProfilePage() {
                 <CardContent className="p-6">
                   <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900"><Video className="h-5 w-5" /> {t('introVideo')}</h2>
                   <div className="mt-3 aspect-video overflow-hidden rounded-xl bg-black">
-                    <video controls className="h-full w-full" src={profile.introVideo} />
+                    <iframe src={getYouTubeEmbedUrl(profile.introVideo)} className="h-full w-full" allowFullScreen />
                   </div>
                 </CardContent>
               </Card>
