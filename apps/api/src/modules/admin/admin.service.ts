@@ -48,7 +48,10 @@ export class AdminService {
   async listReports() {
     return this.prisma.report.findMany({
       where: { isResolved: false },
-      include: { reporter: { select: { id: true, fullName: true } } },
+      include: {
+        reporter: { select: { id: true, fullName: true } },
+        target: { select: { id: true, fullName: true } },
+      },
       orderBy: { createdAt: 'desc' },
     });
   }

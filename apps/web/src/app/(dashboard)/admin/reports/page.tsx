@@ -32,13 +32,16 @@ export default function AdminReports() {
         {reports.map((report: any) => (
           <Card key={report.id}>
             <CardContent className="flex items-center justify-between p-4">
-              <div>
-                <p className="font-medium text-gray-900">{report.reason}</p>
-                <p className="text-sm text-gray-500">{report.description}</p>
+              <div className="flex-1">
+                <p className="font-medium text-gray-900">
+                  {t('reporter')}: {report.reporter?.fullName || '—'}
+                  <span className="mx-2 text-gray-300">|</span>
+                  {t('target')}: {report.target?.fullName || '—'}
+                </p>
+                <p className="mt-0.5 text-sm font-medium text-gray-700">{t('reason')}: {report.reason}</p>
+                {report.description && <p className="mt-0.5 text-sm text-gray-500">{report.description}</p>}
               </div>
-              {report.status === 'OPEN' && (
-                <Button size="sm" onClick={() => resolveReport(report.id)}>{t('resolve')}</Button>
-              )}
+              <Button size="sm" onClick={() => resolveReport(report.id)}>{t('resolve')}</Button>
             </CardContent>
           </Card>
         ))}

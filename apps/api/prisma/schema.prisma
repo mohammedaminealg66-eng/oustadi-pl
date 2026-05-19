@@ -56,6 +56,7 @@ model User {
   messages         Message[]
   favorites        Favorite[]
   reports          Report[]         @relation("Reporter")
+  reportedReports  Report[]         @relation("ReportedTarget")
   reviews          Review[]
   notifications    Notification[]
   sessions         Session[]
@@ -299,6 +300,7 @@ model Report {
   reporterId  String
   reporter    User     @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
   targetId    String
+  target      User     @relation("ReportedTarget", fields: [targetId], references: [id])
   reason      String
   description String?
   isResolved  Boolean  @default(false)
