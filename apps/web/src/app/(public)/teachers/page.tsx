@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { apiRequest } from '@/lib/api';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
-import { Input, Button, Card, CardContent } from '@oustadi/ui';
-import { Search, MapPin, BookOpen, DollarSign } from 'lucide-react';
+import { Input, Card, CardContent } from '@oustadi/ui';
+import { MapPin } from 'lucide-react';
 
 interface TeacherCard {
   id: string;
@@ -26,6 +27,9 @@ export default function TeachersPage() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [city, setCity] = useState('');
+  const h = useTranslations('home');
+  const t = useTranslations('teacher');
+  const c = useTranslations('common');
 
   useEffect(() => {
     async function fetch() {
@@ -46,12 +50,12 @@ export default function TeachersPage() {
       <Header />
       <main className="mx-auto max-w-7xl px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">البحث عن أساتذة</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{h('searchTeachers')}</h1>
           <div className="mt-4 flex gap-4">
             <div className="flex-1">
               <Input
                 id="search"
-                placeholder="ابحث عن أستاذ، مادة..."
+                placeholder={h('searchPlaceholder')}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
@@ -59,7 +63,7 @@ export default function TeachersPage() {
             <div className="w-48">
               <Input
                 id="city"
-                placeholder="المدينة"
+                placeholder={t('city')}
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
               />
@@ -76,7 +80,7 @@ export default function TeachersPage() {
             ))}
           </div>
         ) : teachers.length === 0 ? (
-          <div className="py-16 text-center text-gray-500">لا توجد نتائج</div>
+          <div className="py-16 text-center text-gray-500">{c('noResults')}</div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {teachers.map((teacher) => (
@@ -105,9 +109,9 @@ export default function TeachersPage() {
                       ))}
                     </div>
                     <div className="mt-4 flex items-center justify-between text-sm">
-                      <span className="text-gray-500">{teacher.experience || 0} سنوات خبرة</span>
-                      <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">{teacher.teachingMode === 'ONLINE' ? 'عن بعد' : teacher.teachingMode === 'IN_PERSON' ? 'حضوري' : 'الاثنين معاً'}</span>
-                      {teacher.price && <span className="font-semibold text-primary-600">{teacher.price} درهم</span>}
+                      <span className="text-gray-500">{teacher.experience || 0} {t('yearsExperience')}</span>
+                      <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">{teacher.teachingMode === 'ONLINE' ? t('online') : teacher.teachingMode === 'IN_PERSON' ? t('inPerson') : t('both')}</span>
+                      {teacher.price && <span className="font-semibold text-primary-600">{teacher.price} {t('dh')}</span>}
                     </div>
                   </CardContent>
                 </Card>

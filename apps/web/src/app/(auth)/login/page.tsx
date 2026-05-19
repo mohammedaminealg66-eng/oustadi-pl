@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/providers/auth-provider';
 import { Button, Input, Card, CardContent, CardHeader } from '@oustadi/ui';
 
@@ -11,6 +12,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const t = useTranslations('auth');
+  const c = useTranslations('common');
   const { login } = useAuth();
   const router = useRouter();
 
@@ -23,7 +26,7 @@ export default function LoginPage() {
     if (result.success) {
       router.push('/');
     } else {
-      setError(result.error || 'فشل تسجيل الدخول');
+      setError(result.error || c('error'));
     }
     setLoading(false);
   }
@@ -32,18 +35,18 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <h1 className="text-center text-2xl font-bold text-gray-900">تسجيل الدخول</h1>
-          <p className="mt-1 text-center text-sm text-gray-500">أهلاً بك مجدداً في أستادي</p>
+          <h1 className="text-center text-2xl font-bold text-gray-900">{c('login')}</h1>
+          <p className="mt-1 text-center text-sm text-gray-500">{t('welcomeBack')}</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</div>}
-            <Input id="email" label="البريد الإلكتروني" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            <Input id="password" label="كلمة السر" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            <Button type="submit" className="w-full" disabled={loading}>{loading ? 'جار التحميل...' : 'تسجيل الدخول'}</Button>
+            <Input id="email" label={t('email')} type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <Input id="password" label={t('password')} type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <Button type="submit" className="w-full" disabled={loading}>{loading ? c('loading') : c('login')}</Button>
           </form>
           <p className="mt-4 text-center text-sm text-gray-500">
-            ليس لديك حساب؟ <Link href="/register" className="font-medium text-primary-600 hover:text-primary-700">إنشاء حساب</Link>
+            {t('noAccount')} <Link href="/register" className="font-medium text-primary-600 hover:text-primary-700">{c('register')}</Link>
           </p>
         </CardContent>
       </Card>

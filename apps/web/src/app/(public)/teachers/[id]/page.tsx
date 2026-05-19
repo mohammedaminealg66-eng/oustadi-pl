@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { apiRequest } from '@/lib/api';
 import { useAuth } from '@/providers/auth-provider';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Button, Card, CardContent } from '@oustadi/ui';
-import { MapPin, BookOpen, Clock, Award, MessageSquare, Heart, HeartOff } from 'lucide-react';
+import { MapPin, BookOpen, Clock, Award, Heart, HeartOff } from 'lucide-react';
 
 interface TeacherProfile {
   id: string;
@@ -30,6 +31,8 @@ export default function TeacherProfilePage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const router = useRouter();
+  const t = useTranslations('teacher');
+  const c = useTranslations('common');
   const [profile, setProfile] = useState<TeacherProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [requestMsg, setRequestMsg] = useState('');
@@ -47,7 +50,7 @@ export default function TeacherProfilePage() {
 
   async function sendRequest() {
     if (!user) { router.push('/login'); return; }
-    if (!selectedSubject) { alert('الرجاء اختيار المادة'); return; }
+    if (!selectedSubject) { alert(t('pleaseSelectSubject')); return; }
     setSending(true);
     const res = await apiRequest('/requests', {
       method: 'POST',
@@ -56,14 +59,14 @@ export default function TeacherProfilePage() {
     setSending(false);
     if (res.success) {
       setRequestMsg('');
-      alert('تم إرسال الطلب بنجاح');
+      alert(t('requestSent'));
     } else {
-      alert(res.error || 'فشل إرسال الطلب');
+      alert(res.error || t('requestFailed'));
     }
   }
 
   if (loading) return <><Header /><main className="mx-auto max-w-4xl px-4 py-8"><div className="h-96 animate-pulse rounded-xl bg-gray-100" /></main></>;
-  if (!profile) return <><Header /><main className="py-16 text-center text-gray-500">الأستاذ غير موجود</main></>;
+  if (!profile) return <><Header /><main className="py-16 text-center text-gray-500">{t('notFound')}</main></>;
 
   return (
     <>
@@ -79,35 +82,35 @@ export default function TeacherProfilePage() {
                 <h1 className="text-2xl font-bold text-gray-900">{profile.user.fullName}</h1>
                 {profile.city && <p className="mt-1 flex items-center gap-1 text-gray-500"><MapPin className="h-4 w-4" /> {profile.city}</p>}
                 <div className="mt-2 flex gap-4 text-sm text-gray-500">
-                  <span className="flex items-center gap-1"><Award className="h-4 w-4" /> {profile.experience || 0} سنوات خبرة</span>
-                  <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {profile.teachingMode === 'ONLINE' ? 'عن بعد' : profile.teachingMode === 'IN_PERSON' ? 'حضوري' : profile.teachingMode === 'BOTH' ? 'الاثنين معاً' : 'الاثنين معاً'}</span>
+                  <span className="flex items-center gap-1"><Award className="h-4 w-4" /> {profile.experience || 0} {t('yearsExperience')}</span>
+                  <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {profile.teachingMode === 'ONLINE' ? t('online') : profile.teachingMode === 'IN_PERSON' ? t('inPerson') : t('both')}</span>
                   {profile.showContact && profile.user.phone && <span className="text-sm text-gray-500">📞 {profile.user.phone}</span>}
                 </div>
               </div>
               {profile.price && (
                 <div className="text-left">
                   <p className="text-2xl font-bold text-primary-600">{profile.price}</p>
-                  <p className="text-sm text-gray-500">درهم/للساعة</p>
+                  <p className="text-sm text-gray-500">{t('dhPerHour')}</p>
                 </div>
               )}
             </div>
 
             {profile.bio && (
               <div className="mt-6">
-                <h2 className="text-lg font-semibold text-gray-900">عن الأستاذ</h2>
+                <h2 className="text-lg font-semibold text-gray-900">{t('about')}</h2>
                 <p className="mt-2 text-gray-600">{profile.bio}</p>
               </div>
             )}
 
             <div className="mt-6">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2"><BookOpen className="h-5 w-5" /> المواد</h2>
+              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2"><BookOpen className="h-5 w-5" /> {t('subjects')}</h2>
               <div className="mt-2 space-y-2">
                 {profile.subjects.map((s) => (
                   <div key={s.id} className="flex items-center justify-between rounded-lg bg-gray-50 px-4 py-2">
                     <span className="font-medium text-gray-900">{s.subject.nameAr}</span>
                     <div className="flex gap-2">
                       {s.levels.map((l) => <span key={l} className="rounded-full bg-gray-200 px-2 py-0.5 text-xs">{l}</span>)}
-                      {s.price && <span className="text-sm text-primary-600">{s.price} درهم</span>}
+                      {s.price && <span className="text-sm text-primary-600">{s.price} {t('dh')}</span>}
                     </div>
                   </div>
                 ))}
@@ -116,7 +119,7 @@ export default function TeacherProfilePage() {
 
             {profile.availability.length > 0 && (
               <div className="mt-6">
-                <h2 className="text-lg font-semibold text-gray-900">أوقات التوفر</h2>
+                <h2 className="text-lg font-semibold text-gray-900">{t('availability')}</h2>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {profile.availability.map((slot) => (
                     <span key={slot.id} className="rounded-full bg-secondary-50 px-3 py-1 text-sm text-secondary-700">
@@ -128,29 +131,29 @@ export default function TeacherProfilePage() {
             )}
 
             <div className="mt-8 border-t pt-6">
-              <h2 className="text-lg font-semibold text-gray-900">إرسال طلب درس</h2>
+              <h2 className="text-lg font-semibold text-gray-900">{t('sendLessonRequest')}</h2>
               <select
                 value={selectedSubject}
                 onChange={(e) => setSelectedSubject(e.target.value)}
                 className="mt-3 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
               >
-                <option value="">اختر المادة</option>
+                <option value="">{t('chooseSubject')}</option>
                 {profile.subjects.length > 0 ? profile.subjects.map((s) => (
                   <option key={s.id} value={s.subject.id}>{s.subject.nameAr}</option>
                 )) : (
-                  <option disabled>هذا الأستاذ لم يضف مواد بعد</option>
+                  <option disabled>{t('noSubjectsForTeacher')}</option>
                 )}
               </select>
               <textarea
                 value={requestMsg}
                 onChange={(e) => setRequestMsg(e.target.value)}
-                placeholder="اكتب رسالتك للأستاذ..."
+                placeholder={t('messagePlaceholder')}
                 className="mt-2 block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm"
                 rows={3}
               />
               <div className="mt-4 flex gap-3">
                 <Button onClick={sendRequest} disabled={sending || !requestMsg || profile.subjects.length === 0}>
-                  {sending ? 'جار الإرسال...' : 'إرسال الطلب'}
+                  {sending ? t('sending') : t('sendRequest')}
                 </Button>
                 {user && user.role === 'STUDENT' && profile && (
                   <FavoriteButton profileId={profile.id} />
@@ -168,6 +171,7 @@ export default function TeacherProfilePage() {
 function FavoriteButton({ profileId }: { profileId: string }) {
   const [faved, setFaved] = useState(false);
   const [toggling, setToggling] = useState(false);
+  const t = useTranslations('teacher');
 
   useEffect(() => {
     apiRequest<any[]>('/students/favorites').then((res) => {
@@ -187,7 +191,7 @@ function FavoriteButton({ profileId }: { profileId: string }) {
   return (
     <Button variant="outline" onClick={toggle} disabled={toggling}>
       {faved ? <HeartOff className="ml-1 h-4 w-4" /> : <Heart className="ml-1 h-4 w-4" />}
-      {faved ? 'إزالة من المفضلة' : 'حفظ في المفضلة'}
+      {faved ? t('removeFromFavorites') : t('saveToFavorites')}
     </Button>
   );
 }

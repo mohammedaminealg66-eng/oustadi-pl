@@ -14,10 +14,16 @@
     "loading": "Chargement...",
     "noResults": "Aucun résultat",
     "error": "Une erreur est survenue",
-    "back": "Retour"
+    "back": "Retour",
+    "freeRegister": "Créer un compte gratuit",
+    "teachers": "Enseignants",
+    "notifications": "Notifications",
+    "markAllRead": "Tout marquer comme lu",
+    "noNotifications": "Aucune notification",
+    "copyright": "© {year} Oustadi — Plateforme éducative marocaine. Tous droits réservés."
   },
   "home": {
-    "heroTitle": "Trouvez votre professeur idéal",
+    "heroTitle": "Trouvez votre <span>professeur</span> idéal",
     "heroSubtitle": "Plateforme marocaine qui connecte enseignants et étudiants facilement",
     "searchPlaceholder": "Rechercher un professeur, matière ou ville...",
     "howItWorks": "Comment ça marche",
@@ -25,7 +31,14 @@
     "forTeachers": "Pour les enseignants",
     "browseTeachers": "Parcourir les enseignants",
     "createProfile": "Créer votre profil",
-    "startLearning": "Commencez à apprendre"
+    "startLearning": "Commencez à apprendre",
+    "cardStudentTitle": "Pour les étudiants",
+    "cardStudentDesc": "Recherchez des enseignants, parcourez leurs profils et envoyez des demandes de cours facilement.",
+    "cardTeacherTitle": "Pour les enseignants",
+    "cardTeacherDesc": "Créez votre profil professionnel, présentez vos services et connectez avec les étudiants intéressés.",
+    "cardConnectTitle": "Connectez-vous",
+    "cardConnectDesc": "Discutez avec vos enseignants ou étudiants via la plateforme et organisez des sessions d'apprentissage.",
+    "searchTeachers": "Rechercher des enseignants"
   },
   "auth": {
     "email": "Email",
@@ -38,7 +51,11 @@
     "noAccount": "Pas de compte ?",
     "hasAccount": "Déjà un compte ?",
     "forgotPassword": "Mot de passe oublié ?",
-    "registerSuccess": "Compte créé avec succès"
+    "registerSuccess": "Compte créé avec succès",
+    "welcomeBack": "Bienvenue à nouveau sur Oustadi",
+    "createAccount": "Créer un nouveau compte",
+    "joinPlatform": "Rejoignez la plateforme Oustadi",
+    "registerButton": "Créer le compte"
   },
   "teacher": {
     "profile": "Profil",
@@ -54,7 +71,21 @@
     "teachingMode": "Mode d'enseignement",
     "online": "En ligne",
     "inPerson": "En présentiel",
-    "both": "Les deux"
+    "both": "Les deux",
+    "dh": "DH",
+    "dhPerHour": "DH/heure",
+    "notFound": "Enseignant non trouvé",
+    "about": "À propos",
+    "sendLessonRequest": "Envoyer une demande de cours",
+    "chooseSubject": "Choisir la matière",
+    "noSubjectsForTeacher": "Cet enseignant n'a pas encore ajouté de matières",
+    "messagePlaceholder": "Écrivez votre message...",
+    "sending": "Envoi en cours...",
+    "requestSent": "Demande envoyée avec succès",
+    "requestFailed": "Échec de l'envoi de la demande",
+    "pleaseSelectSubject": "Veuillez choisir une matière",
+    "removeFromFavorites": "Retirer des favoris",
+    "saveToFavorites": "Ajouter aux favoris"
   },
   "dashboard": {
     "myProfile": "Mon profil",

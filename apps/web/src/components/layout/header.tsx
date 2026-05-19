@@ -11,7 +11,6 @@ import { Bell } from 'lucide-react';
 const languages = [
   { code: 'ar', label: 'AR', name: 'العربية' },
   { code: 'fr', label: 'FR', name: 'Français' },
-  { code: 'en', label: 'EN', name: 'English' },
 ];
 
 function switchLocale(code: string) {
@@ -49,7 +48,7 @@ export function Header() {
 
         <nav className="hidden items-center gap-6 md:flex">
           <Link href="/teachers" className="text-sm font-medium text-gray-600 hover:text-primary-600">
-            الأساتذة
+            {t('common.teachers')}
           </Link>
           {isAuthenticated && (
             <Link href={user?.role === 'ADMIN' ? '/admin' : user?.role === 'TEACHER' ? '/teacher' : '/student'} className="text-sm font-medium text-gray-600 hover:text-primary-600">
@@ -80,12 +79,12 @@ export function Header() {
               {notifOpen && (
                 <div className="absolute left-0 mt-2 w-72 rounded-lg border bg-white shadow-lg z-50">
                   <div className="flex items-center justify-between border-b px-4 py-2">
-                    <span className="text-sm font-semibold text-gray-900">التنبيهات</span>
-                    <button onClick={markAllRead} className="text-xs text-primary-600 hover:underline">تحديد الكل كمقروء</button>
+                    <span className="text-sm font-semibold text-gray-900">{t('common.notifications')}</span>
+                    <button onClick={markAllRead} className="text-xs text-primary-600 hover:underline">{t('common.markAllRead')}</button>
                   </div>
                   <div className="max-h-64 overflow-y-auto">
                     {notifications.length === 0 ? (
-                      <p className="py-6 text-center text-sm text-gray-400">لا توجد تنبيهات</p>
+                      <p className="py-6 text-center text-sm text-gray-400">{t('common.noNotifications')}</p>
                     ) : (
                       notifications.slice(0, 10).map((n) => (
                         <Link key={n.id} href={n.link || '#'} onClick={() => setNotifOpen(false)} className={`block border-b px-4 py-3 text-sm transition ${n.isRead ? 'bg-white' : 'bg-primary-50'}`}>

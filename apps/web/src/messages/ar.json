@@ -14,10 +14,16 @@
     "loading": "جار التحميل...",
     "noResults": "لا توجد نتائج",
     "error": "حدث خطأ",
-    "back": "رجوع"
+    "back": "رجوع",
+    "freeRegister": "إنشاء حساب مجاني",
+    "teachers": "الأساتذة",
+    "notifications": "التنبيهات",
+    "markAllRead": "تحديد الكل كمقروء",
+    "noNotifications": "لا توجد تنبيهات",
+    "copyright": "© {year} أستادي — منصة التعليم المغربية. جميع الحقوق محفوظة."
   },
   "home": {
-    "heroTitle": "ابحث عن أستاذك المثالي",
+    "heroTitle": "ابحث عن <span>أستاذك</span> المثالي",
     "heroSubtitle": "منصة مغربية تربط بين الأساتذة والطلاب بسهولة",
     "searchPlaceholder": "ابحث عن أستاذ، مادة، أو مدينة...",
     "howItWorks": "كيف تعمل المنصة",
@@ -25,7 +31,14 @@
     "forTeachers": "للأساتذة",
     "browseTeachers": "تصفح الأساتذة",
     "createProfile": "أنشئ ملفك الشخصي",
-    "startLearning": "ابدأ التعلم"
+    "startLearning": "ابدأ التعلم",
+    "cardStudentTitle": "للطلاب",
+    "cardStudentDesc": "ابحث عن الأساتذة، تصفح ملفاتهم، وأرسل طلبات الدروس بسهولة.",
+    "cardTeacherTitle": "للأساتذة",
+    "cardTeacherDesc": "أنشئ ملفك المهني، اعرض خدماتك، وتواصل مع الطلاب المهتمين.",
+    "cardConnectTitle": "تواصل",
+    "cardConnectDesc": "دردش مع أساتذتك أو طلابك عبر المنصة ونسق جلسات التعلم.",
+    "searchTeachers": "البحث عن أساتذة"
   },
   "auth": {
     "email": "البريد الإلكتروني",
@@ -38,7 +51,11 @@
     "noAccount": "ليس لديك حساب؟",
     "hasAccount": "لديك حساب بالفعل؟",
     "forgotPassword": "نسيت كلمة السر؟",
-    "registerSuccess": "تم إنشاء الحساب بنجاح"
+    "registerSuccess": "تم إنشاء الحساب بنجاح",
+    "welcomeBack": "أهلاً بك مجدداً في أستادي",
+    "createAccount": "إنشاء حساب جديد",
+    "joinPlatform": "انضم إلى منصة أستادي",
+    "registerButton": "إنشاء الحساب"
   },
   "teacher": {
     "profile": "الملف الشخصي",
@@ -54,7 +71,21 @@
     "teachingMode": "نمط التدريس",
     "online": "عن بعد",
     "inPerson": "حضوري",
-    "both": "الاثنين معاً"
+    "both": "الاثنين معاً",
+    "dh": "درهم",
+    "dhPerHour": "درهم/للساعة",
+    "notFound": "الأستاذ غير موجود",
+    "about": "عن الأستاذ",
+    "sendLessonRequest": "إرسال طلب درس",
+    "chooseSubject": "اختر المادة",
+    "noSubjectsForTeacher": "هذا الأستاذ لم يضف مواد بعد",
+    "messagePlaceholder": "اكتب رسالتك للأستاذ...",
+    "sending": "جار الإرسال...",
+    "requestSent": "تم إرسال الطلب بنجاح",
+    "requestFailed": "فشل إرسال الطلب",
+    "pleaseSelectSubject": "الرجاء اختيار المادة",
+    "removeFromFavorites": "إزالة من المفضلة",
+    "saveToFavorites": "حفظ في المفضلة"
   },
   "dashboard": {
     "myProfile": "ملفي الشخصي",
