@@ -404,22 +404,21 @@ export default function TeacherProfilePage() {
                       </Button>
                     )}
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={async () => {
-                        try {
-                          if (typeof navigator.share === 'function') {
-                            await navigator.share({ title: profile.user.fullName, url: window.location.href });
-                          } else {
-                            await navigator.clipboard.writeText(window.location.href);
-                          }
-                          setShareDone(true);
-                          setTimeout(() => setShareDone(false), 2000);
-                        } catch {
-                          try {
-                            await navigator.clipboard.writeText(window.location.href);
-                            setShareDone(true);
-                            setTimeout(() => setShareDone(false), 2000);
-                          } catch {}
+                      <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={() => {
+                        if (typeof navigator.share === 'function') {
+                          navigator.share({ title: profile.user.fullName, url: window.location.href }).catch(() => {});
+                        } else {
+                          const ta = document.createElement('textarea');
+                          ta.value = window.location.href;
+                          ta.style.position = 'fixed';
+                          ta.style.opacity = '0';
+                          document.body.appendChild(ta);
+                          ta.select();
+                          document.execCommand('copy');
+                          document.body.removeChild(ta);
                         }
+                        setShareDone(true);
+                        setTimeout(() => setShareDone(false), 2000);
                       }}>
                         <Share2 className="ml-1 h-3 w-3" /> {shareDone ? t('shareSuccess') : t('share')}
                       </Button>

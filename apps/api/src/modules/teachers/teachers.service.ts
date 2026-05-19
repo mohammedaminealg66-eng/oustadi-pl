@@ -193,16 +193,19 @@ export class TeachersService {
   }
 
   async reportTeacher(reporterId: string, teacherId: string, reason: string, description?: string) {
-    const profile = await this.prisma.teacherProfile.findUnique({ where: { userId: teacherId } });
+    const profile = await this.prisma.teacherProfile.findUnique({ where: { id: teacherId } });
     if (!profile) throw new NotFoundException('Teacher not found');
 
-    return this.prisma.report.create({
+    const report = await this.prisma.report.create({
       data: {
         reporterId,
-        targetId: teacherId,
+        targetId: profile.userId,
         reason,
         description,
       },
     });
+
+    this.logger.log(`Report #${report.id}: user ${reporterId} reported teacher ${profile.userId} for "${reason}"`);
+    return report;
   }
 }
