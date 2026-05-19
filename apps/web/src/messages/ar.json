@@ -218,6 +218,9 @@
     "reportsTitle": "البلاغات",
     "usersTitle": "المستخدمون",
     "subjectsTitle": "المواد",
+    "reject": "رفض",
+    "rejecting": "جاري الرفض...",
+    "rejectConfirm": "هل أنت متأكد من رفض هذه الوثيقة؟ سيتم حذفها نهائياً.",
     "dashboardTitle": "لوحة تحكم الإدارة"
   }
 }

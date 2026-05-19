@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Param, Query, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Delete, Param, Query, Body, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AdminService } from './admin.service';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -49,5 +49,10 @@ export class AdminController {
   @Patch('documents/:id/verify')
   verifyDocument(@Param('id') id: string) {
     return this.admin.verifyDocument(id);
+  }
+
+  @Delete('documents/:id')
+  rejectDocument(@Param('id') id: string) {
+    return this.admin.rejectDocument(id);
   }
 }

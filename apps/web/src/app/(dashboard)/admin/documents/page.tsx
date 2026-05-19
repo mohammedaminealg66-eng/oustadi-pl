@@ -5,13 +5,14 @@ import { useTranslations } from 'next-intl';
 import { apiRequest } from '@/lib/api';
 import { getAvatarUrl } from '@/lib/asset';
 import { Card, CardContent } from '@oustadi/ui';
-import { CheckCircle, ExternalLink } from 'lucide-react';
+import { CheckCircle, XCircle, ExternalLink } from 'lucide-react';
 
 export default function AdminDocuments() {
   const t = useTranslations('admin');
   const [docs, setDocs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState<string | null>(null);
+  const [rejecting, setRejecting] = useState<string | null>(null);
 
   const fetchDocs = async () => {
     const res = await apiRequest('/admin/documents/pending');
@@ -27,6 +28,14 @@ export default function AdminDocuments() {
     await apiRequest(`/admin/documents/${id}/verify`, { method: 'PATCH' });
     setDocs((prev) => prev.filter((d) => d.id !== id));
     setVerifying(null);
+  };
+
+  const rejectDoc = async (id: string) => {
+    if (!confirm(t('rejectConfirm'))) return;
+    setRejecting(id);
+    await apiRequest(`/admin/documents/${id}`, { method: 'DELETE' });
+    setDocs((prev) => prev.filter((d) => d.id !== id));
+    setRejecting(null);
   };
 
   const docUrl = (doc: any) => getAvatarUrl(`uploads/documents/${doc.fileName}`);
@@ -64,6 +73,13 @@ export default function AdminDocuments() {
                   >
                     <ExternalLink className="h-4 w-4" /> {t('view')}
                   </a>
+                  <button
+                    onClick={() => rejectDoc(doc.id)}
+                    disabled={rejecting === doc.id}
+                    className="flex items-center gap-1 rounded-lg border border-red-300 px-3 py-2 text-sm font-medium text-red-700 transition hover:bg-red-50 disabled:opacity-50"
+                  >
+                    {rejecting === doc.id ? t('rejecting') : <><XCircle className="h-4 w-4" /> {t('reject')}</>}
+                  </button>
                   <button
                     onClick={() => verifyDoc(doc.id)}
                     disabled={verifying === doc.id}

@@ -219,6 +219,9 @@
     "reportsTitle": "Signalements",
     "usersTitle": "Utilisateurs",
     "subjectsTitle": "Matières",
+    "reject": "Refuser",
+    "rejecting": "Refus...",
+    "rejectConfirm": "Êtes-vous sûr de vouloir refuser ce document ? Il sera supprimé définitivement.",
     "dashboardTitle": "Tableau de bord"
   }
 }

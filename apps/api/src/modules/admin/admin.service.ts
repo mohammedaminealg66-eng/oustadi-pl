@@ -76,4 +76,10 @@ export class AdminService {
       data: { isVerified: true },
     });
   }
+
+  async rejectDocument(docId: string) {
+    return this.prisma.uploadedDocument.delete({
+      where: { id: docId },
+    });
+  }
 }
