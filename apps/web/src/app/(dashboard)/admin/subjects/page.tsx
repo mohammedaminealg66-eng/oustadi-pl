@@ -1,12 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useLocale } from 'next-intl';
 import { apiRequest } from '@/lib/api';
+import { subjectName } from '@/lib/subject';
 import { Card, CardContent } from '@oustadi/ui';
 
 export default function AdminSubjects() {
   const [subjects, setSubjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const locale = useLocale();
 
   useEffect(() => {
     apiRequest('/subjects').then((res) => {
@@ -24,8 +27,8 @@ export default function AdminSubjects() {
         {subjects.map((subj: any) => (
           <Card key={subj.id}>
             <CardContent className="p-4">
-              <p className="font-medium text-gray-900">{subj.nameAr}</p>
-              {subj.nameFr && <p className="text-sm text-gray-500">{subj.nameFr}</p>}
+              <p className="font-medium text-gray-900">{subjectName(subj, locale)}</p>
+              <p className="text-xs text-gray-400">{locale === 'fr' ? subj.nameAr : subj.nameFr}</p>
             </CardContent>
           </Card>
         ))}

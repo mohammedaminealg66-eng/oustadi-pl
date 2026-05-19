@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { apiRequest } from '@/lib/api';
+import { subjectName } from '@/lib/subject';
 import { Card, CardContent, Button } from '@oustadi/ui';
 
 export default function StudentDashboard() {
   const [requests, setRequests] = useState<any>({ sent: [], received: [] });
   const [loading, setLoading] = useState(true);
+  const locale = useLocale();
   const d = useTranslations('dashboard');
   const c = useTranslations('common');
 
@@ -40,7 +42,7 @@ export default function StudentDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-gray-900">{req.teacher?.fullName}</p>
-                      <p className="text-sm text-gray-500">{req.subject?.nameAr}</p>
+                      <p className="text-sm text-gray-500">{subjectName(req.subject, locale)}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={`rounded-full px-3 py-1 text-xs font-medium ${

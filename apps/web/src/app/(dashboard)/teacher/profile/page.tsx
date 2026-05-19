@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { apiRequest } from '@/lib/api';
+import { subjectName } from '@/lib/subject';
 import { Button, Card, CardContent, CardHeader } from '@oustadi/ui';
 
 export default function TeacherProfile() {
@@ -11,6 +12,7 @@ export default function TeacherProfile() {
   const [selectedSubject, setSelectedSubject] = useState('');
   const [levels, setLevels] = useState('');
   const [adding, setAdding] = useState(false);
+  const locale = useLocale();
   const d = useTranslations('dashboard');
   const t = useTranslations('teacher');
   const a = useTranslations('auth');
@@ -65,7 +67,7 @@ export default function TeacherProfile() {
               {profile.teacherProfile.subjects.map((s: any) => (
                 <div key={s.id} className="flex items-center justify-between rounded-lg bg-gray-50 px-4 py-3">
                   <div>
-                    <span className="font-medium text-gray-900">{s.subject.nameAr}</span>
+                    <span className="font-medium text-gray-900">{subjectName(s.subject, locale)}</span>
                     {s.levels?.length > 0 && (
                       <div className="mt-1 flex gap-1">
                         {s.levels.map((l: string) => <span key={l} className="rounded-full bg-gray-200 px-2 py-0.5 text-xs">{l}</span>)}
@@ -84,7 +86,7 @@ export default function TeacherProfile() {
             <div className="flex flex-wrap items-end gap-2 border-t pt-4">
               <select value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)} className="rounded-lg border border-gray-300 px-3 py-2 text-sm">
                 <option value="">{t('chooseSubject')}</option>
-                {available.map((s: any) => <option key={s.id} value={s.id}>{s.nameAr}</option>)}
+                {available.map((s: any) => <option key={s.id} value={s.id}>{subjectName(s, locale)}</option>)}
               </select>
               <input value={levels} onChange={(e) => setLevels(e.target.value)} placeholder={t('levelsPlaceholder')} className="rounded-lg border border-gray-300 px-3 py-2 text-sm w-48" />
               <Button size="sm" onClick={addSubject} disabled={adding || !selectedSubject}>{d('add')}</Button>

@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { apiRequest } from '@/lib/api';
+import { subjectName } from '@/lib/subject';
 import { useAuth } from '@/providers/auth-provider';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
@@ -31,6 +32,7 @@ export default function TeacherProfilePage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations('teacher');
   const c = useTranslations('common');
   const [profile, setProfile] = useState<TeacherProfile | null>(null);
@@ -107,7 +109,7 @@ export default function TeacherProfilePage() {
               <div className="mt-2 space-y-2">
                 {profile.subjects.map((s) => (
                   <div key={s.id} className="flex items-center justify-between rounded-lg bg-gray-50 px-4 py-2">
-                    <span className="font-medium text-gray-900">{s.subject.nameAr}</span>
+                    <span className="font-medium text-gray-900">{subjectName(s.subject, locale)}</span>
                     <div className="flex gap-2">
                       {s.levels.map((l) => <span key={l} className="rounded-full bg-gray-200 px-2 py-0.5 text-xs">{l}</span>)}
                       {s.price && <span className="text-sm text-primary-600">{s.price} {t('dh')}</span>}
@@ -139,7 +141,7 @@ export default function TeacherProfilePage() {
               >
                 <option value="">{t('chooseSubject')}</option>
                 {profile.subjects.length > 0 ? profile.subjects.map((s) => (
-                  <option key={s.id} value={s.subject.id}>{s.subject.nameAr}</option>
+                  <option key={s.id} value={s.subject.id}>{subjectName(s.subject, locale)}</option>
                 )) : (
                   <option disabled>{t('noSubjectsForTeacher')}</option>
                 )}

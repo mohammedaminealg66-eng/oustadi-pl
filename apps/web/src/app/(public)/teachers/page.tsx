@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { apiRequest } from '@/lib/api';
+import { subjectName } from '@/lib/subject';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Input, Card, CardContent } from '@oustadi/ui';
@@ -27,6 +28,7 @@ export default function TeachersPage() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [city, setCity] = useState('');
+  const locale = useLocale();
   const h = useTranslations('home');
   const t = useTranslations('teacher');
   const c = useTranslations('common');
@@ -104,7 +106,7 @@ export default function TeachersPage() {
                     <div className="mt-4 flex flex-wrap gap-2">
                       {teacher.subjects?.slice(0, 3).map((s) => (
                         <span key={s.id} className="rounded-full bg-primary-50 px-3 py-1 text-xs text-primary-700">
-                          {s.nameAr}
+                          {subjectName(s, locale)}
                         </span>
                       ))}
                     </div>

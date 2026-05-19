@@ -2,14 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { apiRequest } from '@/lib/api';
+import { subjectName } from '@/lib/subject';
 import { Card, CardContent } from '@oustadi/ui';
 import { MapPin, Award, Clock, X, ArrowRight } from 'lucide-react';
 
 export default function StudentFavorites() {
   const [favorites, setFavorites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const locale = useLocale();
   const d = useTranslations('dashboard');
   const t = useTranslations('teacher');
   const c = useTranslations('common');
@@ -55,7 +57,7 @@ export default function StudentFavorites() {
                   </div>
                   <div className="mt-3 flex flex-wrap gap-1">
                     {tch.subjects?.slice(0, 2).map((s: any) => (
-                      <span key={s.id} className="rounded-full bg-primary-50 px-2 py-0.5 text-xs text-primary-700">{s.subject?.nameAr}</span>
+                      <span key={s.id} className="rounded-full bg-primary-50 px-2 py-0.5 text-xs text-primary-700">{subjectName(s.subject, locale)}</span>
                     ))}
                   </div>
                   <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
