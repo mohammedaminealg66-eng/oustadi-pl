@@ -50,7 +50,7 @@ export default function ChatPage() {
     });
 
     const token = getTokens().accessToken;
-    const s = io('/', {
+    const s = io('/ws', {
       auth: { token },
       transports: ['websocket', 'polling'],
     });
