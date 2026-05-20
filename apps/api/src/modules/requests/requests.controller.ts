@@ -72,4 +72,22 @@ export class RequestsController {
   rejectProposal(@Param('id') id: string, @CurrentUser('userId') userId: string) {
     return this.requests.rejectProposal(id, userId);
   }
+
+  @Patch(':id/confirm-completion')
+  confirmCompletion(
+    @Param('id') id: string,
+    @CurrentUser('userId') userId: string,
+    @Body() body: { confirmed: boolean; reason?: string },
+  ) {
+    return this.requests.confirmCompletion(id, userId, body.confirmed, body.reason);
+  }
+
+  @Patch(':id/dispute')
+  disputeLesson(
+    @Param('id') id: string,
+    @CurrentUser('userId') userId: string,
+    @Body() body: { reason: string },
+  ) {
+    return this.requests.disputeLesson(id, userId, body.reason);
+  }
 }

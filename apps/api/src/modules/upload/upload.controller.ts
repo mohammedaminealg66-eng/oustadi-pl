@@ -30,4 +30,10 @@ export class UploadController {
   deleteUpload(@Param('id') id: string) {
     return this.upload.deleteUpload(id);
   }
+
+  @Post('chat-file')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadChatFile(@CurrentUser('userId') userId: string, @UploadedFile() file: Express.Multer.File) {
+    return this.upload.uploadChatFile(userId, file);
+  }
 }

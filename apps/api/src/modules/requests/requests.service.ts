@@ -295,4 +295,113 @@ export class RequestsService {
 
     return updated;
   }
+
+  async confirmCompletion(requestId: string, userId: string, confirmed: boolean, reason?: string) {
+    const request = await this.prisma.lessonRequest.findUnique({ where: { id: requestId } });
+    if (!request) throw new NotFoundException('Request not found');
+    if (request.studentId !== userId) throw new ForbiddenException('Only the student can confirm completion');
+    if (request.status !== 'COMPLETED') throw new ForbiddenException('Lesson must be marked as completed by teacher first');
+
+    if (confirmed) {
+      const updated = await this.prisma.lessonRequest.update({
+        where: { id: requestId },
+        data: { bookingStatus: 'completed' },
+        include: {
+          teacher: { select: { id: true, fullName: true } },
+          subject: true,
+        },
+      });
+
+      await this.prisma.notification.create({
+        data: {
+          userId: request.teacherId,
+          title: 'تم تأكيد الحصة',
+          body: `أكد التلميذ إكمال الحصة في ${updated.subject?.nameAr || 'المادة'}`,
+          type: 'lesson_confirmed',
+          link: '/teacher/requests',
+        },
+      });
+
+      this.chatGateway.sendToUser(request.teacherId, 'notification:new', {
+        type: 'lesson_confirmed',
+        title: 'تم تأكيد الحصة',
+        body: `أكد التلميذ إكمال الحصة`,
+        link: '/teacher/requests',
+      });
+
+      return updated;
+    } else {
+      const updated = await this.prisma.lessonRequest.update({
+        where: { id: requestId },
+        data: {
+          bookingStatus: 'disputed',
+          disputeReason: reason || 'التلميذ لم يؤكد إكمال الحصة',
+        },
+        include: {
+          teacher: { select: { id: true, fullName: true } },
+          student: { select: { id: true, fullName: true } },
+          subject: true,
+        },
+      });
+
+      await this.prisma.notification.create({
+        data: {
+          userId: request.teacherId,
+          title: 'نزاع في الحصة',
+          body: `التلميذ لم يؤكد إكمال الحصة في ${updated.subject?.nameAr || 'المادة'}`,
+          type: 'lesson_disputed',
+          link: '/teacher/requests',
+        },
+      });
+
+      this.chatGateway.sendToUser(request.teacherId, 'notification:new', {
+        type: 'lesson_disputed',
+        title: 'نزاع في الحصة',
+        body: 'التلميذ لم يؤكد إكمال الحصة',
+        link: '/teacher/requests',
+      });
+
+      return updated;
+    }
+  }
+
+  async disputeLesson(requestId: string, userId: string, reason: string) {
+    const request = await this.prisma.lessonRequest.findUnique({ where: { id: requestId } });
+    if (!request) throw new NotFoundException('Request not found');
+    if (request.studentId !== userId && request.teacherId !== userId) {
+      throw new ForbiddenException('Only student or teacher can dispute');
+    }
+
+    const updated = await this.prisma.lessonRequest.update({
+      where: { id: requestId },
+      data: { bookingStatus: 'disputed', disputeReason: reason },
+      include: {
+        student: { select: { id: true, fullName: true } },
+        teacher: { select: { id: true, fullName: true } },
+        subject: true,
+      },
+    });
+
+    await this.prisma.notification.create({
+      data: {
+        userId: request.studentId,
+        title: 'نزاع في الحصة',
+        body: `تم إنشاء نزاع للحصة في ${updated.subject?.nameAr || 'المادة'}`,
+        type: 'lesson_disputed',
+        link: '/student/requests',
+      },
+    });
+
+    await this.prisma.notification.create({
+      data: {
+        userId: request.teacherId,
+        title: 'نزاع في الحصة',
+        body: `تم إنشاء نزاع للحصة في ${updated.subject?.nameAr || 'المادة'}`,
+        type: 'lesson_disputed',
+        link: '/teacher/requests',
+      },
+    });
+
+    return updated;
+  }
 }

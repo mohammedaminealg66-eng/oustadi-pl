@@ -220,6 +220,7 @@ model LessonRequest {
   proposedDate  String?
   proposedTime  String?
   bookingStatus String        @default("pending")
+  disputeReason String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -261,6 +262,13 @@ model Conversation {
   @@unique([studentId, teacherId])
 }
 
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  VOICE
+}
+
 model Message {
   id             String        @id @default(cuid())
   conversationId String
@@ -268,6 +276,12 @@ model Message {
   senderId       String
   sender         User          @relation(fields: [senderId], references: [id])
   content        String
+  type           MessageType   @default(TEXT)
+  fileUrl        String?
+  fileName       String?
+  fileSize       Int?
+  mimeType       String?
+  duration       Float?        // for voice messages in seconds
   status         MessageStatus @default(SENT)
 
   createdAt DateTime @default(now())

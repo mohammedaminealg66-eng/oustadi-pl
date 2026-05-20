@@ -12,6 +12,15 @@ const ALLOWED_DOC_TYPES = [
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
+const ALLOWED_CHAT_FILE_TYPES = [
+  ...ALLOWED_IMAGE_TYPES,
+  'application/pdf',
+  'audio/mpeg',
+  'audio/wav',
+  'audio/ogg',
+  'audio/webm',
+  'audio/mp4',
+];
 
 @Injectable()
 export class UploadService {
@@ -104,5 +113,36 @@ export class UploadService {
     await fs.unlink(filePath).catch(() => {});
 
     await this.prisma.uploadedDocument.delete({ where: { id: uploadId } });
+  }
+
+  async uploadChatFile(userId: string, file: Express.Multer.File) {
+    if (!ALLOWED_CHAT_FILE_TYPES.includes(file.mimetype)) {
+      throw new BadRequestException('Invalid file type. Allowed: JPEG, PNG, WebP, PDF, MP3, WAV, OGG, WebM');
+    }
+
+    const maxImageSize = 5 * 1024 * 1024;
+    const maxDocSize = 10 * 1024 * 1024;
+    const maxSize = file.mimetype.startsWith('image/') ? maxImageSize : maxDocSize;
+    if (file.size > maxSize) {
+      throw new BadRequestException(`File must be under ${maxSize / 1024 / 1024}MB`);
+    }
+
+    const ext = file.originalname.split('.').pop() || 'bin';
+    const fileName = `chat_${userId}_${Date.now()}_${uuid()}.${ext}`;
+    const dir = path.join(this.uploadDir, 'chat');
+    await fs.mkdir(dir, { recursive: true });
+
+    const buffer = file.mimetype.startsWith('image/')
+      ? await sharp(file.buffer).webp({ quality: 85 }).toBuffer()
+      : file.buffer;
+
+    await fs.writeFile(path.join(dir, fileName), buffer);
+
+    return {
+      url: `/uploads/chat/${fileName}`,
+      fileName: file.originalname,
+      fileSize: buffer.length,
+      mimeType: file.mimetype,
+    };
   }
 }

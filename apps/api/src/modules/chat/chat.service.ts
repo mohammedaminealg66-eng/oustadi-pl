@@ -38,7 +38,7 @@ export class ChatService {
     });
   }
 
-  async sendMessage(conversationId: string, senderId: string, content: string) {
+  async sendMessage(conversationId: string, senderId: string, content: string, type?: string, fileUrl?: string, fileName?: string, fileSize?: number, mimeType?: string, duration?: number) {
     const conversation = await this.prisma.conversation.findUnique({ where: { id: conversationId } });
     if (!conversation) throw new NotFoundException('Conversation not found');
     if (conversation.studentId !== senderId && conversation.teacherId !== senderId) {
@@ -46,13 +46,24 @@ export class ChatService {
     }
 
     const message = await this.prisma.message.create({
-      data: { conversationId, senderId, content },
+      data: {
+        conversationId,
+        senderId,
+        content,
+        type: (type as any) || 'TEXT',
+        fileUrl,
+        fileName,
+        fileSize,
+        mimeType,
+        duration,
+      },
       include: { sender: { select: { id: true, fullName: true } } },
     });
 
+    const preview = type === 'IMAGE' ? '🖼️ صورة' : type === 'FILE' ? `📎 ${fileName || 'ملف'}` : type === 'VOICE' ? '🎤 رسالة صوتية' : content.substring(0, 100);
     await this.prisma.conversation.update({
       where: { id: conversationId },
-      data: { lastMessageAt: new Date(), lastMessagePreview: content.substring(0, 100) },
+      data: { lastMessageAt: new Date(), lastMessagePreview: preview },
     });
 
     const recipientId = conversation.studentId === senderId ? conversation.teacherId : conversation.studentId;
@@ -60,7 +71,7 @@ export class ChatService {
       data: {
         userId: recipientId,
         title: 'رسالة جديدة',
-        body: content.substring(0, 100),
+        body: preview,
         type: 'new_message',
         link: '/chat',
       },

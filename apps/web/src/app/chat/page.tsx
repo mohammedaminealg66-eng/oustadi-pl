@@ -10,7 +10,9 @@ import { apiRequest, getTokens } from '@/lib/api';
 import { getSocket } from '@/lib/socket-client';
 import { getAvatarUrl } from '@/lib/asset';
 import { Button, Input } from '@oustadi/ui';
-import { ArrowRight, Send, User, MessageSquare, ChevronLeft, Phone, MapPin, Star, Clock, X, Menu } from 'lucide-react';
+import { ArrowRight, Send, User, MessageSquare, ChevronLeft, Phone, MapPin, Star, Clock, X, Menu, Paperclip, Mic, Smile, Play, Pause, StopCircle, Image as ImageIcon, FileText, Download } from 'lucide-react';
+
+const EMOJI_LIST = ['😀','😂','🥰','😎','👍','👋','🙏','❤️','🔥','⭐','📚','✏️','🎓','✅','❌','⏰','📝','💬','👏','🤝','😊','🤔','😅','😢','🎉','💪','🌟','📖','🏆','💡'];
 
 interface Conversation {
   id: string;
@@ -27,6 +29,12 @@ interface Message {
   content: string;
   senderId: string;
   sender: { id: string; fullName: string };
+  type?: string;
+  fileUrl?: string;
+  fileName?: string;
+  fileSize?: number;
+  mimeType?: string;
+  duration?: number;
   createdAt: string;
 }
 
@@ -40,6 +48,12 @@ function lastSeenText(ls: string | null, locale: string): string {
   if (hrs < 24) return locale === 'fr' ? `il y a ${hrs} h` : `منذ ${hrs} ساعة`;
   const days = Math.floor(hrs / 24);
   return locale === 'fr' ? `il y a ${days} j` : `منذ ${days} يوم`;
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
 export default function ChatPage() {
@@ -57,8 +71,18 @@ export default function ChatPage() {
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
   const [showMobileList, setShowMobileList] = useState(true);
   const [showMobileProfile, setShowMobileProfile] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingBlob, setRecordingBlob] = useState<Blob | null>(null);
+  const [recordingDuration, setRecordingDuration] = useState(0);
+  const [playingAudio, setPlayingAudio] = useState<string | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const recordingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const activeConvRef = useRef(activeConv);
   activeConvRef.current = activeConv;
 
@@ -82,11 +106,13 @@ export default function ChatPage() {
         s.emit('chat:read', { conversationId: msg.conversationId });
       }
       setConversations((prev) =>
-        prev.map((c) =>
-          c.id === msg.conversationId
-            ? { ...c, lastMessagePreview: msg.content, lastMessageAt: msg.createdAt, _count: { messages: c._count.messages + (msg.conversationId === activeConvRef.current ? 0 : 1) } }
-            : c
-        )
+        prev.map((conv) => {
+          if (conv.id === msg.conversationId) {
+            const preview = msg.type === 'IMAGE' ? '🖼️ صورة' : msg.type === 'FILE' ? `📎 ${msg.fileName || 'ملف'}` : msg.type === 'VOICE' ? '🎤 رسالة صوتية' : msg.content;
+            return { ...conv, lastMessagePreview: preview, lastMessageAt: msg.createdAt, _count: { messages: conv._count.messages + (msg.conversationId === activeConvRef.current ? 0 : 1) } };
+          }
+          return conv;
+        })
       );
     };
 
@@ -142,6 +168,97 @@ export default function ChatPage() {
     setNewMessage('');
     sendTyping(false);
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    setShowEmojiPicker(false);
+  }
+
+  async function sendFile(file: File, type: string) {
+    if (!activeConv) return;
+    setUploadingFile(true);
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await apiRequest('/upload/chat-file', { method: 'POST', body: fd, skipAuth: false, headers: {} as any });
+    setUploadingFile(false);
+    if (res.success && res.data) {
+      const data = res.data as any;
+      const content = type === 'IMAGE' ? '🖼️ صورة' : type === 'VOICE' ? '🎤 رسالة صوتية' : `📎 ${data.fileName || 'ملف'}`;
+      socket?.emit('chat:message', {
+        conversationId: activeConv,
+        content,
+        type,
+        fileUrl: data.url,
+        fileName: data.fileName,
+        fileSize: data.fileSize,
+        mimeType: data.mimeType,
+        duration: type === 'VOICE' ? recordingDuration : undefined,
+      });
+    }
+  }
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const isImage = file.type.startsWith('image/');
+    const type = isImage ? 'IMAGE' : 'FILE';
+    sendFile(file, type);
+    e.target.value = '';
+  }
+
+  async function startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      chunksRef.current = [];
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+      recorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        setRecordingBlob(blob);
+        stream.getTracks().forEach((t) => t.stop());
+      };
+      recorder.start();
+      mediaRecorderRef.current = recorder;
+      setIsRecording(true);
+      setRecordingDuration(0);
+      recordingIntervalRef.current = setInterval(() => setRecordingDuration((d) => d + 1), 1000);
+    } catch {
+      alert('لا يمكن الوصول إلى الميكروفون');
+    }
+  }
+
+  function stopRecording() {
+    mediaRecorderRef.current?.stop();
+    setIsRecording(false);
+    if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current);
+  }
+
+  function cancelRecording() {
+    mediaRecorderRef.current?.stop();
+    setIsRecording(false);
+    setRecordingBlob(null);
+    setRecordingDuration(0);
+    if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current);
+  }
+
+  function sendRecording() {
+    if (recordingBlob && activeConv) {
+      const file = new File([recordingBlob], `voice_${Date.now()}.webm`, { type: 'audio/webm' });
+      sendFile(file, 'VOICE');
+      setRecordingBlob(null);
+      setRecordingDuration(0);
+    }
+  }
+
+  function playAudio(url: string, msgId: string) {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+      setPlayingAudio(null);
+      return;
+    }
+    const audio = new Audio(url);
+    audioRef.current = audio;
+    setPlayingAudio(msgId);
+    audio.play();
+    audio.onended = () => { setPlayingAudio(null); audioRef.current = null; };
   }
 
   function handleTyping(val: string) {
@@ -161,6 +278,7 @@ export default function ChatPage() {
     setActiveConv(id);
     setShowMobileList(false);
     setShowMobileProfile(false);
+    setShowEmojiPicker(false);
   }
 
   if (authLoading) return <div className="flex min-h-screen items-center justify-center text-gray-500">{c('loading')}</div>;
@@ -245,10 +363,34 @@ export default function ChatPage() {
               <div className={`mx-auto max-w-3xl space-y-3 ${locale === 'fr' ? '' : 'space-y-reverse'}`}>
                 {messages.map((msg) => {
                   const isMine = msg.senderId === user?.userId;
+                  const msgType = msg.type || 'TEXT';
                   return (
                     <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
                       <div className={`max-w-xs rounded-2xl px-4 py-2.5 lg:max-w-md ${isMine ? 'bg-primary-600 text-white' : 'bg-white text-gray-900 shadow-sm'}`}>
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                        {msgType === 'IMAGE' && msg.fileUrl && (
+                          <img src={msg.fileUrl} alt="" className="mb-2 max-h-64 rounded-lg object-cover" />
+                        )}
+                        {msgType === 'FILE' && msg.fileUrl && (
+                          <a href={msg.fileUrl} download={msg.fileName} className={`flex items-center gap-2 rounded-lg p-2 ${isMine ? 'bg-primary-700' : 'bg-gray-100'}`}>
+                            <FileText className="h-4 w-4" />
+                            <span className="text-xs truncate">{msg.fileName}</span>
+                            {msg.fileSize && <span className="text-[10px] opacity-60">{formatFileSize(msg.fileSize)}</span>}
+                          </a>
+                        )}
+                        {msgType === 'VOICE' && msg.fileUrl && (
+                          <div className="flex items-center gap-2">
+                            <button onClick={() => playAudio(msg.fileUrl!, msg.id)} className={`rounded-full p-1.5 ${isMine ? 'bg-primary-700' : 'bg-gray-100'}`}>
+                              {playingAudio === msg.id ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                            </button>
+                            <div className="flex-1">
+                              <div className={`h-1.5 rounded-full ${isMine ? 'bg-primary-400' : 'bg-gray-200'}`} style={{ width: playingAudio === msg.id ? '100%' : '0%', transition: 'width 0.3s' }} />
+                            </div>
+                            {msg.duration && <span className="text-[10px] opacity-60">{Math.floor(msg.duration / 60)}:{String(Math.floor(msg.duration % 60)).padStart(2, '0')}</span>}
+                          </div>
+                        )}
+                        {msgType === 'TEXT' && msg.content && (
+                          <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                        )}
                         <div className={`mt-1 flex items-center justify-end gap-1 ${isMine ? 'text-primary-200' : 'text-gray-400'}`}>
                           <span className="text-[10px]">{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                           {isMine && (msg as any).readAt && <span className="text-[9px]">✓✓</span>}
@@ -268,16 +410,76 @@ export default function ChatPage() {
               </div>
             </div>
 
-            <div className="border-t bg-white px-4 py-3 lg:px-6 lg:py-4">
-              <div className="mx-auto flex max-w-3xl gap-2 lg:gap-3">
-                <Input value={newMessage} onChange={(e) => handleTyping(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-                  placeholder={d('typeMessage')} className="flex-1" />
-                <Button onClick={sendMessage} disabled={!newMessage.trim()}>
-                  <Send className="h-4 w-4" />
-                </Button>
+            {/* Recording preview */}
+            {recordingBlob && (
+              <div className="border-t bg-white px-4 py-3 lg:px-6">
+                <div className="mx-auto flex max-w-3xl items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
+                    <Mic className="h-5 w-5 text-red-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{Math.floor(recordingDuration / 60)}:{String(Math.floor(recordingDuration % 60)).padStart(2, '0')}</p>
+                    <p className="text-xs text-gray-500">رسالة صوتية جاهزة</p>
+                  </div>
+                  <Button size="sm" onClick={sendRecording}><Send className="h-4 w-4" /></Button>
+                  <button onClick={cancelRecording} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100"><X className="h-5 w-5" /></button>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Message input */}
+            {!recordingBlob && (
+              <div className="border-t bg-white px-4 py-3 lg:px-6 lg:py-4">
+                <div className="mx-auto flex max-w-3xl gap-2 lg:gap-3">
+                  <div className="relative flex items-center gap-1">
+                    <label className="cursor-pointer rounded-lg p-2 text-gray-500 hover:bg-gray-100" title={d('attachFile')}>
+                      <Paperclip className="h-5 w-5" />
+                      <input type="file" accept="image/*,.pdf,.doc,.docx" className="hidden" onChange={handleFileSelect} disabled={uploadingFile} />
+                    </label>
+                    <button className="rounded-lg p-2 text-gray-500 hover:bg-gray-100" title={d('recordVoice')} onClick={startRecording}>
+                      <Mic className="h-5 w-5" />
+                    </button>
+                    <button className="rounded-lg p-2 text-gray-500 hover:bg-gray-100" title={d('emojiPicker')} onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+                      <Smile className="h-5 w-5" />
+                    </button>
+                  </div>
+                  <div className="relative flex-1">
+                    <Input value={newMessage} onChange={(e) => handleTyping(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
+                      placeholder={d('typeMessage')} className="w-full" />
+                    {showEmojiPicker && (
+                      <div className="absolute bottom-full mb-2 right-0 grid grid-cols-10 gap-1 rounded-xl border bg-white p-3 shadow-lg">
+                        {EMOJI_LIST.map((emoji) => (
+                          <button key={emoji} onClick={() => { setNewMessage((prev) => prev + emoji); }} className="rounded p-1 text-lg hover:bg-gray-100">
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <Button onClick={sendMessage} disabled={!newMessage.trim() || uploadingFile}>
+                    {uploadingFile ? <Clock className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Recording controls */}
+            {isRecording && (
+              <div className="border-t bg-white px-4 py-3 lg:px-6">
+                <div className="mx-auto flex max-w-3xl items-center gap-3">
+                  <div className="flex h-10 w-10 animate-pulse items-center justify-center rounded-full bg-red-100">
+                    <Mic className="h-5 w-5 text-red-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-red-600">{d('recording') || 'جارٍ التسجيل...'}</p>
+                    <p className="text-xs text-gray-500">{Math.floor(recordingDuration / 60)}:{String(Math.floor(recordingDuration % 60)).padStart(2, '0')}</p>
+                  </div>
+                  <Button size="sm" variant="outline" onClick={stopRecording}><StopCircle className="h-4 w-4" /></Button>
+                  <button onClick={cancelRecording} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100"><X className="h-5 w-5" /></button>
+                </div>
+              </div>
+            )}
           </>
         ) : (
           <div className={`flex flex-1 flex-col items-center justify-center gap-3 text-gray-400 ${showMobileList ? 'hidden lg:flex' : ''}`}>
@@ -312,6 +514,8 @@ export default function ChatPage() {
           </div>
         </div>
       )}
+
+      <audio ref={audioRef} />
     </div>
   );
 }

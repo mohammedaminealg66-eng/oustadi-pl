@@ -81,13 +81,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('chat:message')
   async handleMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { conversationId: string; content: string },
+    @MessageBody() data: { conversationId: string; content: string; type?: string; fileUrl?: string; fileName?: string; fileSize?: number; mimeType?: string; duration?: number },
   ) {
     try {
       const { message, recipientId } = await this.chat.sendMessage(
         data.conversationId,
         client.data.userId,
         data.content,
+        data.type,
+        data.fileUrl,
+        data.fileName,
+        data.fileSize,
+        data.mimeType,
+        data.duration,
       );
 
       this.server.to(`conv:${data.conversationId}`).emit('chat:message', message);

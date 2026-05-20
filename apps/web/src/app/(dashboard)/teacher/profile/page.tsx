@@ -282,13 +282,18 @@ export default function TeacherProfile() {
                     <option value="BOTH">{t('both')}</option>
                   </select>
                 </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">{t('gender')}</label>
-                  <select value={form.gender} onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
-                    <option value="">{c('all')}</option>
-                    <option value="MALE">{locale === 'fr' ? 'Homme' : 'ذكر'}</option>
-                    <option value="FEMALE">{locale === 'fr' ? 'Femme' : 'أنثى'}</option>
-                  </select>
+                <div className="sm:col-span-2">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">{t('gender')}</label>
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 rounded-lg border px-4 py-2.5 cursor-pointer transition hover:bg-gray-50">
+                      <input type="radio" name="gender" value="MALE" checked={form.gender === 'MALE'} onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))} className="h-4 w-4" />
+                      <span className="text-sm">{locale === 'fr' ? 'Homme' : 'ذكر'}</span>
+                    </label>
+                    <label className="flex items-center gap-2 rounded-lg border px-4 py-2.5 cursor-pointer transition hover:bg-gray-50">
+                      <input type="radio" name="gender" value="FEMALE" checked={form.gender === 'FEMALE'} onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))} className="h-4 w-4" />
+                      <span className="text-sm">{locale === 'fr' ? 'Femme' : 'أنثى'}</span>
+                    </label>
+                  </div>
                 </div>
                 <div>
                   <label className="mb-1 block text-sm font-medium text-gray-700">{t('price')} ({t('dhPerHour')})</label>
