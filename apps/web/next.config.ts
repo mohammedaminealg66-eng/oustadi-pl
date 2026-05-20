@@ -9,6 +9,14 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '10mb',
     },
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${process.env.API_INTERNAL_URL || 'http://localhost:3001'}/api/:path*`,
+      },
+    ];
+  },
   async headers() {
     return [
       {
