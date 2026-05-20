@@ -209,7 +209,7 @@ export class AdminService {
     });
   }
 
-  async sendMessageToDispute(disputeId: string, receiverType: string, message: string) {
+  async sendMessageToDispute(disputeId: string, receiverType: string, message: string, adminId: string) {
     const dispute = await this.prisma.dispute.findUnique({
       where: { id: disputeId },
       include: { booking: { include: { subject: true } } },
@@ -219,8 +219,8 @@ export class AdminService {
     const disputeMessage = await this.prisma.disputeMessage.create({
       data: {
         disputeId,
-        senderType: 'admin',
-        receiverType,
+        senderId: adminId,
+        senderRole: 'admin',
         message,
       },
     });
@@ -232,7 +232,7 @@ export class AdminService {
         title: 'رسالة من الإدارة',
         body: message.substring(0, 100),
         type: 'admin_dispute_message',
-        link: receiverType === 'teacher' ? '/teacher/requests' : '/student/requests',
+        link: `/disputes/${disputeId}`,
       },
     });
 
@@ -242,6 +242,7 @@ export class AdminService {
   async getDisputeMessages(disputeId: string) {
     return this.prisma.disputeMessage.findMany({
       where: { disputeId },
+      include: { sender: { select: { id: true, fullName: true, avatarKey: true } } },
       orderBy: { createdAt: 'asc' },
     });
   }

@@ -69,6 +69,7 @@ model User {
   sessions         Session[]
   disputesAsTeacher Dispute[]    @relation("DisputeTeacher")
   disputesAsStudent Dispute[]    @relation("DisputeStudent")
+  disputeMessages  DisputeMessage[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -403,11 +404,14 @@ model DisputeMessage {
   id          String   @id @default(cuid())
   disputeId   String
   dispute     Dispute  @relation(fields: [disputeId], references: [id], onDelete: Cascade)
-  senderType  String   // admin, teacher, student
-  receiverType String  // teacher, student
+  senderId    String
+  sender      User     @relation(fields: [senderId], references: [id])
+  senderRole  String   // admin, teacher, student
   message     String
+  isRead      Boolean  @default(false)
   createdAt   DateTime @default(now())
 
   @@index([disputeId])
-  @@index([senderType])
+  @@index([senderId])
+  @@index([isRead])
 }

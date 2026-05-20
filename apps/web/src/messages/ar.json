@@ -351,5 +351,17 @@
     "timelineMsgToTeacher": "رسالة من الإدارة إلى الأستاذ",
     "timelineMsgToStudent": "رسالة من الإدارة إلى التلميذ",
     "timelineAdminAction": "إجراء من الإدارة"
+  },
+  "dispute": {
+    "title": "النزاع",
+    "notFound": "النزاع غير موجود",
+    "statusOpen": "مفتوح",
+    "statusReviewing": "قيد المراجعة",
+    "statusResolved": "تم الحل",
+    "statusRejected": "مرفوض",
+    "reason": "سبب النزاع",
+    "typeMessage": "اكتب ردك...",
+    "sendToTeacher": "إرسال إلى الأستاذ",
+    "sendToStudent": "إرسال إلى التلميذ"
   }
 }

@@ -107,9 +107,10 @@ export class AdminController {
   @Post('disputes/:id/message')
   sendMessageToDispute(
     @Param('id') id: string,
+    @CurrentUser('userId') adminId: string,
     @Body() body: { receiverType: string; message: string },
   ) {
-    return this.admin.sendMessageToDispute(id, body.receiverType, body.message);
+    return this.admin.sendMessageToDispute(id, body.receiverType, body.message, adminId);
   }
 
   @Get('disputes/:id/messages')

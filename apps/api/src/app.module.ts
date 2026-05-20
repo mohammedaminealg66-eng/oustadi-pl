@@ -16,6 +16,7 @@ import { ChatModule } from './modules/chat/chat.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { DisputesModule } from './modules/disputes/disputes.module';
 import { HealthController } from './modules/health.controller';
 import { RootController } from './modules/root.controller';
 
@@ -45,6 +46,7 @@ import { RootController } from './modules/root.controller';
     UploadModule,
     NotificationsModule,
     AdminModule,
+    DisputesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

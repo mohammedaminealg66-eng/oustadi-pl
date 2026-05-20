@@ -347,7 +347,7 @@ export class RequestsService {
         },
       });
 
-      await this.prisma.dispute.create({
+      const dispute = await this.prisma.dispute.create({
         data: {
           bookingId: requestId,
           teacherId: request.teacherId,
@@ -363,7 +363,7 @@ export class RequestsService {
           title: 'نزاع في الحصة',
           body: `التلميذ لم يؤكد إكمال الحصة في ${updated.subject?.nameAr || 'المادة'}`,
           type: 'lesson_disputed',
-          link: '/teacher/requests',
+          link: `/disputes/${dispute.id}`,
         },
       });
 
@@ -371,7 +371,7 @@ export class RequestsService {
         type: 'lesson_disputed',
         title: 'نزاع في الحصة',
         body: 'التلميذ لم يؤكد إكمال الحصة',
-        link: '/teacher/requests',
+        link: `/disputes/${dispute.id}`,
       });
 
       return updated;
@@ -395,7 +395,7 @@ export class RequestsService {
       },
     });
 
-    await this.prisma.dispute.create({
+    const dispute = await this.prisma.dispute.create({
       data: {
         bookingId: requestId,
         teacherId: request.teacherId,
@@ -411,7 +411,7 @@ export class RequestsService {
         title: 'نزاع في الحصة',
         body: `تم إنشاء نزاع للحصة في ${updated.subject?.nameAr || 'المادة'}`,
         type: 'lesson_disputed',
-        link: '/student/requests',
+        link: `/disputes/${dispute.id}`,
       },
     });
 
@@ -421,7 +421,7 @@ export class RequestsService {
         title: 'نزاع في الحصة',
         body: `تم إنشاء نزاع للحصة في ${updated.subject?.nameAr || 'المادة'}`,
         type: 'lesson_disputed',
-        link: '/teacher/requests',
+        link: `/disputes/${dispute.id}`,
       },
     });
 

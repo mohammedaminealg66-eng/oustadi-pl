@@ -352,5 +352,17 @@
     "timelineMsgToTeacher": "Message de l'admin à l'enseignant",
     "timelineMsgToStudent": "Message de l'admin à l'étudiant",
     "timelineAdminAction": "Action de l'admin"
+  },
+  "dispute": {
+    "title": "Différend",
+    "notFound": "Différend introuvable",
+    "statusOpen": "Ouvert",
+    "statusReviewing": "En révision",
+    "statusResolved": "Résolu",
+    "statusRejected": "Rejeté",
+    "reason": "Motif du différend",
+    "typeMessage": "Écrivez votre réponse...",
+    "sendToTeacher": "Envoyer à l'enseignant",
+    "sendToStudent": "Envoyer à l'étudiant"
   }
 }
