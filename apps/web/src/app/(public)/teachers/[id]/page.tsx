@@ -72,6 +72,16 @@ export default function TeacherProfilePage() {
   const [reportDone, setReportDone] = useState(false);
   const [reportError, setReportError] = useState('');
   const [shareDone, setShareDone] = useState(false);
+  const [showBooking, setShowBooking] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>('');
+  const [selectedTime, setSelectedTime] = useState<string>('');
+  const [lessonType, setLessonType] = useState<'ONLINE' | 'IN_PERSON'>('ONLINE');
+  const [bookingMsg, setBookingMsg] = useState('');
+  const [showReview, setShowReview] = useState(false);
+  const [canReview, setCanReview] = useState(false);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewing, setReviewing] = useState(false);
 
   const dn = locale === 'fr' ? dayNamesFr : dayNames;
 
@@ -103,6 +113,20 @@ export default function TeacherProfilePage() {
     if (!user || user.role !== 'STUDENT') return;
     apiRequest<any[]>('/students/favorites').then((res) => {
       if (res.success && res.data) setFaved(res.data.some((fav: any) => profile && fav.teacherId === profile.id));
+    });
+    apiRequest<any[]>('/students/reviews/mine').then((res) => {
+      if (res.success && res.data) {
+        const existing = res.data.find((r: any) => r.teacherId === profile?.id);
+        if (existing) { setCanReview(false); return; }
+      }
+      apiRequest<any[]>('/requests', { skipAuth: false }).then((r2: any) => {
+        if (r2.success && r2.data) {
+          const completed = r2.data.some((req: any) =>
+            req.teacherId === profile?.userId && req.status === 'COMPLETED'
+          );
+          setCanReview(completed);
+        }
+      });
     });
   }, [user, profile]);
 
@@ -136,6 +160,32 @@ export default function TeacherProfilePage() {
     const hasToday = days[today]?.slots.length > 0;
     return { days, hasToday };
   }, [profile, dn]);
+
+  const dateOptions = useMemo(() => {
+    const opts: { dateStr: string; dayName: string; dayNum: number; slots: typeof daysAvail.days[0]['slots'] }[] = [];
+    for (let i = 0; i < 30; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() + i);
+      const dow = d.getDay();
+      const slots = daysAvail.days[dow]?.slots || [];
+      if (slots.length > 0) {
+        opts.push({
+          dateStr: d.toISOString().split('T')[0],
+          dayName: dn[dow],
+          dayNum: d.getDate(),
+          slots,
+        });
+      }
+    }
+    return opts;
+  }, [daysAvail, dn]);
+
+  useEffect(() => {
+    if (dateOptions.length > 0 && !selectedDate) {
+      setSelectedDate(dateOptions[0].dateStr);
+      setSelectedTime(dateOptions[0].slots[0]?.startTime || '');
+    }
+  }, [dateOptions, selectedDate]);
 
   const certDocs = useMemo(() => profile?.documents.filter((d) => d.type === 'certificate') || [], [profile]);
 
@@ -377,6 +427,11 @@ export default function TeacherProfilePage() {
                 ) : (
                   <p className="mt-4 text-sm text-gray-400">{t('noReviewsYet')}</p>
                 )}
+                {canReview && (
+                  <Button className="mt-4 w-full" variant="outline" onClick={() => setShowReview(true)}>
+                    <Star className="ml-2 h-4 w-4" /> {t('addReview')}
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -394,7 +449,7 @@ export default function TeacherProfilePage() {
                     <Button className="w-full" onClick={() => { if (!user) router.push('/login'); else router.push(`/chat`); }}>
                       <MessageSquare className="ml-2 h-4 w-4" /> {t('messageTeacher')}
                     </Button>
-                    <Button variant="outline" className="w-full" onClick={() => document.getElementById('request-section')?.scrollIntoView({ behavior: 'smooth' })}>
+                    <Button variant="outline" className="w-full" onClick={() => { if (!user) router.push('/login'); else setShowBooking(true); }}>
                       <BookOpen className="ml-2 h-4 w-4" /> {t('reserveLesson')}
                     </Button>
                     {user && user.role === 'STUDENT' && (
@@ -446,25 +501,92 @@ export default function TeacherProfilePage() {
           </aside>
         </div>
 
-        <div id="request-section" className="mt-8">
-          <Card>
-            <CardContent className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900">{t('sendLessonRequest')}</h2>
-              <select value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)} className="mt-3 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
-                <option value="">{t('chooseSubject')}</option>
-                {profile.subjects.map((s) => (
-                  <option key={s.id} value={s.subject.id}>{subjectName(s.subject, locale)}</option>
-                ))}
-              </select>
-              <textarea value={requestMsg} onChange={(e) => setRequestMsg(e.target.value)} placeholder={t('messagePlaceholder')} className="mt-2 block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm" rows={3} />
-              <div className="mt-4 flex gap-3">
-                <Button onClick={sendRequest} disabled={sending || !requestMsg || profile.subjects.length === 0}>
+        {showBooking && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">{t('reserveLesson')}</h3>
+                <button onClick={() => setShowBooking(false)}><X className="h-5 w-5 text-gray-400" /></button>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-gray-600">{t('chooseSubject')}</label>
+                  <select value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                    <option value="">{t('chooseSubject')}</option>
+                    {profile.subjects.map((s) => (
+                      <option key={s.id} value={s.subject.id}>{subjectName(s.subject, locale)}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-gray-600">{t('date')}</label>
+                  <div className="grid grid-cols-5 gap-2">
+                    {dateOptions.map((opt) => (
+                      <button key={opt.dateStr} onClick={() => { setSelectedDate(opt.dateStr); setSelectedTime(opt.slots[0]?.startTime || ''); }}
+                        className={`rounded-lg border px-2 py-2 text-center text-xs transition ${selectedDate === opt.dateStr ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 hover:bg-gray-50'}`}>
+                        <span className="block text-[10px] text-gray-500">{opt.dayName}</span>
+                        <span className="block text-sm font-semibold">{opt.dayNum}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {selectedDate && (() => {
+                  const slots = dateOptions.find((o) => o.dateStr === selectedDate)?.slots || [];
+                  return (
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-gray-600">{t('time')}</label>
+                      <div className="flex flex-wrap gap-2">
+                        {slots.map((s) => (
+                          <button key={`${s.startTime}-${s.endTime}`} onClick={() => setSelectedTime(s.startTime)}
+                            className={`rounded-lg border px-3 py-1.5 text-xs transition ${selectedTime === s.startTime ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 hover:bg-gray-50'}`}>
+                            {s.startTime} - {s.endTime}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-gray-600">{t('teachingMode')}</label>
+                  <div className="flex gap-3">
+                    <label className="flex items-center gap-2 text-sm">
+                      <input type="radio" name="lessonType" value="ONLINE" checked={lessonType === 'ONLINE'} onChange={() => setLessonType('ONLINE')} />
+                      {t('online')}
+                    </label>
+                    <label className="flex items-center gap-2 text-sm">
+                      <input type="radio" name="lessonType" value="IN_PERSON" checked={lessonType === 'IN_PERSON'} onChange={() => setLessonType('IN_PERSON')} />
+                      {t('inPerson')}
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-gray-600">{t('message')}</label>
+                  <textarea value={bookingMsg} onChange={(e) => setBookingMsg(e.target.value)} placeholder={t('messagePlaceholder')} className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm" rows={3} />
+                </div>
+                {sending && <p className="text-sm text-gray-500">{t('sending')}</p>}
+                <Button className="w-full" onClick={async () => {
+                  if (!selectedSubject) return;
+                  setSending(true);
+                  const res = await apiRequest('/requests', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                      teacherId: profile.userId,
+                      subjectId: selectedSubject,
+                      message: bookingMsg,
+                      lessonType,
+                      bookedDate: selectedDate,
+                      bookedTime: selectedTime,
+                    }),
+                  });
+                  setSending(false);
+                  if (res.success) { setShowBooking(false); setBookingMsg(''); }
+                }} disabled={sending || !selectedSubject || !selectedDate || !selectedTime}>
                   {sending ? t('sending') : t('sendRequest')}
                 </Button>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </div>
+        )}
 
         {similar.length > 0 && (
           <div className="mt-8">
@@ -488,7 +610,7 @@ export default function TeacherProfilePage() {
           <Button className="flex-1" size="sm" onClick={() => { if (!user) router.push('/login'); else router.push(`/chat`); }}>
             <MessageSquare className="ml-1 h-4 w-4" /> {t('messageTeacher')}
           </Button>
-          <Button variant="outline" size="sm" className="flex-1" onClick={() => document.getElementById('request-section')?.scrollIntoView({ behavior: 'smooth' })}>
+          <Button variant="outline" size="sm" className="flex-1" onClick={() => { if (!user) router.push('/login'); else setShowBooking(true); }}>
             {t('reserveLesson')}
           </Button>
         </div>
@@ -531,6 +653,36 @@ export default function TeacherProfilePage() {
                 </Button>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {showReview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">{t('addReview')}</h3>
+              <button onClick={() => setShowReview(false)}><X className="h-5 w-5 text-gray-400" /></button>
+            </div>
+            <div className="flex justify-center gap-2">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <button key={i} onClick={() => setReviewRating(i)}>
+                  <Star className={`h-10 w-10 ${i <= reviewRating ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200'}`} />
+                </button>
+              ))}
+            </div>
+            <textarea value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} placeholder={t('reviewPlaceholder')} className="mt-4 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm" rows={3} />
+            <Button className="mt-4 w-full" disabled={!reviewRating || reviewing} onClick={async () => {
+              setReviewing(true);
+              const res = await apiRequest('/students/reviews', {
+                method: 'POST',
+                body: JSON.stringify({ teacherId: profile.id, rating: reviewRating, comment: reviewComment }),
+              });
+              setReviewing(false);
+              if (res.success) { setShowReview(false); setReviewRating(0); setReviewComment(''); setCanReview(false); }
+            }}>
+              {reviewing ? c('loading') : t('submitReview')}
+            </Button>
           </div>
         </div>
       )}

@@ -12,14 +12,16 @@ export class RequestsController {
   @Post()
   create(
     @CurrentUser('userId') userId: string,
-    @Body() body: { teacherId: string; subjectId: string; message: string; proposedSchedule?: string },
+    @Body() body: { teacherId: string; subjectId: string; message: string; lessonType?: string; bookedDate?: string; bookedTime?: string },
   ) {
     return this.requests.create({
       studentId: userId,
       teacherUserId: body.teacherId,
       subjectId: body.subjectId,
       message: body.message,
-      proposedSchedule: body.proposedSchedule,
+      lessonType: body.lessonType,
+      bookedDate: body.bookedDate,
+      bookedTime: body.bookedTime,
     });
   }
 
@@ -40,5 +42,24 @@ export class RequestsController {
     @Body('notes') notes?: string,
   ) {
     return this.requests.updateStatus(id, userId, RequestStatus.REJECTED, notes);
+  }
+
+  @Patch(':id/complete')
+  complete(@Param('id') id: string, @CurrentUser('userId') userId: string) {
+    return this.requests.updateStatus(id, userId, RequestStatus.COMPLETED);
+  }
+
+  @Patch(':id/cancel')
+  cancel(@Param('id') id: string, @CurrentUser('userId') userId: string) {
+    return this.requests.updateStatus(id, userId, RequestStatus.CANCELLED);
+  }
+
+  @Patch(':id/propose')
+  proposeTime(
+    @Param('id') id: string,
+    @CurrentUser('userId') userId: string,
+    @Body() body: { bookedDate: string; bookedTime: string },
+  ) {
+    return this.requests.updateStatus(id, userId, RequestStatus.PENDING, body.bookedDate + ' ' + body.bookedTime);
   }
 }

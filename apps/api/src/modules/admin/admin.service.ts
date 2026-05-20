@@ -80,6 +80,10 @@ export class AdminService {
     });
   }
 
+  async deleteReview(reviewId: string) {
+    return this.prisma.review.delete({ where: { id: reviewId } });
+  }
+
   async rejectDocument(docId: string) {
     return this.prisma.uploadedDocument.delete({
       where: { id: docId },

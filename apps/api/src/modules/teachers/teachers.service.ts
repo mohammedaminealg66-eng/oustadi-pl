@@ -14,6 +14,13 @@ export class TeachersService {
     maxPrice?: number;
     minExperience?: number;
     teachingMode?: string;
+    gender?: string;
+    levels?: string[];
+    minRating?: number;
+    verifiedOnly?: boolean;
+    availableToday?: boolean;
+    availableThisWeek?: boolean;
+    sort?: string;
     cursor?: string;
     limit?: number;
   }) {
@@ -30,23 +37,55 @@ export class TeachersService {
       ];
     }
 
-    if (params.city) where.city = params.city;
+    if (params.city) where.city = { contains: params.city, mode: 'insensitive' };
     if (params.maxPrice) where.price = { lte: params.maxPrice };
     if (params.minExperience) where.experience = { gte: params.minExperience };
-    if (params.teachingMode) where.teachingMode = params.teachingMode;
+    if (params.teachingMode) {
+      if (params.teachingMode === 'BOTH') where.teachingMode = 'BOTH';
+      else where.teachingMode = { in: [params.teachingMode, 'BOTH'] };
+    }
+    if (params.gender) where.gender = params.gender;
     if (params.subjectId) {
       where.subjects = { some: { subjectId: params.subjectId } };
     }
+    if (params.levels && params.levels.length > 0) {
+      where.subjects = {
+        ...(where.subjects || {}),
+        some: {
+          ...(where.subjects?.some || {}),
+          levels: { hasSome: params.levels },
+        },
+      };
+    }
+    if (params.verifiedOnly) where.isVerified = true;
+    if (params.minRating) {
+      where.reviews = { some: { rating: { gte: params.minRating } } };
+    }
+
+    const now = new Date();
+    const today = now.getDay();
+    if (params.availableToday) {
+      where.availability = { some: { dayOfWeek: today } };
+    }
+    if (params.availableThisWeek) {
+      where.availability = { some: { dayOfWeek: { in: [today, ...Array.from({ length: 6 }, (_, i) => (today + i + 1) % 7)] } } };
+    }
+
+    let orderBy: any = { createdAt: 'desc' };
+    if (params.sort === 'price_asc') orderBy = { price: 'asc' };
+    else if (params.sort === 'price_desc') orderBy = { price: 'desc' };
+    else if (params.sort === 'experience') orderBy = { experience: 'desc' };
+    else if (params.sort === 'rating') orderBy = { createdAt: 'desc' };
 
     const teachers = await this.prisma.teacherProfile.findMany({
       where,
       take: limit + 1,
       ...(params.cursor ? { skip: 1, cursor: { id: params.cursor } } : {}),
-      orderBy: { createdAt: 'desc' },
+      orderBy,
       include: {
         user: { select: { id: true, fullName: true, avatarKey: true, isOnline: true, lastSeen: true } },
         subjects: { include: { subject: true } },
-        _count: { select: { favorites: true } },
+        _count: { select: { favorites: true, reviews: true } },
       },
     });
 
@@ -68,6 +107,7 @@ export class TeachersService {
         price: t.price,
         teachingMode: t.teachingMode,
         city: t.city,
+        gender: t.gender,
         subjects: t.subjects.map((s) => ({
           id: s.subject.id,
           nameAr: s.subject.nameAr,
@@ -76,6 +116,7 @@ export class TeachersService {
           price: s.price,
         })),
         favoriteCount: t._count.favorites,
+        reviewCount: t._count.reviews,
       })),
       hasMore,
       cursor: data.length > 0 ? data[data.length - 1].id : null,

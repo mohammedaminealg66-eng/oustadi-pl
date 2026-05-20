@@ -70,4 +70,9 @@ export class AdminController {
   listTeachers(@Query('page') page?: string, @Query('limit') limit?: string) {
     return this.admin.listTeachers(page ? parseInt(page) : 1, limit ? parseInt(limit) : 20);
   }
+
+  @Delete('reviews/:id')
+  deleteReview(@Param('id') id: string) {
+    return this.admin.deleteReview(id);
+  }
 }

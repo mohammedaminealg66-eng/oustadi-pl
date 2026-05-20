@@ -36,4 +36,17 @@ export class StudentsController {
   removeFavorite(@CurrentUser('userId') userId: string, @Param('teacherId') teacherId: string) {
     return this.students.toggleFavorite(userId, teacherId);
   }
+
+  @Get('reviews/mine')
+  getMyReviews(@CurrentUser('userId') userId: string) {
+    return this.students.getMyReviews(userId);
+  }
+
+  @Post('reviews')
+  createReview(
+    @CurrentUser('userId') userId: string,
+    @Body() body: { teacherId: string; rating: number; comment?: string },
+  ) {
+    return this.students.createReview(userId, body.teacherId, body.rating, body.comment);
+  }
 }

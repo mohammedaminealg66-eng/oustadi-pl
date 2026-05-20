@@ -1,9 +1,44 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../config/database/prisma.service';
 
 @Injectable()
 export class StudentsService {
   constructor(private prisma: PrismaService) {}
+
+  async createReview(studentId: string, teacherProfileId: string, rating: number, comment?: string) {
+    const profile = await this.prisma.teacherProfile.findUnique({ where: { id: teacherProfileId } });
+    if (!profile) throw new NotFoundException('Teacher not found');
+
+    const completed = await this.prisma.lessonRequest.findFirst({
+      where: { studentId, teacherId: profile.userId, status: 'COMPLETED' },
+    });
+    if (!completed) {
+      throw new ForbiddenException('يجب إكمال حصة مع هذا الأستاذ قبل التقييم');
+    }
+
+    const existing = await this.prisma.review.findUnique({
+      where: { teacherId_studentId: { teacherId: teacherProfileId, studentId } },
+    });
+    if (existing) {
+      return this.prisma.review.update({
+        where: { id: existing.id },
+        data: { rating, comment },
+        include: { student: { select: { id: true, fullName: true, avatarKey: true } } },
+      });
+    }
+
+    return this.prisma.review.create({
+      data: { teacherId: teacherProfileId, studentId, rating, comment },
+      include: { student: { select: { id: true, fullName: true, avatarKey: true } } },
+    });
+  }
+
+  async getMyReviews(studentId: string) {
+    return this.prisma.review.findMany({
+      where: { studentId },
+      select: { id: true, teacherId: true, rating: true, comment: true },
+    });
+  }
 
   async getProfile(userId: string) {
     const profile = await this.prisma.studentProfile.findUnique({

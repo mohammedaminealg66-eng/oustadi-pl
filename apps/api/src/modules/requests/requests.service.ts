@@ -10,7 +10,7 @@ export class RequestsService {
     private chatGateway: ChatGateway,
   ) {}
 
-  async create(data: { studentId: string; teacherUserId: string; subjectId: string; message: string; proposedSchedule?: string }) {
+  async create(data: { studentId: string; teacherUserId: string; subjectId: string; message: string; lessonType?: string; bookedDate?: string; bookedTime?: string }) {
     const teacherProfile = await this.prisma.teacherProfile.findUnique({ where: { userId: data.teacherUserId } });
     if (!teacherProfile) throw new NotFoundException('Teacher not found');
 
@@ -20,7 +20,9 @@ export class RequestsService {
         teacherId: data.teacherUserId,
         subjectId: data.subjectId,
         message: data.message,
-        proposedSchedule: data.proposedSchedule,
+        lessonType: data.lessonType,
+        bookedDate: data.bookedDate,
+        bookedTime: data.bookedTime,
       },
       include: {
         student: { select: { id: true, fullName: true } },
@@ -120,6 +122,37 @@ export class RequestsService {
         title: 'تم رفض طلبك',
         body: `رفض الأستاذ طلب درس في ${updated.subject?.nameAr || 'المادة'}`,
         link: '#',
+      });
+    } else if (status === 'COMPLETED') {
+      await this.prisma.notification.create({
+        data: {
+          userId: request.studentId,
+          title: 'تم إكمال الحصة',
+          body: `تم إكمال حصة في ${updated.subject?.nameAr || 'المادة'}، يمكنك الآن تقييم الأستاذ`,
+          type: 'lesson_completed',
+          link: `/teachers/${request.teacherId}`,
+        },
+      });
+      this.chatGateway.sendToUser(request.studentId, 'notification:new', {
+        type: 'lesson_completed',
+        title: 'تم إكمال الحصة',
+        body: 'يمكنك الآن تقييم الأستاذ',
+        link: `/teachers/${request.teacherId}`,
+      });
+    } else if (status === 'CANCELLED') {
+      const notifyUser = userId === request.teacherId ? request.studentId : request.teacherId;
+      await this.prisma.notification.create({
+        data: {
+          userId: notifyUser,
+          title: 'تم إلغاء الحصة',
+          body: 'تم إلغاء الحصة المبرمجة',
+          type: 'lesson_cancelled',
+        },
+      });
+      this.chatGateway.sendToUser(notifyUser, 'notification:new', {
+        type: 'lesson_cancelled',
+        title: 'تم إلغاء الحصة',
+        body: 'تم إلغاء الحصة المبرمجة',
       });
     }
 

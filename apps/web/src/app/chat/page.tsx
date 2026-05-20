@@ -1,15 +1,16 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Socket } from 'socket.io-client';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/providers/auth-provider';
 import { apiRequest, getTokens } from '@/lib/api';
 import { getSocket } from '@/lib/socket-client';
+import { getAvatarUrl } from '@/lib/asset';
 import { Button, Input } from '@oustadi/ui';
-import { ArrowRight, Send, User, MessageSquare } from 'lucide-react';
+import { ArrowRight, Send, User, MessageSquare, ChevronLeft, Phone, MapPin, Star, Clock, X, Menu } from 'lucide-react';
 
 interface Conversation {
   id: string;
@@ -29,9 +30,22 @@ interface Message {
   createdAt: string;
 }
 
+function lastSeenText(ls: string | null, locale: string): string {
+  if (!ls) return '';
+  const diff = Date.now() - new Date(ls).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return locale === 'fr' ? 'en ligne' : 'متصل';
+  if (mins < 60) return locale === 'fr' ? `il y a ${mins} min` : `منذ ${mins} دقيقة`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return locale === 'fr' ? `il y a ${hrs} h` : `منذ ${hrs} ساعة`;
+  const days = Math.floor(hrs / 24);
+  return locale === 'fr' ? `il y a ${days} j` : `منذ ${days} يوم`;
+}
+
 export default function ChatPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const locale = useLocale();
   const d = useTranslations('dashboard');
   const c = useTranslations('common');
 
@@ -40,6 +54,10 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
+  const [showMobileList, setShowMobileList] = useState(true);
+  const [showMobileProfile, setShowMobileProfile] = useState(false);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const activeConvRef = useRef(activeConv);
   activeConvRef.current = activeConv;
@@ -58,34 +76,47 @@ export default function ChatPage() {
     const s = getSocket(token);
     setSocket(s);
 
-    const handler = (msg: Message) => {
+    const msgHandler = (msg: Message) => {
       if (msg.conversationId === activeConvRef.current) {
         setMessages((prev) => [...prev, msg]);
+        s.emit('chat:read', { conversationId: msg.conversationId });
       }
       setConversations((prev) =>
         prev.map((c) =>
           c.id === msg.conversationId
-            ? { ...c, lastMessagePreview: msg.content, lastMessageAt: msg.createdAt }
+            ? { ...c, lastMessagePreview: msg.content, lastMessageAt: msg.createdAt, _count: { messages: c._count.messages + (msg.conversationId === activeConvRef.current ? 0 : 1) } }
             : c
         )
       );
     };
 
-    s.on('chat:message', handler);
-    return () => { s.off('chat:message', handler); };
+    const typingStartHandler = (data: { userId: string; fullName: string }) => {
+      setTypingUsers((prev) => new Set(prev).add(data.userId));
+    };
+    const typingStopHandler = (data: { userId: string }) => {
+      setTypingUsers((prev) => { const n = new Set(prev); n.delete(data.userId); return n; });
+    };
+    const readHandler = (data: { userId: string }) => {
+      setMessages((prev) => prev.map((m) => m.senderId === data.userId ? { ...m, readAt: new Date().toISOString() } as any : m));
+    };
+
+    s.on('chat:message', msgHandler);
+    s.on('typing:start', typingStartHandler);
+    s.on('typing:stop', typingStopHandler);
+    s.on('chat:read', readHandler);
+    return () => {
+      s.off('chat:message', msgHandler);
+      s.off('typing:start', typingStartHandler);
+      s.off('typing:stop', typingStopHandler);
+      s.off('chat:read', readHandler);
+    };
   }, [authLoading, user, router]);
 
   useEffect(() => {
     if (activeConv) {
       apiRequest<Message[]>(`/conversations/${activeConv}/messages`).then((res) => {
         if (res.success && res.data) setMessages(res.data as Message[]);
-        apiRequest(`/conversations/${activeConv}/read`, { method: 'POST' }).then(() => {
-          setConversations((prev) =>
-            prev.map((c) =>
-              c.id === activeConvRef.current ? { ...c, _count: { messages: 0 } } : c
-            )
-          );
-        });
+        socket?.emit('chat:read', { conversationId: activeConv });
       });
       socket?.emit('chat:join', activeConv);
     }
@@ -94,27 +125,53 @@ export default function ChatPage() {
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
+  const sendTyping = useCallback((start: boolean) => {
+    if (!activeConv || !socket) return;
+    if (start) {
+      socket.emit('typing:start', { conversationId: activeConv });
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = setTimeout(() => sendTyping(false), 3000);
+    } else {
+      socket.emit('typing:stop', { conversationId: activeConv });
+    }
+  }, [activeConv, socket]);
+
   function sendMessage() {
     if (!newMessage.trim() || !activeConv) return;
     socket?.emit('chat:message', { conversationId: activeConv, content: newMessage });
     setNewMessage('');
+    sendTyping(false);
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+  }
+
+  function handleTyping(val: string) {
+    setNewMessage(val);
+    if (!typingTimeoutRef.current) sendTyping(true);
   }
 
   const currentConv = conversations.find((c) => c.id === activeConv);
   const otherUser = currentConv
     ? (currentConv.student.id === user?.userId ? currentConv.teacher : currentConv.student)
     : null;
+  const isOtherTyping = otherUser && typingUsers.has(otherUser.id);
 
   const dashboardHref = user?.role === 'TEACHER' ? '/teacher' : user?.role === 'ADMIN' ? '/admin' : '/student';
+
+  function selectConversation(id: string) {
+    setActiveConv(id);
+    setShowMobileList(false);
+    setShowMobileProfile(false);
+  }
 
   if (authLoading) return <div className="flex min-h-screen items-center justify-center text-gray-500">{c('loading')}</div>;
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <div className="flex w-80 flex-col border-l bg-white">
+    <div className="flex h-screen bg-gray-50" dir={locale === 'fr' ? 'ltr' : 'rtl'}>
+      {/* Conversations list */}
+      <div className={`${showMobileList ? 'flex' : 'hidden'} w-full flex-col border-l bg-white lg:flex lg:w-80 ${activeConv ? 'lg:flex' : ''}`}>
         <div className="flex items-center gap-3 border-b px-4 py-3">
           <Link href={dashboardHref} className="rounded-lg p-1 text-gray-500 hover:bg-gray-100">
-            <ArrowRight className="h-5 w-5" />
+            <ArrowRight className={`h-5 w-5 ${locale === 'fr' ? '' : 'rotate-180'}`} />
           </Link>
           <h2 className="text-lg font-bold text-gray-900">{d('chatTitle')}</h2>
         </div>
@@ -122,15 +179,13 @@ export default function ChatPage() {
           {conversations.map((conv) => {
             const other = conv.student.id === user?.userId ? conv.teacher : conv.student;
             return (
-              <button
-                key={conv.id}
-                onClick={() => setActiveConv(conv.id)}
-                className={`w-full border-b p-4 text-right transition hover:bg-gray-50 ${activeConv === conv.id ? 'bg-primary-50' : ''}`}
-              >
+              <button key={conv.id} onClick={() => selectConversation(conv.id)}
+                className={`w-full border-b p-4 text-right transition hover:bg-gray-50 ${activeConv === conv.id ? 'bg-primary-50' : ''}`}>
                 <div className="flex items-center gap-3">
                   <div className="relative shrink-0">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-600">
-                      {other.fullName?.charAt(0) || <User className="h-4 w-4" />}
+                    <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-sm font-bold text-primary-600">
+                      {other.avatarKey ? <img src={getAvatarUrl(other.avatarKey)} alt="" className="h-full w-full object-cover" />
+                        : (other.fullName?.charAt(0) || <User className="h-4 w-4" />)}
                     </div>
                     {other.isOnline && <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border border-white bg-green-500" />}
                   </div>
@@ -161,45 +216,63 @@ export default function ChatPage() {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col">
+      {/* Messages area */}
+      <div className={`flex flex-1 flex-col ${!showMobileList ? 'flex' : 'hidden lg:flex'}`}>
         {activeConv ? (
           <>
-            <div className="flex items-center gap-3 border-b bg-white px-6 py-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-600">
-                {otherUser?.fullName?.charAt(0) || <User className="h-4 w-4" />}
+            <div className="flex items-center gap-3 border-b bg-white px-4 py-3">
+              <button className="lg:hidden" onClick={() => setShowMobileList(true)}>
+                <Menu className="h-5 w-5 text-gray-500" />
+              </button>
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-sm font-bold text-primary-600">
+                {otherUser?.avatarKey ? <img src={getAvatarUrl(otherUser.avatarKey)} alt="" className="h-full w-full object-cover" />
+                  : (otherUser?.fullName?.charAt(0) || <User className="h-4 w-4" />)}
               </div>
-              <p className="font-medium text-gray-900">{otherUser?.fullName || d('chatTitle')}</p>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium text-gray-900">{otherUser?.fullName || ''}</p>
+                <p className="text-[11px] text-gray-500">
+                  {isOtherTyping
+                    ? <span className="text-green-600">{d('typing')}</span>
+                    : otherUser?.isOnline ? c('online') : otherUser?.lastSeen ? lastSeenText(otherUser.lastSeen, locale) : ''}
+                </p>
+              </div>
+              <button onClick={() => setShowMobileProfile(true)} className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 lg:hidden">
+                <ChevronLeft className={`h-5 w-5 ${locale === 'fr' ? 'rotate-0' : 'rotate-180'}`} />
+              </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto bg-gray-50 p-6">
-              <div className="mx-auto max-w-3xl space-y-4">
+            <div className="flex-1 overflow-y-auto bg-gray-50 p-4 lg:p-6">
+              <div className={`mx-auto max-w-3xl space-y-3 ${locale === 'fr' ? '' : 'space-y-reverse'}`}>
                 {messages.map((msg) => {
                   const isMine = msg.senderId === user?.userId;
                   return (
-                    <div key={msg.id} className={`flex ${isMine ? 'justify-start' : 'justify-end'}`}>
-                      <div className={`max-w-md rounded-2xl px-4 py-2.5 ${isMine ? 'bg-primary-600 text-white' : 'bg-white text-gray-900 shadow-sm'}`}>
-                        <p className="text-sm leading-relaxed">{msg.content}</p>
-                        <p className={`mt-1 text-[10px] ${isMine ? 'text-primary-200' : 'text-gray-400'}`}>
-                          {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </p>
+                    <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-xs rounded-2xl px-4 py-2.5 lg:max-w-md ${isMine ? 'bg-primary-600 text-white' : 'bg-white text-gray-900 shadow-sm'}`}>
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                        <div className={`mt-1 flex items-center justify-end gap-1 ${isMine ? 'text-primary-200' : 'text-gray-400'}`}>
+                          <span className="text-[10px]">{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                          {isMine && (msg as any).readAt && <span className="text-[9px]">✓✓</span>}
+                        </div>
                       </div>
                     </div>
                   );
                 })}
+                {isOtherTyping && (
+                  <div className="flex justify-start">
+                    <div className="rounded-2xl bg-white px-4 py-2.5 shadow-sm">
+                      <span className="text-sm text-gray-500">{d('typing')}...</span>
+                    </div>
+                  </div>
+                )}
                 <div ref={messagesEndRef} />
               </div>
             </div>
 
-            <div className="border-t bg-white px-6 py-4">
-              <div className="mx-auto flex max-w-3xl gap-3">
-                <Input
-                  id="message"
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                  placeholder={d('typeMessage')}
-                  className="flex-1"
-                />
+            <div className="border-t bg-white px-4 py-3 lg:px-6 lg:py-4">
+              <div className="mx-auto flex max-w-3xl gap-2 lg:gap-3">
+                <Input value={newMessage} onChange={(e) => handleTyping(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
+                  placeholder={d('typeMessage')} className="flex-1" />
                 <Button onClick={sendMessage} disabled={!newMessage.trim()}>
                   <Send className="h-4 w-4" />
                 </Button>
@@ -207,12 +280,38 @@ export default function ChatPage() {
             </div>
           </>
         ) : (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 text-gray-400">
+          <div className={`flex flex-1 flex-col items-center justify-center gap-3 text-gray-400 ${showMobileList ? 'hidden lg:flex' : ''}`}>
             <MessageSquare className="h-12 w-12" />
             <p className="text-sm">{d('selectConversation')}</p>
           </div>
         )}
       </div>
+
+      {/* Mini profile sidebar */}
+      {otherUser && (
+        <div className={`${showMobileProfile ? 'flex' : 'hidden'} w-full flex-col border-r bg-white lg:flex lg:w-72`}>
+          <div className="flex items-center justify-between border-b px-4 py-3">
+            <h3 className="text-sm font-semibold text-gray-900">{d('myProfile')}</h3>
+            <button className="lg:hidden" onClick={() => setShowMobileProfile(false)}>
+              <X className="h-5 w-5 text-gray-400" />
+            </button>
+          </div>
+          <div className="flex flex-col items-center gap-3 px-4 py-8">
+            <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-2xl font-bold text-primary-600">
+              {otherUser.avatarKey ? <img src={getAvatarUrl(otherUser.avatarKey)} alt="" className="h-full w-full object-cover" />
+                : (otherUser.fullName?.charAt(0) || <User className="h-8 w-8" />)}
+            </div>
+            <p className="text-lg font-bold text-gray-900">{otherUser.fullName}</p>
+            {otherUser.isOnline ? (
+              <span className="flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700">
+                <span className="h-2 w-2 rounded-full bg-green-500" /> {d('online')}
+              </span>
+            ) : otherUser.lastSeen ? (
+              <span className="text-xs text-gray-500">{lastSeenText(otherUser.lastSeen, locale)}</span>
+            ) : null}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

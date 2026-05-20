@@ -23,6 +23,13 @@ enum RequestStatus {
   PENDING
   ACCEPTED
   REJECTED
+  COMPLETED
+  CANCELLED
+}
+
+enum Gender {
+  MALE
+  FEMALE
 }
 
 enum MessageStatus {
@@ -98,6 +105,7 @@ model TeacherProfile {
   showContact  Boolean      @default(false)
   isVerified   Boolean      @default(false)
   isOfficial   Boolean      @default(false)
+  gender       Gender?
   responseTime String?
   introVideo   String?
   facebookUrl  String?
@@ -206,6 +214,9 @@ model LessonRequest {
   status        RequestStatus @default(PENDING)
   proposedSchedule String?
   teacherNotes  String?
+  lessonType    String?       // "online" | "presentiel"
+  bookedDate    String?
+  bookedTime    String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
