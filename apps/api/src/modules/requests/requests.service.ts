@@ -81,7 +81,7 @@ export class RequestsService {
     const data: any = { status, teacherNotes };
     if (status === 'ACCEPTED') data.bookingStatus = 'accepted';
     else if (status === 'REJECTED') data.bookingStatus = 'rejected';
-    else if (status === 'COMPLETED') data.bookingStatus = 'completed';
+    else if (status === 'COMPLETED') data.bookingStatus = 'waiting_confirmation';
     else if (status === 'CANCELLED') data.bookingStatus = 'cancelled';
 
     const updated = await this.prisma.lessonRequest.update({
@@ -130,20 +130,22 @@ export class RequestsService {
         link: '#',
       });
     } else if (status === 'COMPLETED') {
+      const teacherProfile = await this.prisma.teacherProfile.findUnique({ where: { userId: request.teacherId } });
+      const profileLink = teacherProfile ? `/teachers/${teacherProfile.id}` : '/teachers';
       await this.prisma.notification.create({
         data: {
           userId: request.studentId,
           title: 'تم إكمال الحصة',
           body: `تم إكمال حصة في ${updated.subject?.nameAr || 'المادة'}، يمكنك الآن تقييم الأستاذ`,
           type: 'lesson_completed',
-          link: `/teachers/${request.teacherId}`,
+          link: profileLink,
         },
       });
       this.chatGateway.sendToUser(request.studentId, 'notification:new', {
         type: 'lesson_completed',
         title: 'تم إكمال الحصة',
         body: 'يمكنك الآن تقييم الأستاذ',
-        link: `/teachers/${request.teacherId}`,
+        link: profileLink,
       });
     } else if (status === 'CANCELLED') {
       const notifyUser = userId === request.teacherId ? request.studentId : request.teacherId;

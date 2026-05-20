@@ -62,6 +62,9 @@ export default function TeacherRequests() {
     if (bookingStatus === 'waiting_student_confirmation') {
       return <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-700">{d('waitingStudentConfirmation')}</span>;
     }
+    if (bookingStatus === 'waiting_confirmation') {
+      return <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700">{d('confirmLesson')}</span>;
+    }
     if (bookingStatus === 'disputed') {
       return <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700">{d('lessonDisputed')}</span>;
     }
