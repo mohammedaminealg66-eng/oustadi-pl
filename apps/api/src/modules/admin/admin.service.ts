@@ -159,16 +159,14 @@ export class AdminService {
     return { ...dispute, messages };
   }
 
-  async resolveDispute(disputeId: string, adminId: string, action: string, note?: string) {
+  async resolveDispute(disputeId: string, adminId: string) {
     const dispute = await this.prisma.dispute.findUnique({ where: { id: disputeId } });
     if (!dispute) throw new NotFoundException('Dispute not found');
 
     const updated = await this.prisma.dispute.update({
       where: { id: disputeId },
       data: {
-        status: action === 'resolved' ? 'resolved' : action === 'rejected' ? 'rejected' : 'reviewing',
-        adminAction: action,
-        adminNote: note,
+        status: 'resolved',
         resolvedBy: adminId,
         resolvedAt: new Date(),
       },
@@ -251,7 +249,12 @@ export class AdminService {
     const dispute = await this.prisma.dispute.findUnique({ where: { id: disputeId } });
     if (!dispute) throw new NotFoundException('Dispute not found');
 
-    return this.prisma.dispute.update({
+    await this.prisma.lessonRequest.update({
+      where: { id: dispute.bookingId },
+      data: { bookingStatus: 'under_review' },
+    });
+
+    const updated = await this.prisma.dispute.update({
       where: { id: disputeId },
       data: { status: 'under_review' },
       include: {
@@ -260,21 +263,28 @@ export class AdminService {
         booking: { include: { subject: true } },
       },
     });
-  }
 
-  async resolveDisputeAction(disputeId: string) {
-    const dispute = await this.prisma.dispute.findUnique({ where: { id: disputeId } });
-    if (!dispute) throw new NotFoundException('Dispute not found');
-
-    return this.prisma.dispute.update({
-      where: { id: disputeId },
-      data: { status: 'resolved', resolvedAt: new Date() },
-      include: {
-        teacher: { select: { id: true, fullName: true } },
-        student: { select: { id: true, fullName: true } },
-        booking: { include: { subject: true } },
+    await this.prisma.notification.create({
+      data: {
+        userId: dispute.studentId,
+        title: 'بدء مراجعة النزاع',
+        body: `بدأت إدارة المنصة بمراجعة النزاع الخاص بالحصة في ${updated.booking.subject?.nameAr || 'المادة'}`,
+        type: 'dispute_under_review',
+        link: '/student/requests',
       },
     });
+
+    await this.prisma.notification.create({
+      data: {
+        userId: dispute.teacherId,
+        title: 'بدء مراجعة النزاع',
+        body: `بدأت إدارة المنصة بمراجعة النزاع الخاص بالحصة في ${updated.booking.subject?.nameAr || 'المادة'}`,
+        type: 'dispute_under_review',
+        link: '/teacher/requests',
+      },
+    });
+
+    return updated;
   }
 
   async closeDispute(disputeId: string) {

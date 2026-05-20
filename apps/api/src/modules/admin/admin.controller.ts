@@ -87,13 +87,19 @@ export class AdminController {
     return this.admin.getDispute(id);
   }
 
+  @Patch('disputes/:id/start-review')
+  startReview(@Param('id') id: string) {
+    return this.admin.startReview(id);
+  }
+
   @Patch('disputes/:id/resolve')
-  resolveDispute(
-    @Param('id') id: string,
-    @CurrentUser('userId') adminId: string,
-    @Body() body: { action: string; note?: string },
-  ) {
-    return this.admin.resolveDispute(id, adminId, body.action, body.note);
+  resolveDispute(@Param('id') id: string, @CurrentUser('userId') adminId: string) {
+    return this.admin.resolveDispute(id, adminId);
+  }
+
+  @Patch('disputes/:id/close')
+  closeDispute(@Param('id') id: string) {
+    return this.admin.closeDispute(id);
   }
 
   @Patch('users/:id/suspend-from-dispute')
@@ -116,20 +122,5 @@ export class AdminController {
   @Get('disputes/:id/messages')
   getDisputeMessages(@Param('id') id: string) {
     return this.admin.getDisputeMessages(id);
-  }
-
-  @Patch('disputes/:id/start-review')
-  startReview(@Param('id') id: string) {
-    return this.admin.startReview(id);
-  }
-
-  @Patch('disputes/:id/resolve')
-  resolveDisputeAction(@Param('id') id: string) {
-    return this.admin.resolveDisputeAction(id);
-  }
-
-  @Patch('disputes/:id/close')
-  closeDispute(@Param('id') id: string) {
-    return this.admin.closeDispute(id);
   }
 }

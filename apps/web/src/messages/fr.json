@@ -340,6 +340,8 @@
     "closeDispute": "Fermer",
     "messageTeacher": "Message",
     "messageStudent": "Message",
+    "disputeResolvedSuccess": "Différend résolu avec succès",
+    "reviewStarted": "Révision commencée",
     "warnTeacher": "Avertir l'enseignant",
     "warnStudent": "Avertir l'étudiant",
     "bookingDetails": "Détails de la réservation",

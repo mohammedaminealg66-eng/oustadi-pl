@@ -339,6 +339,8 @@
     "closeDispute": "إغلاق",
     "messageTeacher": "مراسلة",
     "messageStudent": "مراسلة",
+    "disputeResolvedSuccess": "تم حل النزاع بنجاح",
+    "reviewStarted": "تم بدء المراجعة",
     "warnTeacher": "تحذير الأستاذ",
     "warnStudent": "تحذير التلميذ",
     "bookingDetails": "تفاصيل الحجز",

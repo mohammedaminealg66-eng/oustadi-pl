@@ -68,6 +68,9 @@ export default function TeacherRequests() {
     if (bookingStatus === 'disputed') {
       return <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700">{d('lessonDisputed')}</span>;
     }
+    if (bookingStatus === 'under_review') {
+      return <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-700">🟡 قيد المراجعة من طرف إدارة المنصة</span>;
+    }
     return null;
   }
 
@@ -97,6 +100,12 @@ export default function TeacherRequests() {
                     </div>
                   )}
                   {req.teacherNotes && <p className="mt-1 text-xs text-gray-400">{d('rejectionReason')} {req.teacherNotes}</p>}
+                  {req.bookingStatus === 'under_review' && (
+                    <div className="mt-3 rounded-lg border border-yellow-200 bg-yellow-50 p-3">
+                      <p className="flex items-center gap-1 text-sm font-medium text-yellow-700">🟡 قيد المراجعة من طرف إدارة المنصة</p>
+                      <p className="mt-1 text-sm text-yellow-600">بدأت إدارة المنصة بمراجعة النزاع الخاص بهذه الحصة</p>
+                    </div>
+                  )}
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-2">
                   <div className="flex gap-1.5">
