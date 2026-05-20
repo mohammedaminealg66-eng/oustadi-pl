@@ -66,24 +66,35 @@ export async function apiRequest<T = any>(
     headers['Content-Type'] = 'application/json';
   }
 
-  let res = await fetch(`${API_BASE}${endpoint}`, {
-    ...config,
-    headers,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${endpoint}`, { ...config, headers });
+  } catch {
+    console.error(`[API] Network error: ${API_BASE}${endpoint}`);
+    return { success: false, error: 'تعذر الاتصال بالخادم. تحقق من اتصالك بالإنترنت.' };
+  }
 
   if (res.status === 401 && !config.skipAuth) {
     const newToken = await refreshAccessToken();
     if (newToken) {
       headers['Authorization'] = `Bearer ${newToken}`;
-      res = await fetch(`${API_BASE}${endpoint}`, { ...config, headers });
+      try { res = await fetch(`${API_BASE}${endpoint}`, { ...config, headers }); }
+      catch { return { success: false, error: 'تعذر الاتصال بالخادم.' }; }
     } else {
       clearTokens();
-      return { success: false, error: 'Session expired' };
+      return { success: false, error: 'انتهت الجلسة. سجل الدخول مرة أخرى.' };
     }
   }
 
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) return { success: false, error: data.message || 'Request failed' };
+  let data: any;
+  try { data = await res.json(); }
+  catch { data = {}; }
+
+  if (!res.ok) {
+    const msg = data?.message;
+    console.error(`[API] ${res.status} ${endpoint}:`, msg);
+    return { success: false, error: Array.isArray(msg) ? msg[0] : msg || 'Request failed' };
+  }
   return { success: true, data };
 }
 

@@ -48,7 +48,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       skipAuth: true,
     });
 
-    if (!res.success || !res.data) return { success: false, error: res.error };
+    if (!res.success || !res.data) {
+      console.error('[Auth] Login failed:', res.error);
+      return { success: false, error: res.error || 'فشل تسجيل الدخول' };
+    }
 
     const { accessToken, refreshToken } = res.data as any;
     setTokens(accessToken, refreshToken);
