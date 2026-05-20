@@ -41,11 +41,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
 
       const userId = payload.sub;
+      const userRole = payload.role;
       const existing = this.connectedUsers.get(userId) || [];
       existing.push(client.id);
       this.connectedUsers.set(userId, existing);
 
       client.data.userId = userId;
+      client.data.userRole = userRole;
       client.join(`user:${userId}`);
 
       this.logger.log(`User ${userId} connected via WS`);
@@ -87,6 +89,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const { message, recipientId } = await this.chat.sendMessage(
         data.conversationId,
         client.data.userId,
+        client.data.userRole,
         data.content,
         data.type,
         data.fileUrl,
@@ -99,8 +102,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.server.to(`conv:${data.conversationId}`).emit('chat:message', message);
       this.server.to(`conv:${data.conversationId}`).emit('chat:received', { messageId: message.id });
       this.server.to(`user:${recipientId}`).emit('notification:new', {
-        type: 'new_message',
-        title: 'رسالة جديدة',
+        type: client.data.userRole === 'ADMIN' ? 'support_message' : 'new_message',
+        title: client.data.userRole === 'ADMIN' ? 'رسالة من الدعم' : 'رسالة جديدة',
         body: message.content.substring(0, 100),
         link: '/chat',
       });

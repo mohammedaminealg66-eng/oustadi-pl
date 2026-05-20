@@ -6,7 +6,23 @@ import { MessageStatus } from '@prisma/client';
 export class ChatService {
   constructor(private prisma: PrismaService) {}
 
-  async getConversations(userId: string) {
+  async getConversations(userId: string, userRole: string) {
+    if (userRole === 'ADMIN') {
+      return this.prisma.conversation.findMany({
+        where: { adminId: userId },
+        include: {
+          student: { select: { id: true, fullName: true, avatarKey: true, isOnline: true, lastSeen: true } },
+          teacher: { select: { id: true, fullName: true, avatarKey: true, isOnline: true, lastSeen: true } },
+          _count: {
+            select: {
+              messages: { where: { senderId: { not: userId }, status: { not: MessageStatus.READ } } },
+            },
+          },
+        },
+        orderBy: { lastMessageAt: 'desc' },
+      });
+    }
+
     return this.prisma.conversation.findMany({
       where: {
         OR: [{ studentId: userId }, { teacherId: userId }],
@@ -24,26 +40,32 @@ export class ChatService {
     });
   }
 
-  async getMessages(conversationId: string, userId: string) {
+  async getMessages(conversationId: string, userId: string, userRole: string) {
     const conversation = await this.prisma.conversation.findUnique({ where: { id: conversationId } });
     if (!conversation) throw new NotFoundException('Conversation not found');
-    if (conversation.studentId !== userId && conversation.teacherId !== userId) {
-      throw new ForbiddenException('Not part of this conversation');
-    }
+
+    const isParticipant = userRole === 'ADMIN'
+      ? conversation.adminId === userId
+      : conversation.studentId === userId || conversation.teacherId === userId;
+
+    if (!isParticipant) throw new ForbiddenException('Not part of this conversation');
 
     return this.prisma.message.findMany({
       where: { conversationId },
       orderBy: { createdAt: 'asc' },
-      include: { sender: { select: { id: true, fullName: true } } },
+      include: { sender: { select: { id: true, fullName: true, role: true } } },
     });
   }
 
-  async sendMessage(conversationId: string, senderId: string, content: string, type?: string, fileUrl?: string, fileName?: string, fileSize?: number, mimeType?: string, duration?: number) {
+  async sendMessage(conversationId: string, senderId: string, senderRole: string, content: string, type?: string, fileUrl?: string, fileName?: string, fileSize?: number, mimeType?: string, duration?: number) {
     const conversation = await this.prisma.conversation.findUnique({ where: { id: conversationId } });
     if (!conversation) throw new NotFoundException('Conversation not found');
-    if (conversation.studentId !== senderId && conversation.teacherId !== senderId) {
-      throw new ForbiddenException('Not part of this conversation');
-    }
+
+    const isParticipant = senderRole === 'ADMIN'
+      ? conversation.adminId === senderId
+      : conversation.studentId === senderId || conversation.teacherId === senderId;
+
+    if (!isParticipant) throw new ForbiddenException('Not part of this conversation');
 
     const message = await this.prisma.message.create({
       data: {
@@ -57,7 +79,7 @@ export class ChatService {
         mimeType,
         duration,
       },
-      include: { sender: { select: { id: true, fullName: true } } },
+      include: { sender: { select: { id: true, fullName: true, role: true } } },
     });
 
     const preview = type === 'IMAGE' ? '🖼️ صورة' : type === 'FILE' ? `📎 ${fileName || 'ملف'}` : type === 'VOICE' ? '🎤 رسالة صوتية' : content.substring(0, 100);
@@ -66,13 +88,19 @@ export class ChatService {
       data: { lastMessageAt: new Date(), lastMessagePreview: preview },
     });
 
-    const recipientId = conversation.studentId === senderId ? conversation.teacherId : conversation.studentId;
+    let recipientId: string;
+    if (senderRole === 'ADMIN') {
+      recipientId = conversation.studentId || conversation.teacherId!;
+    } else {
+      recipientId = conversation.adminId || (conversation.studentId === senderId ? conversation.teacherId! : conversation.studentId!);
+    }
+
     await this.prisma.notification.create({
       data: {
         userId: recipientId,
-        title: 'رسالة جديدة',
+        title: senderRole === 'ADMIN' ? 'رسالة من الدعم' : 'رسالة جديدة',
         body: preview,
-        type: 'new_message',
+        type: senderRole === 'ADMIN' ? 'support_message' : 'new_message',
         link: '/chat',
       },
     });
@@ -95,6 +123,17 @@ export class ChatService {
 
     return this.prisma.conversation.create({
       data: { studentId, teacherId: teacherUserId },
+    });
+  }
+
+  async getOrCreateAdminConversation(adminId: string, otherUserId: string, otherUserRole: string) {
+    const field = otherUserRole === 'TEACHER' ? 'teacherId' : 'studentId';
+    const where: any = { adminId, [field]: otherUserId };
+    const existing = await this.prisma.conversation.findFirst({ where });
+    if (existing) return existing;
+
+    return this.prisma.conversation.create({
+      data: { adminId, [field]: otherUserId },
     });
   }
 }

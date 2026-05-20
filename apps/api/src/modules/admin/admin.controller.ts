@@ -132,9 +132,4 @@ export class AdminController {
   closeDispute(@Param('id') id: string) {
     return this.admin.closeDispute(id);
   }
-
-  @Get('disputes/:id/with-conversations')
-  getDisputeWithConversations(@Param('id') id: string) {
-    return this.admin.getDisputeWithConversations(id);
-  }
 }

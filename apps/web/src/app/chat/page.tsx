@@ -16,8 +16,9 @@ const EMOJI_LIST = ['😀','😂','🥰','😎','👍','👋','🙏','❤️','�
 
 interface Conversation {
   id: string;
-  student: { id: string; fullName: string; avatarKey: string | null; isOnline: boolean; lastSeen: string | null };
-  teacher: { id: string; fullName: string; avatarKey: string | null; isOnline: boolean; lastSeen: string | null };
+  student: { id: string; fullName: string; avatarKey: string | null; isOnline: boolean; lastSeen: string | null } | null;
+  teacher: { id: string; fullName: string; avatarKey: string | null; isOnline: boolean; lastSeen: string | null } | null;
+  admin: { id: string; fullName: string; avatarKey: string | null; isOnline: boolean; lastSeen: string | null } | null;
   _count: { messages: number };
   lastMessagePreview: string | null;
   lastMessageAt: string | null;
@@ -28,7 +29,7 @@ interface Message {
   conversationId: string;
   content: string;
   senderId: string;
-  sender: { id: string; fullName: string };
+  sender: { id: string; fullName: string; role: string };
   type?: string;
   fileUrl?: string;
   fileName?: string;
@@ -268,8 +269,11 @@ export default function ChatPage() {
 
   const currentConv = conversations.find((c) => c.id === activeConv);
   const otherUser = currentConv
-    ? (currentConv.student.id === user?.userId ? currentConv.teacher : currentConv.student)
+    ? (user?.role === 'ADMIN'
+        ? (currentConv.student || currentConv.teacher)
+        : (currentConv.student?.id === user?.userId ? currentConv.teacher : currentConv.student || currentConv.admin))
     : null;
+  const isOtherAdmin = otherUser && currentConv?.admin?.id === otherUser.id;
   const isOtherTyping = otherUser && typingUsers.has(otherUser.id);
 
   const dashboardHref = user?.role === 'TEACHER' ? '/teacher' : user?.role === 'ADMIN' ? '/admin' : '/student';
@@ -295,29 +299,40 @@ export default function ChatPage() {
         </div>
         <div className="flex-1 overflow-y-auto">
           {conversations.map((conv) => {
-            const other = conv.student.id === user?.userId ? conv.teacher : conv.student;
+            const other = user?.role === 'ADMIN'
+              ? (conv.student || conv.teacher)
+              : (conv.student?.id === user?.userId ? conv.teacher : conv.student || conv.admin);
+            const isAdminConv = !!conv.admin;
             return (
               <button key={conv.id} onClick={() => selectConversation(conv.id)}
-                className={`w-full border-b p-4 text-right transition hover:bg-gray-50 ${activeConv === conv.id ? 'bg-primary-50' : ''}`}>
+                className={`w-full border-b p-4 text-right transition hover:bg-gray-50 ${activeConv === conv.id ? (isAdminConv ? 'bg-indigo-50' : 'bg-primary-50') : ''}`}>
                 <div className="flex items-center gap-3">
                   <div className="relative shrink-0">
-                    <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-sm font-bold text-primary-600">
-                      {other.avatarKey ? <img src={getAvatarUrl(other.avatarKey)} alt="" className="h-full w-full object-cover" />
-                        : (other.fullName?.charAt(0) || <User className="h-4 w-4" />)}
-                    </div>
-                    {other.isOnline && <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border border-white bg-green-500" />}
+                    {isAdminConv ? (
+                      <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-indigo-100 text-sm font-bold text-indigo-600">
+                        {other?.avatarKey ? <img src={getAvatarUrl(other.avatarKey)} alt="" className="h-full w-full object-cover" />
+                          : (other?.fullName?.charAt(0) || <User className="h-4 w-4" />)}
+                      </div>
+                    ) : (
+                      <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-sm font-bold text-primary-600">
+                        {other?.avatarKey ? <img src={getAvatarUrl(other.avatarKey)} alt="" className="h-full w-full object-cover" />
+                          : (other?.fullName?.charAt(0) || <User className="h-4 w-4" />)}
+                      </div>
+                    )}
+                    {other?.isOnline && <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border border-white bg-green-500" />}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="truncate font-medium text-gray-900">{other.fullName}</p>
-                      {other.isOnline && <span className="shrink-0 text-[10px] text-green-600">{c('online')}</span>}
+                      <p className="truncate font-medium text-gray-900">{other?.fullName}</p>
+                      {isAdminConv && <span className="shrink-0 rounded bg-indigo-100 px-1.5 py-0.5 text-[9px] font-medium text-indigo-700">🛡 دعم</span>}
+                      {other?.isOnline && <span className="shrink-0 text-[10px] text-green-600">{c('online')}</span>}
                     </div>
                     {conv.lastMessagePreview && (
                       <p className="truncate text-sm text-gray-500">{conv.lastMessagePreview}</p>
                     )}
                   </div>
                   {conv._count.messages > 0 && (
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-600 text-[10px] text-white">
+                    <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] text-white ${isAdminConv ? 'bg-indigo-600' : 'bg-primary-600'}`}>
                       {conv._count.messages}
                     </span>
                   )}
@@ -342,12 +357,15 @@ export default function ChatPage() {
               <button className="lg:hidden" onClick={() => setShowMobileList(true)}>
                 <Menu className="h-5 w-5 text-gray-500" />
               </button>
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-sm font-bold text-primary-600">
+              <div className={`flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-bold ${isOtherAdmin ? 'bg-indigo-100 text-indigo-600' : 'bg-primary-100 text-primary-600'}`}>
                 {otherUser?.avatarKey ? <img src={getAvatarUrl(otherUser.avatarKey)} alt="" className="h-full w-full object-cover" />
                   : (otherUser?.fullName?.charAt(0) || <User className="h-4 w-4" />)}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-gray-900">{otherUser?.fullName || ''}</p>
+                <div className="flex items-center gap-2">
+                  <p className="truncate font-medium text-gray-900">{otherUser?.fullName || ''}</p>
+                  {isOtherAdmin && <span className="shrink-0 rounded bg-indigo-100 px-1.5 py-0.5 text-[9px] font-medium text-indigo-700">🛡 {d('officialSupport') || 'دعم رسمي'}</span>}
+                </div>
                 <p className="text-[11px] text-gray-500">
                   {isOtherTyping
                     ? <span className="text-green-600">{d('typing')}</span>
@@ -363,15 +381,25 @@ export default function ChatPage() {
               <div className={`mx-auto max-w-3xl space-y-3 ${locale === 'fr' ? '' : 'space-y-reverse'}`}>
                 {messages.map((msg) => {
                   const isMine = msg.senderId === user?.userId;
+                  const isSenderAdmin = msg.sender?.role === 'ADMIN';
                   const msgType = msg.type || 'TEXT';
                   return (
                     <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-xs rounded-2xl px-4 py-2.5 lg:max-w-md ${isMine ? 'bg-primary-600 text-white' : 'bg-white text-gray-900 shadow-sm'}`}>
+                      <div className={`max-w-xs rounded-2xl px-4 py-2.5 lg:max-w-md ${
+                        isSenderAdmin && !isMine
+                          ? 'bg-indigo-600 text-white'
+                          : isMine ? 'bg-primary-600 text-white' : 'bg-white text-gray-900 shadow-sm'
+                      }`}>
+                        {isSenderAdmin && !isMine && (
+                          <p className="mb-0.5 flex items-center gap-1 text-[10px] font-medium opacity-80">
+                            🛡 {d('officialSupport') || 'دعم رسمي'}
+                          </p>
+                        )}
                         {msgType === 'IMAGE' && msg.fileUrl && (
                           <img src={msg.fileUrl} alt="" className="mb-2 max-h-64 rounded-lg object-cover" />
                         )}
                         {msgType === 'FILE' && msg.fileUrl && (
-                          <a href={msg.fileUrl} download={msg.fileName} className={`flex items-center gap-2 rounded-lg p-2 ${isMine ? 'bg-primary-700' : 'bg-gray-100'}`}>
+                          <a href={msg.fileUrl} download={msg.fileName} className={`flex items-center gap-2 rounded-lg p-2 ${isSenderAdmin && !isMine ? 'bg-indigo-700' : isMine ? 'bg-primary-700' : 'bg-gray-100'}`}>
                             <FileText className="h-4 w-4" />
                             <span className="text-xs truncate">{msg.fileName}</span>
                             {msg.fileSize && <span className="text-[10px] opacity-60">{formatFileSize(msg.fileSize)}</span>}
@@ -379,11 +407,11 @@ export default function ChatPage() {
                         )}
                         {msgType === 'VOICE' && msg.fileUrl && (
                           <div className="flex items-center gap-2">
-                            <button onClick={() => playAudio(msg.fileUrl!, msg.id)} className={`rounded-full p-1.5 ${isMine ? 'bg-primary-700' : 'bg-gray-100'}`}>
+                            <button onClick={() => playAudio(msg.fileUrl!, msg.id)} className={`rounded-full p-1.5 ${isSenderAdmin && !isMine ? 'bg-indigo-700' : isMine ? 'bg-primary-700' : 'bg-gray-100'}`}>
                               {playingAudio === msg.id ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                             </button>
                             <div className="flex-1">
-                              <div className={`h-1.5 rounded-full ${isMine ? 'bg-primary-400' : 'bg-gray-200'}`} style={{ width: playingAudio === msg.id ? '100%' : '0%', transition: 'width 0.3s' }} />
+                              <div className={`h-1.5 rounded-full ${isSenderAdmin && !isMine ? 'bg-indigo-400' : isMine ? 'bg-primary-400' : 'bg-gray-200'}`} style={{ width: playingAudio === msg.id ? '100%' : '0%', transition: 'width 0.3s' }} />
                             </div>
                             {msg.duration && <span className="text-[10px] opacity-60">{Math.floor(msg.duration / 60)}:{String(Math.floor(msg.duration % 60)).padStart(2, '0')}</span>}
                           </div>
@@ -391,7 +419,7 @@ export default function ChatPage() {
                         {msgType === 'TEXT' && msg.content && (
                           <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                         )}
-                        <div className={`mt-1 flex items-center justify-end gap-1 ${isMine ? 'text-primary-200' : 'text-gray-400'}`}>
+                        <div className={`mt-1 flex items-center justify-end gap-1 ${isSenderAdmin && !isMine ? 'text-indigo-200' : isMine ? 'text-primary-200' : 'text-gray-400'}`}>
                           <span className="text-[10px]">{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                           {isMine && (msg as any).readAt && <span className="text-[9px]">✓✓</span>}
                         </div>
@@ -499,11 +527,12 @@ export default function ChatPage() {
             </button>
           </div>
           <div className="flex flex-col items-center gap-3 px-4 py-8">
-            <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-2xl font-bold text-primary-600">
+            <div className={`flex h-20 w-20 items-center justify-center overflow-hidden rounded-full text-2xl font-bold ${isOtherAdmin ? 'bg-indigo-100 text-indigo-600' : 'bg-primary-100 text-primary-600'}`}>
               {otherUser.avatarKey ? <img src={getAvatarUrl(otherUser.avatarKey)} alt="" className="h-full w-full object-cover" />
                 : (otherUser.fullName?.charAt(0) || <User className="h-8 w-8" />)}
             </div>
             <p className="text-lg font-bold text-gray-900">{otherUser.fullName}</p>
+            {isOtherAdmin && <span className="rounded bg-indigo-100 px-2 py-1 text-xs font-medium text-indigo-700">🛡 {d('officialSupport') || 'دعم رسمي'}</span>}
             {otherUser.isOnline ? (
               <span className="flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700">
                 <span className="h-2 w-2 rounded-full bg-green-500" /> {d('online')}

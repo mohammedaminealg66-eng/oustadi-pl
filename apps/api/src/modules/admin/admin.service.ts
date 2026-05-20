@@ -291,26 +291,4 @@ export class AdminService {
       },
     });
   }
-
-  async getDisputeWithConversations(disputeId: string) {
-    const dispute = await this.prisma.dispute.findUnique({
-      where: { id: disputeId },
-      include: {
-        teacher: { select: { id: true, fullName: true, email: true, phone: true, avatarKey: true, isOnline: true } },
-        student: { select: { id: true, fullName: true, email: true, phone: true, avatarKey: true, isOnline: true } },
-        booking: { include: { subject: true } },
-        supportConversations: {
-          include: {
-            participant: { select: { id: true, fullName: true, avatarKey: true } },
-            messages: {
-              include: { sender: { select: { id: true, fullName: true, avatarKey: true } } },
-              orderBy: { createdAt: 'asc' },
-            },
-          },
-        },
-      },
-    });
-    if (!dispute) throw new NotFoundException('Dispute not found');
-    return dispute;
-  }
 }
