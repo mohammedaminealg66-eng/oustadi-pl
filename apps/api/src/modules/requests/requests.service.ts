@@ -405,13 +405,27 @@ export class RequestsService {
       },
     });
 
+    await this.prisma.supportConversation.createMany({
+      data: [
+        { disputeId: dispute.id, participantId: request.studentId, participantRole: 'student' },
+        { disputeId: dispute.id, participantId: request.teacherId, participantRole: 'teacher' },
+      ],
+    });
+
+    const studentConv = await this.prisma.supportConversation.findUnique({
+      where: { disputeId_participantId: { disputeId: dispute.id, participantId: request.studentId } },
+    });
+    const teacherConv = await this.prisma.supportConversation.findUnique({
+      where: { disputeId_participantId: { disputeId: dispute.id, participantId: request.teacherId } },
+    });
+
     await this.prisma.notification.create({
       data: {
         userId: request.studentId,
         title: 'نزاع في الحصة',
         body: `تم إنشاء نزاع للحصة في ${updated.subject?.nameAr || 'المادة'}`,
         type: 'lesson_disputed',
-        link: `/disputes/${dispute.id}`,
+        link: `/support/${studentConv?.id}`,
       },
     });
 
@@ -421,7 +435,7 @@ export class RequestsService {
         title: 'نزاع في الحصة',
         body: `تم إنشاء نزاع للحصة في ${updated.subject?.nameAr || 'المادة'}`,
         type: 'lesson_disputed',
-        link: `/disputes/${dispute.id}`,
+        link: `/support/${teacherConv?.id}`,
       },
     });
 

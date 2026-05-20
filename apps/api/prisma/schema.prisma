@@ -70,6 +70,8 @@ model User {
   disputesAsTeacher Dispute[]    @relation("DisputeTeacher")
   disputesAsStudent Dispute[]    @relation("DisputeStudent")
   disputeMessages  DisputeMessage[]
+  supportConversations SupportConversation[]
+  supportMessages    SupportMessage[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -398,6 +400,7 @@ model Dispute {
   @@index([studentId])
 
   messages    DisputeMessage[]
+  supportConversations SupportConversation[]
 }
 
 model DisputeMessage {
@@ -412,6 +415,39 @@ model DisputeMessage {
   createdAt   DateTime @default(now())
 
   @@index([disputeId])
+  @@index([senderId])
+  @@index([isRead])
+}
+
+model SupportConversation {
+  id              String   @id @default(cuid())
+  disputeId       String
+  dispute         Dispute  @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  participantId   String
+  participant     User     @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  participantRole String   // teacher, student
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  messages        SupportMessage[]
+
+  @@unique([disputeId, participantId])
+  @@index([disputeId])
+  @@index([participantId])
+}
+
+model SupportMessage {
+  id             String   @id @default(cuid())
+  conversationId String
+  conversation   SupportConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  senderRole     String   // admin, teacher, student
+  message        String
+  isRead         Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  @@index([conversationId])
   @@index([senderId])
   @@index([isRead])
 }

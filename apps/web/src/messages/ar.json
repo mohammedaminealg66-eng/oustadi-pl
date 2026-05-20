@@ -363,5 +363,20 @@
     "typeMessage": "اكتب ردك...",
     "sendToTeacher": "إرسال إلى الأستاذ",
     "sendToStudent": "إرسال إلى التلميذ"
+  },
+  "support": {
+    "supportTitle": "دعم المنصة",
+    "officialSupport": "الدعم الرسمي",
+    "supportLabel": "إدارة المنصة",
+    "notFound": "المحادثة غير موجودة",
+    "reason": "سبب النزاع",
+    "typeMessage": "اكتب رسالتك...",
+    "statusOpen": "مفتوح",
+    "statusUnderReview": "قيد المراجعة",
+    "statusResolved": "تم الحل",
+    "statusClosed": "مغلق",
+    "bannerTitle": "نزاع قيد المراجعة",
+    "bannerText": "يوجد نزاع قيد المراجعة من طرف الدعم",
+    "openChat": "فتح المحادثة مع الدعم"
   }
 }

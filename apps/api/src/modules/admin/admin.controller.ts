@@ -117,4 +117,24 @@ export class AdminController {
   getDisputeMessages(@Param('id') id: string) {
     return this.admin.getDisputeMessages(id);
   }
+
+  @Patch('disputes/:id/start-review')
+  startReview(@Param('id') id: string) {
+    return this.admin.startReview(id);
+  }
+
+  @Patch('disputes/:id/resolve')
+  resolveDisputeAction(@Param('id') id: string) {
+    return this.admin.resolveDisputeAction(id);
+  }
+
+  @Patch('disputes/:id/close')
+  closeDispute(@Param('id') id: string) {
+    return this.admin.closeDispute(id);
+  }
+
+  @Get('disputes/:id/with-conversations')
+  getDisputeWithConversations(@Param('id') id: string) {
+    return this.admin.getDisputeWithConversations(id);
+  }
 }

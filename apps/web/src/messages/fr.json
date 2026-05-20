@@ -364,5 +364,20 @@
     "typeMessage": "Écrivez votre réponse...",
     "sendToTeacher": "Envoyer à l'enseignant",
     "sendToStudent": "Envoyer à l'étudiant"
+  },
+  "support": {
+    "supportTitle": "Support de la plateforme",
+    "officialSupport": "Support officiel",
+    "supportLabel": "Administration",
+    "notFound": "Conversation introuvable",
+    "reason": "Motif du différend",
+    "typeMessage": "Écrivez votre message...",
+    "statusOpen": "Ouvert",
+    "statusUnderReview": "En révision",
+    "statusResolved": "Résolu",
+    "statusClosed": "Fermé",
+    "bannerTitle": "Différend en cours",
+    "bannerText": "Un différend est en cours de révision par le support",
+    "openChat": "Ouvrir le chat avec le support"
   }
 }

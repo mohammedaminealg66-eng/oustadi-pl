@@ -246,4 +246,71 @@ export class AdminService {
       orderBy: { createdAt: 'asc' },
     });
   }
+
+  async startReview(disputeId: string) {
+    const dispute = await this.prisma.dispute.findUnique({ where: { id: disputeId } });
+    if (!dispute) throw new NotFoundException('Dispute not found');
+
+    return this.prisma.dispute.update({
+      where: { id: disputeId },
+      data: { status: 'under_review' },
+      include: {
+        teacher: { select: { id: true, fullName: true } },
+        student: { select: { id: true, fullName: true } },
+        booking: { include: { subject: true } },
+      },
+    });
+  }
+
+  async resolveDisputeAction(disputeId: string) {
+    const dispute = await this.prisma.dispute.findUnique({ where: { id: disputeId } });
+    if (!dispute) throw new NotFoundException('Dispute not found');
+
+    return this.prisma.dispute.update({
+      where: { id: disputeId },
+      data: { status: 'resolved', resolvedAt: new Date() },
+      include: {
+        teacher: { select: { id: true, fullName: true } },
+        student: { select: { id: true, fullName: true } },
+        booking: { include: { subject: true } },
+      },
+    });
+  }
+
+  async closeDispute(disputeId: string) {
+    const dispute = await this.prisma.dispute.findUnique({ where: { id: disputeId } });
+    if (!dispute) throw new NotFoundException('Dispute not found');
+
+    return this.prisma.dispute.update({
+      where: { id: disputeId },
+      data: { status: 'closed' },
+      include: {
+        teacher: { select: { id: true, fullName: true } },
+        student: { select: { id: true, fullName: true } },
+        booking: { include: { subject: true } },
+      },
+    });
+  }
+
+  async getDisputeWithConversations(disputeId: string) {
+    const dispute = await this.prisma.dispute.findUnique({
+      where: { id: disputeId },
+      include: {
+        teacher: { select: { id: true, fullName: true, email: true, phone: true, avatarKey: true, isOnline: true } },
+        student: { select: { id: true, fullName: true, email: true, phone: true, avatarKey: true, isOnline: true } },
+        booking: { include: { subject: true } },
+        supportConversations: {
+          include: {
+            participant: { select: { id: true, fullName: true, avatarKey: true } },
+            messages: {
+              include: { sender: { select: { id: true, fullName: true, avatarKey: true } } },
+              orderBy: { createdAt: 'asc' },
+            },
+          },
+        },
+      },
+    });
+    if (!dispute) throw new NotFoundException('Dispute not found');
+    return dispute;
+  }
 }
