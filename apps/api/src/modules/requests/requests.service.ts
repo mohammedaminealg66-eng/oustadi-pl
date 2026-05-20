@@ -78,9 +78,15 @@ export class RequestsService {
     if (!request) throw new NotFoundException('Request not found');
     if (request.teacherId !== userId) throw new ForbiddenException('Only the teacher can accept/reject');
 
+    const data: any = { status, teacherNotes };
+    if (status === 'ACCEPTED') data.bookingStatus = 'accepted';
+    else if (status === 'REJECTED') data.bookingStatus = 'rejected';
+    else if (status === 'COMPLETED') data.bookingStatus = 'completed';
+    else if (status === 'CANCELLED') data.bookingStatus = 'cancelled';
+
     const updated = await this.prisma.lessonRequest.update({
       where: { id: requestId },
-      data: { status, teacherNotes },
+      data,
       include: {
         student: { select: { id: true, fullName: true } },
         subject: true,
@@ -155,6 +161,137 @@ export class RequestsService {
         body: 'تم إلغاء الحصة المبرمجة',
       });
     }
+
+    return updated;
+  }
+
+  async proposeTime(requestId: string, userId: string, proposedDate: string, proposedTime: string) {
+    const request = await this.prisma.lessonRequest.findUnique({ where: { id: requestId } });
+    if (!request) throw new NotFoundException('Request not found');
+    if (request.teacherId !== userId) throw new ForbiddenException('Only the teacher can propose a new time');
+
+    const updated = await this.prisma.lessonRequest.update({
+      where: { id: requestId },
+      data: {
+        proposedDate,
+        proposedTime,
+        bookingStatus: 'waiting_student_confirmation',
+      },
+      include: {
+        student: { select: { id: true, fullName: true } },
+        subject: true,
+      },
+    });
+
+    await this.prisma.notification.create({
+      data: {
+        userId: request.studentId,
+        title: 'اقتراح وقت جديد',
+        body: `اقترح الأستاذ وقتاً جديداً للحصة: ${proposedDate} ${proposedTime}`,
+        type: 'proposal_received',
+        link: '/student/requests',
+      },
+    });
+
+    this.chatGateway.sendToUser(request.studentId, 'notification:new', {
+      type: 'proposal_received',
+      title: 'اقتراح وقت جديد',
+      body: `اقترح الأستاذ وقتاً جديداً للحصة: ${proposedDate} ${proposedTime}`,
+      link: '/student/requests',
+    });
+
+    return updated;
+  }
+
+  async acceptProposal(requestId: string, userId: string) {
+    const request = await this.prisma.lessonRequest.findUnique({ where: { id: requestId } });
+    if (!request) throw new NotFoundException('Request not found');
+    if (request.studentId !== userId) throw new ForbiddenException('Only the student can accept a proposal');
+    if (request.bookingStatus !== 'waiting_student_confirmation') {
+      throw new ForbiddenException('No pending proposal to accept');
+    }
+
+    const updated = await this.prisma.lessonRequest.update({
+      where: { id: requestId },
+      data: {
+        bookedDate: request.proposedDate,
+        bookedTime: request.proposedTime,
+        proposedDate: null,
+        proposedTime: null,
+        status: RequestStatus.ACCEPTED,
+        bookingStatus: 'accepted',
+      },
+      include: {
+        student: { select: { id: true, fullName: true } },
+        teacher: { select: { id: true, fullName: true } },
+        subject: true,
+      },
+    });
+
+    await this.prisma.conversation.upsert({
+      where: { studentId_teacherId: { studentId: request.studentId, teacherId: request.teacherId } },
+      update: {},
+      create: { studentId: request.studentId, teacherId: request.teacherId },
+    });
+
+    await this.prisma.notification.create({
+      data: {
+        userId: request.teacherId,
+        title: 'تم قبول الاقتراح',
+        body: `قبل التلميذ ${updated.student.fullName} الوقت المقترح للحصة`,
+        type: 'proposal_accepted',
+        link: '/teacher/requests',
+      },
+    });
+
+    this.chatGateway.sendToUser(request.teacherId, 'notification:new', {
+      type: 'proposal_accepted',
+      title: 'تم قبول الاقتراح',
+      body: `قبل التلميذ ${updated.student.fullName} الوقت المقترح للحصة`,
+      link: '/teacher/requests',
+    });
+
+    return updated;
+  }
+
+  async rejectProposal(requestId: string, userId: string) {
+    const request = await this.prisma.lessonRequest.findUnique({ where: { id: requestId } });
+    if (!request) throw new NotFoundException('Request not found');
+    if (request.studentId !== userId) throw new ForbiddenException('Only the student can reject a proposal');
+    if (request.bookingStatus !== 'waiting_student_confirmation') {
+      throw new ForbiddenException('No pending proposal to reject');
+    }
+
+    const updated = await this.prisma.lessonRequest.update({
+      where: { id: requestId },
+      data: {
+        proposedDate: null,
+        proposedTime: null,
+        bookingStatus: 'rejected',
+        status: RequestStatus.REJECTED,
+      },
+      include: {
+        teacher: { select: { id: true, fullName: true } },
+        subject: true,
+      },
+    });
+
+    await this.prisma.notification.create({
+      data: {
+        userId: request.teacherId,
+        title: 'تم رفض الاقتراح',
+        body: `رفض التلميذ الوقت المقترح للحصة`,
+        type: 'proposal_rejected',
+        link: '/teacher/requests',
+      },
+    });
+
+    this.chatGateway.sendToUser(request.teacherId, 'notification:new', {
+      type: 'proposal_rejected',
+      title: 'تم رفض الاقتراح',
+      body: 'رفض التلميذ الوقت المقترح للحصة',
+      link: '/teacher/requests',
+    });
 
     return updated;
   }

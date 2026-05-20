@@ -48,7 +48,7 @@ export default function TeacherProfile() {
   const [saved, setSaved] = useState(false);
   const [openSection, setOpenSection] = useState<SectionName | ''>('basic');
 
-  const [form, setForm] = useState({ fullName: '', phone: '', city: '', price: '', teachingMode: 'BOTH', bio: '', introVideo: '', facebookUrl: '', instagramUrl: '', linkedinUrl: '', youtubeUrl: '', websiteUrl: '' });
+  const [form, setForm] = useState({ fullName: '', phone: '', city: '', price: '', gender: '', teachingMode: 'BOTH', bio: '', introVideo: '', facebookUrl: '', instagramUrl: '', linkedinUrl: '', youtubeUrl: '', websiteUrl: '' });
   const [newExp, setNewExp] = useState({ institution: '', position: '', duration: '' });
   const [addingSubj, setAddingSubj] = useState({ subjectId: '', levels: [] as string[], price: '' });
   const [availForm, setAvailForm] = useState<Record<number, { enabled: boolean; start: string; end: string }>>({});
@@ -64,6 +64,7 @@ export default function TeacherProfile() {
         phone: res.data.phone || '',
         city: tp?.city || '',
         price: tp?.price ? String(tp.price) : '',
+        gender: tp?.gender || '',
         teachingMode: tp?.teachingMode || 'BOTH',
         bio: tp?.bio || '',
         introVideo: tp?.introVideo || '',
@@ -116,6 +117,7 @@ export default function TeacherProfile() {
       method: 'PATCH',
       body: JSON.stringify({
         city: form.city, price: form.price ? parseFloat(form.price) : null,
+        gender: form.gender || null,
         teachingMode: form.teachingMode, bio: form.bio, introVideo: form.introVideo,
         facebookUrl: form.facebookUrl, instagramUrl: form.instagramUrl,
         linkedinUrl: form.linkedinUrl, youtubeUrl: form.youtubeUrl, websiteUrl: form.websiteUrl,
@@ -272,16 +274,24 @@ export default function TeacherProfile() {
                 <label className="mb-1 block text-sm font-medium text-gray-700">{d('phone')}</label>
                 <input value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
               </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">{t('teachingMode')}</label>
-                <select value={form.teachingMode} onChange={(e) => setForm((f) => ({ ...f, teachingMode: e.target.value }))} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
-                  <option value="ONLINE">{t('online')}</option>
-                  <option value="IN_PERSON">{t('inPerson')}</option>
-                  <option value="BOTH">{t('both')}</option>
-                </select>
-              </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">{t('price')} ({t('dhPerHour')})</label>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">{t('teachingMode')}</label>
+                  <select value={form.teachingMode} onChange={(e) => setForm((f) => ({ ...f, teachingMode: e.target.value }))} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                    <option value="ONLINE">{t('online')}</option>
+                    <option value="IN_PERSON">{t('inPerson')}</option>
+                    <option value="BOTH">{t('both')}</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">{t('gender')}</label>
+                  <select value={form.gender} onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                    <option value="">{c('all')}</option>
+                    <option value="MALE">{locale === 'fr' ? 'Homme' : 'ذكر'}</option>
+                    <option value="FEMALE">{locale === 'fr' ? 'Femme' : 'أنثى'}</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">{t('price')} ({t('dhPerHour')})</label>
                 <input type="number" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
               </div>
             </div>

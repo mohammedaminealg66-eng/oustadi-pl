@@ -25,6 +25,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const studentNav = [
     { href: '/student', label: t('dashboard.overview'), icon: LayoutDashboard },
+    { href: '/student/requests', label: t('dashboard.myRequests'), icon: Users },
     { href: '/student/favorites', label: t('dashboard.favorites'), icon: Heart },
     { href: '/chat', label: t('dashboard.messages'), icon: MessageSquare },
     { href: '/settings', label: t('dashboard.settings'), icon: Settings },

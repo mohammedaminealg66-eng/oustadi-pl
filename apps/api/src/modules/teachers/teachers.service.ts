@@ -161,6 +161,7 @@ export class TeachersService {
         price: data.price,
         teachingMode: data.teachingMode,
         city: data.city,
+        gender: data.gender,
         showContact: data.showContact,
         introVideo: data.introVideo,
         facebookUrl: data.facebookUrl,

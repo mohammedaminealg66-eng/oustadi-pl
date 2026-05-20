@@ -58,8 +58,18 @@ export class RequestsController {
   proposeTime(
     @Param('id') id: string,
     @CurrentUser('userId') userId: string,
-    @Body() body: { bookedDate: string; bookedTime: string },
+    @Body() body: { proposedDate: string; proposedTime: string },
   ) {
-    return this.requests.updateStatus(id, userId, RequestStatus.PENDING, body.bookedDate + ' ' + body.bookedTime);
+    return this.requests.proposeTime(id, userId, body.proposedDate, body.proposedTime);
+  }
+
+  @Patch(':id/accept-proposal')
+  acceptProposal(@Param('id') id: string, @CurrentUser('userId') userId: string) {
+    return this.requests.acceptProposal(id, userId);
+  }
+
+  @Patch(':id/reject-proposal')
+  rejectProposal(@Param('id') id: string, @CurrentUser('userId') userId: string) {
+    return this.requests.rejectProposal(id, userId);
   }
 }

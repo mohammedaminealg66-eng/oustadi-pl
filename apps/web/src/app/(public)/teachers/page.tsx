@@ -37,6 +37,107 @@ function lastSeenText(lastSeen: string | null, locale: string, t: any): string {
   return locale === 'fr' ? `il y a ${days} j` : `منذ ${days} يوم`;
 }
 
+function FilterContent({ filters, setFilter, subjects }: {
+  filters: any;
+  setFilter: (key: string, value: any) => void;
+  subjects: any[];
+}) {
+  const locale = useLocale();
+  const h = useTranslations('home');
+  const t = useTranslations('teacher');
+  const c = useTranslations('common');
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <label className="mb-1 block text-xs font-medium text-gray-600">{h('searchPlaceholder')}</label>
+        <div className="relative">
+          <Search className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
+          <input value={filters.query} onChange={(e) => setFilter('query', e.target.value)}
+            placeholder={h('searchPlaceholder')}
+            className="w-full rounded-lg border border-gray-300 py-2 pr-10 text-sm" />
+        </div>
+      </div>
+      <div>
+        <label className="mb-1 block text-xs font-medium text-gray-600">{t('subject')}</label>
+        <select value={filters.subjectId} onChange={(e) => setFilter('subjectId', e.target.value)}
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+          <option value="">{c('all')}</option>
+          {subjects.map((s) => (
+            <option key={s.id} value={s.id}>{subjectName(s, locale)}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label className="mb-1 block text-xs font-medium text-gray-600">{t('level')}</label>
+        <select value={filters.level} onChange={(e) => setFilter('level', e.target.value)}
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+          <option value="">{c('all')}</option>
+          {levels.map((l) => (
+            <option key={l} value={l}>{l === 'université' ? (locale === 'fr' ? 'Université' : 'جامعة') : l}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label className="mb-1 block text-xs font-medium text-gray-600">{t('city')}</label>
+        <input value={filters.city} onChange={(e) => setFilter('city', e.target.value)}
+          placeholder={t('city')}
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs font-medium text-gray-600">{t('price')} {filters.maxPrice ? `≤ ${filters.maxPrice} ${t('dh')}` : ''}</label>
+        <input type="range" min="20" max="300" value={filters.maxPrice || '300'}
+          onChange={(e) => setFilter('maxPrice', e.target.value === '300' ? '' : e.target.value)}
+          className="w-full" />
+        <div className="flex justify-between text-[10px] text-gray-400">
+          <span>20 {t('dh')}</span>
+          <span>300 {t('dh')}</span>
+        </div>
+      </div>
+      <div>
+        <label className="mb-1 block text-xs font-medium text-gray-600">{t('teachingMode')}</label>
+        <select value={filters.teachingMode} onChange={(e) => setFilter('teachingMode', e.target.value)}
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+          <option value="">{c('all')}</option>
+          {teachingModes.map((m) => (
+            <option key={m.value} value={m.value}>{locale === 'fr' ? m.fr : m.ar}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label className="mb-1 block text-xs font-medium text-gray-600">{t('gender')}</label>
+        <select value={filters.gender} onChange={(e) => setFilter('gender', e.target.value)}
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+          <option value="">{c('all')}</option>
+          <option value="MALE">{locale === 'fr' ? 'Homme' : 'ذكر'}</option>
+          <option value="FEMALE">{locale === 'fr' ? 'Femme' : 'أنثى'}</option>
+        </select>
+      </div>
+      <div>
+        <label className="mb-1 block text-xs font-medium text-gray-600">{t('rating')}</label>
+        <select value={filters.minRating} onChange={(e) => setFilter('minRating', e.target.value)}
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+          <option value="">{c('all')}</option>
+          <option value="4">⭐ 4+</option>
+          <option value="4.5">⭐ 4.5+</option>
+        </select>
+      </div>
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" checked={filters.verifiedOnly}
+          onChange={(e) => setFilter('verifiedOnly', e.target.checked)}
+          className="h-4 w-4 rounded border-gray-300" />
+        {t('verifiedOnly')}
+      </label>
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" checked={filters.availableToday}
+          onChange={(e) => setFilter('availableToday', e.target.checked)}
+          className="h-4 w-4 rounded border-gray-300" />
+        {t('availableToday')}
+      </label>
+    </div>
+  );
+}
+
 export default function TeachersPage() {
   const router = useRouter();
   const sp = useSearchParams();
@@ -115,11 +216,11 @@ export default function TeachersPage() {
     filters.minRating, filters.verifiedOnly, filters.availableToday, filters.sort,
   ]);
 
-  function setFilter(key: string, value: any) {
+  const setFilter = useCallback((key: string, value: any) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
     setTeachers([]);
     setCursor(null);
-  }
+  }, []);
 
   function resetFilters() {
     setFilters({
@@ -132,98 +233,6 @@ export default function TeachersPage() {
   }
 
   const hasActiveFilters = Object.values(filters).some((v) => Boolean(v));
-
-  function FilterContent() {
-    return (
-      <div className="space-y-5">
-        <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">{h('searchPlaceholder')}</label>
-          <div className="relative">
-            <Search className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
-            <input value={filters.query} onChange={(e) => setFilter('query', e.target.value)}
-              placeholder={h('searchPlaceholder')}
-              className="w-full rounded-lg border border-gray-300 py-2 pr-10 text-sm" />
-          </div>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">{t('subject')}</label>
-          <select value={filters.subjectId} onChange={(e) => setFilter('subjectId', e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
-            <option value="">{c('all')}</option>
-            {subjects.map((s) => (
-              <option key={s.id} value={s.id}>{subjectName(s, locale)}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">{t('level')}</label>
-          <select value={filters.level} onChange={(e) => setFilter('level', e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
-            <option value="">{c('all')}</option>
-            {levels.map((l) => (
-              <option key={l} value={l}>{l === 'université' ? (locale === 'fr' ? 'Université' : 'جامعة') : l}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">{t('city')}</label>
-          <input value={filters.city} onChange={(e) => setFilter('city', e.target.value)}
-            placeholder={t('city')}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
-        </div>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">{t('price')} {filters.maxPrice ? `≤ ${filters.maxPrice} ${t('dh')}` : ''}</label>
-          <input type="range" min="20" max="300" value={filters.maxPrice || '300'}
-            onChange={(e) => setFilter('maxPrice', e.target.value === '300' ? '' : e.target.value)}
-            className="w-full" />
-          <div className="flex justify-between text-[10px] text-gray-400">
-            <span>20 {t('dh')}</span>
-            <span>300 {t('dh')}</span>
-          </div>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">{t('teachingMode')}</label>
-          <select value={filters.teachingMode} onChange={(e) => setFilter('teachingMode', e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
-            <option value="">{c('all')}</option>
-            {teachingModes.map((m) => (
-              <option key={m.value} value={m.value}>{locale === 'fr' ? m.fr : m.ar}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">{t('gender')}</label>
-          <select value={filters.gender} onChange={(e) => setFilter('gender', e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
-            <option value="">{c('all')}</option>
-            <option value="MALE">{locale === 'fr' ? 'Homme' : 'ذكر'}</option>
-            <option value="FEMALE">{locale === 'fr' ? 'Femme' : 'أنثى'}</option>
-          </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">{t('rating')}</label>
-          <select value={filters.minRating} onChange={(e) => setFilter('minRating', e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
-            <option value="">{c('all')}</option>
-            <option value="4">⭐ 4+</option>
-            <option value="4.5">⭐ 4.5+</option>
-          </select>
-        </div>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={filters.verifiedOnly}
-            onChange={(e) => setFilter('verifiedOnly', e.target.checked)}
-            className="h-4 w-4 rounded border-gray-300" />
-          {t('verifiedOnly')}
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={filters.availableToday}
-            onChange={(e) => setFilter('availableToday', e.target.checked)}
-            className="h-4 w-4 rounded border-gray-300" />
-          {t('availableToday')}
-        </label>
-      </div>
-    );
-  }
 
   return (
     <>
@@ -250,7 +259,7 @@ export default function TeachersPage() {
         <div className="flex gap-6">
           <aside className="hidden w-64 shrink-0 lg:block">
             <div className="rounded-xl border bg-white p-4 sticky top-24">
-              <FilterContent />
+              <FilterContent filters={filters} setFilter={setFilter} subjects={subjects} />
             </div>
           </aside>
 
@@ -340,7 +349,7 @@ export default function TeachersPage() {
               <h2 className="text-lg font-bold text-gray-900">{t('filters')}</h2>
               <button onClick={() => setShowFilters(false)}><X className="h-5 w-5 text-gray-400" /></button>
             </div>
-            <FilterContent />
+            <FilterContent filters={filters} setFilter={setFilter} subjects={subjects} />
             <Button className="mt-6 w-full" onClick={() => setShowFilters(false)}>{c('apply')}</Button>
           </div>
         </div>

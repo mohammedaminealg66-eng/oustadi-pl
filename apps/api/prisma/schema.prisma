@@ -217,6 +217,9 @@ model LessonRequest {
   lessonType    String?       // "online" | "presentiel"
   bookedDate    String?
   bookedTime    String?
+  proposedDate  String?
+  proposedTime  String?
+  bookingStatus String        @default("pending")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

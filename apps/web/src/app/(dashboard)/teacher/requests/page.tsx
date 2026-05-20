@@ -34,7 +34,7 @@ export default function TeacherRequests() {
     if (!proposeDate || !proposeTime) return;
     await apiRequest(`/requests/${requestId}/propose`, {
       method: 'PATCH',
-      body: JSON.stringify({ bookedDate: proposeDate, bookedTime: proposeTime }),
+      body: JSON.stringify({ proposedDate: proposeDate, proposedTime: proposeTime }),
     });
     setProposing(null);
     setProposeDate('');
@@ -58,6 +58,13 @@ export default function TeacherRequests() {
     return <span className={`rounded-full px-3 py-1 text-xs font-medium ${styles[status] || ''}`}>{labels[status] || status}</span>;
   }
 
+  function bookingBadge(bookingStatus: string) {
+    if (bookingStatus === 'waiting_student_confirmation') {
+      return <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-700">{d('waitingStudentConfirmation')}</span>;
+    }
+    return null;
+  }
+
   if (loading) return <p className="text-gray-500">{c('loading')}</p>;
 
   return (
@@ -78,12 +85,20 @@ export default function TeacherRequests() {
                       {req.lessonType && <span className="rounded bg-gray-100 px-1.5 py-0.5">{req.lessonType === 'ONLINE' ? 'عن بعد' : 'حضوري'}</span>}
                     </div>
                   )}
+                  {req.bookingStatus === 'waiting_student_confirmation' && req.proposedDate && req.proposedTime && (
+                    <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-purple-600">
+                      <span className="flex items-center gap-1"><RefreshCw className="h-3 w-3" /> {d('proposedTime')}: {new Date(req.proposedDate).toLocaleDateString('ar-MA')} {req.proposedTime}</span>
+                    </div>
+                  )}
                   {req.teacherNotes && <p className="mt-1 text-xs text-gray-400">{d('rejectionReason')} {req.teacherNotes}</p>}
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-2">
-                  {statusBadge(req.status)}
                   <div className="flex gap-1.5">
-                    {req.status === 'PENDING' && (
+                    {statusBadge(req.status)}
+                    {bookingBadge(req.bookingStatus)}
+                  </div>
+                  <div className="flex gap-1.5">
+                    {req.status === 'PENDING' && req.bookingStatus !== 'waiting_student_confirmation' && (
                       <>
                         <Button size="sm" onClick={() => handleAction(req.id, 'accept')}>{d('accept')}</Button>
                         <Button size="sm" variant="outline" onClick={() => handleAction(req.id, 'reject')}>{d('reject')}</Button>
