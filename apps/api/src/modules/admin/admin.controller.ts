@@ -3,6 +3,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { AdminService } from './admin.service';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Role } from '@prisma/client';
 
 @Controller('admin')
@@ -74,5 +75,32 @@ export class AdminController {
   @Delete('reviews/:id')
   deleteReview(@Param('id') id: string) {
     return this.admin.deleteReview(id);
+  }
+
+  @Get('disputes')
+  listDisputes() {
+    return this.admin.listDisputes();
+  }
+
+  @Get('disputes/:id')
+  getDispute(@Param('id') id: string) {
+    return this.admin.getDispute(id);
+  }
+
+  @Patch('disputes/:id/resolve')
+  resolveDispute(
+    @Param('id') id: string,
+    @CurrentUser('userId') adminId: string,
+    @Body() body: { action: string; note?: string },
+  ) {
+    return this.admin.resolveDispute(id, adminId, body.action, body.note);
+  }
+
+  @Patch('users/:id/suspend-from-dispute')
+  suspendUserFromDispute(
+    @Param('id') id: string,
+    @Body() body: { reason: string },
+  ) {
+    return this.admin.suspendUserFromDispute(id, body.reason);
   }
 }

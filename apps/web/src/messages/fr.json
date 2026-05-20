@@ -316,6 +316,27 @@
     "notVerified": "Non vérifié",
     "official": "Compte officiel",
     "notOfficial": "Non officiel",
-    "noTeachers": "Aucun enseignant"
+    "noTeachers": "Aucun enseignant",
+    "disputes": "Différends",
+    "disputesTitle": "Problèmes de cours",
+    "disputesDesc": "Gestion des différends entre enseignants et étudiants",
+    "noDisputes": "Aucun différend",
+    "disputeOpen": "Ouvert",
+    "disputeReviewing": "En révision",
+    "disputeResolved": "Résolu",
+    "disputeRejected": "Rejeté",
+    "disputeDetail": "Détails du différend",
+    "disputeNotFound": "Différend introuvable",
+    "disputeReason": "Motif du différend",
+    "adminNote": "Note de l'admin",
+    "adminActions": "Actions de l'admin",
+    "adminActionNote": "Écrivez votre note...",
+    "resolveDispute": "Résoudre le différend",
+    "startReview": "Commencer la révision",
+    "rejectDispute": "Fermer le différend",
+    "warnTeacher": "Avertir l'enseignant",
+    "warnStudent": "Avertir l'étudiant",
+    "bookingDetails": "Détails de la réservation",
+    "lessonType": "Type de cours"
   }
 }

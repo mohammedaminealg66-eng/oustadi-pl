@@ -119,4 +119,93 @@ export class AdminService {
       },
     });
   }
+
+  async listDisputes() {
+    return this.prisma.dispute.findMany({
+      include: {
+        teacher: { select: { id: true, fullName: true, email: true } },
+        student: { select: { id: true, fullName: true, email: true } },
+        booking: {
+          include: {
+            subject: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async getDispute(disputeId: string) {
+    const dispute = await this.prisma.dispute.findUnique({
+      where: { id: disputeId },
+      include: {
+        teacher: { select: { id: true, fullName: true, email: true, phone: true, avatarKey: true, isOnline: true } },
+        student: { select: { id: true, fullName: true, email: true, phone: true, avatarKey: true, isOnline: true } },
+        booking: {
+          include: {
+            subject: true,
+          },
+        },
+      },
+    });
+    if (!dispute) throw new NotFoundException('Dispute not found');
+
+    const messages = await this.prisma.message.findMany({
+      where: { conversationId: dispute.booking.id },
+      include: { sender: { select: { id: true, fullName: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    return { ...dispute, messages };
+  }
+
+  async resolveDispute(disputeId: string, adminId: string, action: string, note?: string) {
+    const dispute = await this.prisma.dispute.findUnique({ where: { id: disputeId } });
+    if (!dispute) throw new NotFoundException('Dispute not found');
+
+    const updated = await this.prisma.dispute.update({
+      where: { id: disputeId },
+      data: {
+        status: action === 'resolved' ? 'resolved' : action === 'rejected' ? 'rejected' : 'reviewing',
+        adminAction: action,
+        adminNote: note,
+        resolvedBy: adminId,
+        resolvedAt: new Date(),
+      },
+      include: {
+        teacher: { select: { id: true, fullName: true } },
+        student: { select: { id: true, fullName: true } },
+        booking: { include: { subject: true } },
+      },
+    });
+
+    await this.prisma.notification.create({
+      data: {
+        userId: dispute.studentId,
+        title: 'تم حل النزاع',
+        body: `تم حل النزاع الخاص بالحصة في ${updated.booking.subject?.nameAr || 'المادة'}`,
+        type: 'dispute_resolved',
+        link: '/student/requests',
+      },
+    });
+
+    await this.prisma.notification.create({
+      data: {
+        userId: dispute.teacherId,
+        title: 'تم حل النزاع',
+        body: `تم حل النزاع الخاص بالحصة في ${updated.booking.subject?.nameAr || 'المادة'}`,
+        type: 'dispute_resolved',
+        link: '/teacher/requests',
+      },
+    });
+
+    return updated;
+  }
+
+  async suspendUserFromDispute(userId: string, reason: string) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { isSuspended: true, suspensionReason: reason },
+    });
+  }
 }

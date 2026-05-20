@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useAuth } from '@/providers/auth-provider';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { LayoutDashboard, MessageSquare, Heart, Settings, Users, BookOpen, FileText, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, Heart, Settings, Users, BookOpen, FileText, BarChart3, AlertTriangle } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -46,6 +46,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { href: '/admin/subjects', label: t('admin.subjects'), icon: BookOpen },
     { href: '/admin/documents', label: t('admin.documents'), icon: FileText },
     { href: '/admin/reports', label: t('admin.reports'), icon: FileText },
+    { href: '/admin/disputes', label: t('admin.disputes'), icon: AlertTriangle },
     { href: '/settings', label: t('dashboard.settings'), icon: Settings },
   ];
 

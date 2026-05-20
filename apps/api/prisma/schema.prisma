@@ -67,6 +67,8 @@ model User {
   reviews          Review[]
   notifications    Notification[]
   sessions         Session[]
+  disputesAsTeacher Dispute[]    @relation("DisputeTeacher")
+  disputesAsStudent Dispute[]    @relation("DisputeStudent")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -222,6 +224,8 @@ model LessonRequest {
   bookingStatus String        @default("pending")
   disputeReason String?
 
+  disputes      Dispute[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
@@ -367,4 +371,28 @@ model AdminLog {
 
   @@index([adminId])
   @@index([action])
+}
+
+model Dispute {
+  id          String   @id @default(cuid())
+  bookingId   String
+  booking     LessonRequest @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  teacherId   String
+  teacher     User     @relation("DisputeTeacher", fields: [teacherId], references: [id])
+  studentId   String
+  student     User     @relation("DisputeStudent", fields: [studentId], references: [id])
+  reason      String
+  status      String   @default("open")
+  adminAction String?
+  adminNote   String?
+  resolvedBy  String?
+  resolvedAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([bookingId])
+  @@index([status])
+  @@index([teacherId])
+  @@index([studentId])
 }

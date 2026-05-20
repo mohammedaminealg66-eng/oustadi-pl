@@ -333,16 +333,27 @@ export class RequestsService {
 
       return updated;
     } else {
+      const disputeReason = reason || 'التلميذ لم يؤكد إكمال الحصة';
       const updated = await this.prisma.lessonRequest.update({
         where: { id: requestId },
         data: {
           bookingStatus: 'disputed',
-          disputeReason: reason || 'التلميذ لم يؤكد إكمال الحصة',
+          disputeReason,
         },
         include: {
           teacher: { select: { id: true, fullName: true } },
           student: { select: { id: true, fullName: true } },
           subject: true,
+        },
+      });
+
+      await this.prisma.dispute.create({
+        data: {
+          bookingId: requestId,
+          teacherId: request.teacherId,
+          studentId: request.studentId,
+          reason: disputeReason,
+          status: 'open',
         },
       });
 
@@ -381,6 +392,16 @@ export class RequestsService {
         student: { select: { id: true, fullName: true } },
         teacher: { select: { id: true, fullName: true } },
         subject: true,
+      },
+    });
+
+    await this.prisma.dispute.create({
+      data: {
+        bookingId: requestId,
+        teacherId: request.teacherId,
+        studentId: request.studentId,
+        reason,
+        status: 'open',
       },
     });
 

@@ -315,6 +315,27 @@
     "notVerified": "غير موثق",
     "official": "حساب رسمي",
     "notOfficial": "ليس رسمياً",
-    "noTeachers": "لا يوجد أساتذة"
+    "noTeachers": "لا يوجد أساتذة",
+    "disputes": "النزاعات",
+    "disputesTitle": "مشاكل الحصص",
+    "disputesDesc": "إدارة النزاعات بين الأساتذة والطلاب",
+    "noDisputes": "لا توجد نزاعات",
+    "disputeOpen": "مفتوح",
+    "disputeReviewing": "قيد المراجعة",
+    "disputeResolved": "تم الحل",
+    "disputeRejected": "مرفوض",
+    "disputeDetail": "تفاصيل النزاع",
+    "disputeNotFound": "النزاع غير موجود",
+    "disputeReason": "سبب النزاع",
+    "adminNote": "ملاحظة الإدارة",
+    "adminActions": "إجراءات الإدارة",
+    "adminActionNote": "اكتب ملاحظتك...",
+    "resolveDispute": "حل النزاع",
+    "startReview": "بدء المراجعة",
+    "rejectDispute": "إغلاق النزاع",
+    "warnTeacher": "تحذير الأستاذ",
+    "warnStudent": "تحذير التلميذ",
+    "bookingDetails": "تفاصيل الحجز",
+    "lessonType": "نمط الدرس"
   }
 }
