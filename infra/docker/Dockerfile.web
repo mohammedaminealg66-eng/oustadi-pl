@@ -3,6 +3,7 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@latest --activate
 COPY . .
 RUN pnpm install
+ENV NEXT_PUBLIC_API_URL=/api
 RUN cd apps/web && npx next build
 EXPOSE 3000
 CMD cd apps/web && npx next start -p 3000

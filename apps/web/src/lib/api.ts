@@ -86,14 +86,15 @@ export async function apiRequest<T = any>(
     }
   }
 
+  const text = await res.text();
   let data: any;
-  try { data = await res.json(); }
-  catch { data = {}; }
+  try { data = JSON.parse(text); } catch { data = {}; }
 
   if (!res.ok) {
     const msg = data?.message;
-    console.error(`[API] ${res.status} ${endpoint}:`, msg);
-    return { success: false, error: Array.isArray(msg) ? msg[0] : msg || 'Request failed' };
+    const preview = text.substring(0, 300);
+    console.error(`[API] ${res.status} ${endpoint}:`, msg || preview);
+    return { success: false, error: Array.isArray(msg) ? msg[0] : msg || preview || 'Request failed' };
   }
   return { success: true, data };
 }
