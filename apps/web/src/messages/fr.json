@@ -264,7 +264,8 @@
     "instagram": "Instagram",
     "linkedin": "LinkedIn",
     "youtube": "YouTube",
-    "website": "Site web"
+    "website": "Site web",
+    "officialSupport": "Support officiel"
   },
   "admin": {
     "users": "Utilisateurs",
@@ -325,6 +326,8 @@
     "disputeReviewing": "En révision",
     "disputeResolved": "Résolu",
     "disputeRejected": "Rejeté",
+    "disputeUnderReview": "En révision",
+    "disputeClosed": "Fermé",
     "disputeDetail": "Détails du différend",
     "disputeNotFound": "Différend introuvable",
     "disputeReason": "Motif du différend",
@@ -334,6 +337,9 @@
     "resolveDispute": "Résoudre le différend",
     "startReview": "Commencer la révision",
     "rejectDispute": "Fermer le différend",
+    "closeDispute": "Fermer",
+    "messageTeacher": "Message",
+    "messageStudent": "Message",
     "warnTeacher": "Avertir l'enseignant",
     "warnStudent": "Avertir l'étudiant",
     "bookingDetails": "Détails de la réservation",

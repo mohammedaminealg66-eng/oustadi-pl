@@ -57,6 +57,23 @@ export default function AdminDisputeDetail() {
     alert('تم إيقاف الحساب');
   }
 
+  async function openChat(otherUserId: string) {
+    const res = await apiRequest('/conversations', {
+      method: 'POST',
+      body: JSON.stringify({ teacherId: otherUserId }),
+    });
+    if (res.success && res.data) {
+      router.push('/chat');
+    }
+  }
+
+  async function handleClose() {
+    setActing(true);
+    await apiRequest(`/admin/disputes/${id}/close`, { method: 'PATCH' });
+    setActing(false);
+    await fetchDispute();
+  }
+
   async function handleSendMessage() {
     if (!msgText.trim()) return;
     setSendingMsg(true);
@@ -75,14 +92,18 @@ export default function AdminDisputeDetail() {
   function statusBadge(status: string) {
     const styles: Record<string, string> = {
       open: 'bg-red-100 text-red-700',
+      under_review: 'bg-yellow-100 text-yellow-700',
       reviewing: 'bg-yellow-100 text-yellow-700',
       resolved: 'bg-green-100 text-green-700',
+      closed: 'bg-gray-100 text-gray-500',
       rejected: 'bg-gray-100 text-gray-500',
     };
     const labels: Record<string, string> = {
       open: t('disputeOpen'),
+      under_review: t('disputeUnderReview'),
       reviewing: t('disputeReviewing'),
       resolved: t('disputeResolved'),
+      closed: t('disputeClosed'),
       rejected: t('disputeRejected'),
     };
     return <span className={`rounded-full px-3 py-1 text-xs font-medium ${styles[status] || ''}`}>{labels[status] || status}</span>;
@@ -162,6 +183,43 @@ export default function AdminDisputeDetail() {
                 <p className="text-xs text-gray-500">{dispute.student?.email}</p>
                 {dispute.student?.phone && <p className="text-xs text-gray-500">{dispute.student.phone}</p>}
               </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Chat Buttons */}
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-lg font-bold text-primary-600">
+                {dispute.teacher?.avatarKey ? <img src={getAvatarUrl(dispute.teacher.avatarKey)} alt="" className="h-full w-full object-cover" /> : dispute.teacher?.fullName?.charAt(0)}
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-gray-900">{dispute.teacher?.fullName}</p>
+                <p className="text-xs text-gray-500">{t('teacher')}</p>
+              </div>
+              <Button size="sm" onClick={() => openChat(dispute.teacherId)}>
+                <MessageSquare className="ml-1 h-4 w-4" /> {t('messageTeacher')}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-lg font-bold text-primary-600">
+                {dispute.student?.avatarKey ? <img src={getAvatarUrl(dispute.student.avatarKey)} alt="" className="h-full w-full object-cover" /> : dispute.student?.fullName?.charAt(0)}
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-gray-900">{dispute.student?.fullName}</p>
+                <p className="text-xs text-gray-500">{t('student')}</p>
+              </div>
+              <Button size="sm" onClick={() => openChat(dispute.studentId)}>
+                <MessageSquare className="ml-1 h-4 w-4" /> {t('messageStudent')}
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -277,28 +335,19 @@ export default function AdminDisputeDetail() {
       </Card>
 
       {/* Actions */}
-      {dispute.status !== 'resolved' && dispute.status !== 'rejected' && (
+      {dispute.status !== 'resolved' && dispute.status !== 'closed' && dispute.status !== 'rejected' && (
         <Card className="mt-6">
           <CardContent className="p-4">
             <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700"><Shield className="h-4 w-4" /> {t('adminActions')}</h3>
-            <textarea value={actionNote} onChange={(e) => setActionNote(e.target.value)}
-              placeholder={t('adminActionNote')} rows={2}
-              className="mb-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
             <div className="flex flex-wrap gap-2">
+              <Button size="sm" onClick={() => handleAction('reviewing')} disabled={acting}>
+                <FileText className="ml-1 h-4 w-4" /> {t('startReview')}
+              </Button>
               <Button size="sm" onClick={() => handleAction('resolved')} disabled={acting}>
                 <CheckCircle className="ml-1 h-4 w-4" /> {t('resolveDispute')}
               </Button>
-              <Button size="sm" variant="outline" onClick={() => handleAction('reviewing')} disabled={acting}>
-                <FileText className="ml-1 h-4 w-4" /> {t('startReview')}
-              </Button>
-              <Button size="sm" variant="outline" className="text-red-500" onClick={() => handleAction('rejected')} disabled={acting}>
-                <XCircle className="ml-1 h-4 w-4" /> {t('rejectDispute')}
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => handleSuspend(dispute.teacherId, dispute.teacher?.fullName)} disabled={acting}>
-                ⚠ {t('warnTeacher')}
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => handleSuspend(dispute.studentId, dispute.student?.fullName)} disabled={acting}>
-                ⚠ {t('warnStudent')}
+              <Button size="sm" variant="outline" onClick={handleClose} disabled={acting}>
+                {t('closeDispute')}
               </Button>
             </div>
           </CardContent>

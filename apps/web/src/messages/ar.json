@@ -263,7 +263,8 @@
     "instagram": "إنستغرام",
     "linkedin": "لينكد إن",
     "youtube": "يوتيوب",
-    "website": "موقع إلكتروني"
+    "website": "موقع إلكتروني",
+    "officialSupport": "دعم رسمي"
   },
   "admin": {
     "users": "المستخدمون",
@@ -324,6 +325,8 @@
     "disputeReviewing": "قيد المراجعة",
     "disputeResolved": "تم الحل",
     "disputeRejected": "مرفوض",
+    "disputeUnderReview": "قيد المراجعة",
+    "disputeClosed": "مغلق",
     "disputeDetail": "تفاصيل النزاع",
     "disputeNotFound": "النزاع غير موجود",
     "disputeReason": "سبب النزاع",
@@ -333,6 +336,9 @@
     "resolveDispute": "حل النزاع",
     "startReview": "بدء المراجعة",
     "rejectDispute": "إغلاق النزاع",
+    "closeDispute": "إغلاق",
+    "messageTeacher": "مراسلة",
+    "messageStudent": "مراسلة",
     "warnTeacher": "تحذير الأستاذ",
     "warnStudent": "تحذير التلميذ",
     "bookingDetails": "تفاصيل الحجز",
