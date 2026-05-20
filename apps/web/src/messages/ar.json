@@ -336,6 +336,20 @@
     "warnTeacher": "تحذير الأستاذ",
     "warnStudent": "تحذير التلميذ",
     "bookingDetails": "تفاصيل الحجز",
-    "lessonType": "نمط الدرس"
+    "lessonType": "نمط الدرس",
+    "adminCommunication": "التواصل مع الأطراف",
+    "sendToTeacher": "إرسال إلى الأستاذ",
+    "sendToStudent": "إرسال إلى التلميذ",
+    "adminMessagePlaceholder": "اكتب رسالتك...",
+    "sendMessage": "إرسال الرسالة",
+    "disputeTimeline": "سجل الأحداث",
+    "timelineBookingCreated": "إنشاء الحجز",
+    "timelineBookingAccepted": "قبول الأستاذ للحجز",
+    "timelineTimeProposed": "اقتراح وقت جديد",
+    "timelineLessonCompleted": "إكمال الحصة",
+    "timelineDisputeOpened": "فتح النزاع",
+    "timelineMsgToTeacher": "رسالة من الإدارة إلى الأستاذ",
+    "timelineMsgToStudent": "رسالة من الإدارة إلى التلميذ",
+    "timelineAdminAction": "إجراء من الإدارة"
   }
 }

@@ -208,4 +208,41 @@ export class AdminService {
       data: { isSuspended: true, suspensionReason: reason },
     });
   }
+
+  async sendMessageToDispute(disputeId: string, receiverType: string, message: string) {
+    const dispute = await this.prisma.dispute.findUnique({
+      where: { id: disputeId },
+      include: { booking: { include: { subject: true } } },
+    });
+    if (!dispute) throw new NotFoundException('Dispute not found');
+
+    const disputeMessage = await this.prisma.disputeMessage.create({
+      data: {
+        disputeId,
+        senderType: 'admin',
+        receiverType,
+        message,
+      },
+    });
+
+    const targetUserId = receiverType === 'teacher' ? dispute.teacherId : dispute.studentId;
+    await this.prisma.notification.create({
+      data: {
+        userId: targetUserId,
+        title: 'رسالة من الإدارة',
+        body: message.substring(0, 100),
+        type: 'admin_dispute_message',
+        link: receiverType === 'teacher' ? '/teacher/requests' : '/student/requests',
+      },
+    });
+
+    return disputeMessage;
+  }
+
+  async getDisputeMessages(disputeId: string) {
+    return this.prisma.disputeMessage.findMany({
+      where: { disputeId },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
 }

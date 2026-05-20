@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { apiRequest } from '@/lib/api';
 import { getAvatarUrl } from '@/lib/asset';
 import { Card, CardContent, Button } from '@oustadi/ui';
-import { ArrowRight, AlertTriangle, CheckCircle, XCircle, Shield, User, Calendar, Clock, MessageSquare, FileText } from 'lucide-react';
+import { ArrowRight, AlertTriangle, CheckCircle, XCircle, Shield, User, Calendar, Clock, MessageSquare, FileText, Send } from 'lucide-react';
 
 export default function AdminDisputeDetail() {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +17,10 @@ export default function AdminDisputeDetail() {
   const [loading, setLoading] = useState(true);
   const [actionNote, setActionNote] = useState('');
   const [acting, setActing] = useState(false);
+  const [disputeMessages, setDisputeMessages] = useState<any[]>([]);
+  const [msgReceiver, setMsgReceiver] = useState('teacher');
+  const [msgText, setMsgText] = useState('');
+  const [sendingMsg, setSendingMsg] = useState(false);
 
   async function fetchDispute() {
     const res = await apiRequest<any>(`/admin/disputes/${id}`);
@@ -24,7 +28,12 @@ export default function AdminDisputeDetail() {
     setLoading(false);
   }
 
-  useEffect(() => { fetchDispute(); }, [id]);
+  async function fetchMessages() {
+    const res = await apiRequest<any[]>(`/admin/disputes/${id}/messages`);
+    if (res.success && Array.isArray(res.data)) setDisputeMessages(res.data);
+  }
+
+  useEffect(() => { fetchDispute(); fetchMessages(); }, [id]);
 
   async function handleAction(action: string) {
     if (!actionNote.trim() && action !== 'reviewing') return;
@@ -48,6 +57,18 @@ export default function AdminDisputeDetail() {
     alert('تم إيقاف الحساب');
   }
 
+  async function handleSendMessage() {
+    if (!msgText.trim()) return;
+    setSendingMsg(true);
+    await apiRequest(`/admin/disputes/${id}/message`, {
+      method: 'POST',
+      body: JSON.stringify({ receiverType: msgReceiver, message: msgText }),
+    });
+    setSendingMsg(false);
+    setMsgText('');
+    await fetchMessages();
+  }
+
   if (loading) return <p className="text-gray-500">{c('loading')}</p>;
   if (!dispute) return <p className="text-gray-500">{t('disputeNotFound')}</p>;
 
@@ -66,6 +87,39 @@ export default function AdminDisputeDetail() {
     };
     return <span className={`rounded-full px-3 py-1 text-xs font-medium ${styles[status] || ''}`}>{labels[status] || status}</span>;
   }
+
+  function buildTimeline() {
+    const items: any[] = [];
+    const b = dispute.booking || {};
+
+    items.push({ type: 'booking_created', label: t('timelineBookingCreated'), date: b.createdAt, icon: Calendar });
+    if (b.status === 'ACCEPTED' || b.status === 'COMPLETED') {
+      items.push({ type: 'booking_accepted', label: t('timelineBookingAccepted'), date: b.updatedAt, icon: CheckCircle });
+    }
+    if (b.proposedDate) {
+      items.push({ type: 'time_proposed', label: t('timelineTimeProposed'), date: b.updatedAt, icon: Clock });
+    }
+    if (b.status === 'COMPLETED') {
+      items.push({ type: 'lesson_completed', label: t('timelineLessonCompleted'), date: b.updatedAt, icon: CheckCircle });
+    }
+    items.push({ type: 'dispute_opened', label: t('timelineDisputeOpened'), date: dispute.createdAt, icon: AlertTriangle });
+    disputeMessages.forEach((m: any) => {
+      items.push({
+        type: 'admin_message',
+        label: m.receiverType === 'teacher' ? t('timelineMsgToTeacher') : t('timelineMsgToStudent'),
+        detail: m.message,
+        date: m.createdAt,
+        icon: MessageSquare,
+      });
+    });
+    if (dispute.adminNote) {
+      items.push({ type: 'admin_action', label: t('timelineAdminAction'), detail: dispute.adminNote, date: dispute.resolvedAt || dispute.updatedAt, icon: Shield });
+    }
+
+    return items.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }
+
+  const timeline = buildTimeline();
 
   return (
     <div>
@@ -148,7 +202,7 @@ export default function AdminDisputeDetail() {
         </CardContent>
       </Card>
 
-      {/* Messages */}
+      {/* Chat messages between parties */}
       {dispute.messages && dispute.messages.length > 0 && (
         <Card className="mt-6">
           <CardContent className="p-4">
@@ -170,6 +224,57 @@ export default function AdminDisputeDetail() {
           </CardContent>
         </Card>
       )}
+
+      {/* Admin Communication */}
+      <Card className="mt-6">
+        <CardContent className="p-4">
+          <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700"><Send className="h-4 w-4" /> {t('adminCommunication')}</h3>
+          <div className="flex flex-wrap gap-3">
+            <select value={msgReceiver} onChange={(e) => setMsgReceiver(e.target.value)} className="rounded-lg border border-gray-300 px-3 py-2 text-sm">
+              <option value="teacher">{t('sendToTeacher')}</option>
+              <option value="student">{t('sendToStudent')}</option>
+            </select>
+            <input value={msgText} onChange={(e) => setMsgText(e.target.value)} placeholder={t('adminMessagePlaceholder')} className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+            <Button size="sm" onClick={handleSendMessage} disabled={sendingMsg || !msgText.trim()}>
+              <Send className="ml-1 h-4 w-4" /> {t('sendMessage')}
+            </Button>
+          </div>
+          {disputeMessages.length > 0 && (
+            <div className="mt-4 space-y-2 max-h-48 overflow-y-auto">
+              {disputeMessages.map((m: any) => (
+                <div key={m.id} className={`rounded-lg px-3 py-2 text-sm ${m.receiverType === 'teacher' ? 'bg-blue-50' : 'bg-green-50'}`}>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-medium text-gray-700">{m.receiverType === 'teacher' ? t('sendToTeacher') : t('sendToStudent')}</p>
+                    <span className="text-[10px] text-gray-400">{new Date(m.createdAt).toLocaleString('ar-MA')}</span>
+                  </div>
+                  <p className="mt-1 text-sm text-gray-900">{m.message}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Timeline */}
+      <Card className="mt-6">
+        <CardContent className="p-4">
+          <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700"><Clock className="h-4 w-4" /> {t('disputeTimeline')}</h3>
+          <div className="space-y-3">
+            {timeline.map((item: any, i: number) => (
+              <div key={i} className="flex items-start gap-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-100">
+                  <item.icon className="h-4 w-4 text-gray-500" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-gray-900">{item.label}</p>
+                  {item.detail && <p className="text-xs text-gray-500">{item.detail}</p>}
+                  <p className="text-[10px] text-gray-400">{new Date(item.date).toLocaleString('ar-MA')}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Actions */}
       {dispute.status !== 'resolved' && dispute.status !== 'rejected' && (

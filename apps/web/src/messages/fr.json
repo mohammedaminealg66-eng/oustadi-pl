@@ -337,6 +337,20 @@
     "warnTeacher": "Avertir l'enseignant",
     "warnStudent": "Avertir l'étudiant",
     "bookingDetails": "Détails de la réservation",
-    "lessonType": "Type de cours"
+    "lessonType": "Type de cours",
+    "adminCommunication": "Communication avec les parties",
+    "sendToTeacher": "Envoyer à l'enseignant",
+    "sendToStudent": "Envoyer à l'étudiant",
+    "adminMessagePlaceholder": "Écrivez votre message...",
+    "sendMessage": "Envoyer le message",
+    "disputeTimeline": "Chronologie",
+    "timelineBookingCreated": "Réservation créée",
+    "timelineBookingAccepted": "Réservation acceptée",
+    "timelineTimeProposed": "Nouveau créneau proposé",
+    "timelineLessonCompleted": "Cours terminé",
+    "timelineDisputeOpened": "Différend ouvert",
+    "timelineMsgToTeacher": "Message de l'admin à l'enseignant",
+    "timelineMsgToStudent": "Message de l'admin à l'étudiant",
+    "timelineAdminAction": "Action de l'admin"
   }
 }

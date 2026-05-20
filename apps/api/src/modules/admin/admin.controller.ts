@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Delete, Param, Query, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Query, Body, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AdminService } from './admin.service';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -102,5 +102,18 @@ export class AdminController {
     @Body() body: { reason: string },
   ) {
     return this.admin.suspendUserFromDispute(id, body.reason);
+  }
+
+  @Post('disputes/:id/message')
+  sendMessageToDispute(
+    @Param('id') id: string,
+    @Body() body: { receiverType: string; message: string },
+  ) {
+    return this.admin.sendMessageToDispute(id, body.receiverType, body.message);
+  }
+
+  @Get('disputes/:id/messages')
+  getDisputeMessages(@Param('id') id: string) {
+    return this.admin.getDisputeMessages(id);
   }
 }
