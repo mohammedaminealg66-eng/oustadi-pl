@@ -17,9 +17,10 @@ import { UploadModule } from './modules/upload/upload.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { HealthController } from './modules/health.controller';
+import { RootController } from './modules/root.controller';
 
 @Module({
-  controllers: [HealthController],
+  controllers: [RootController, HealthController],
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ServeStaticModule.forRootAsync({
