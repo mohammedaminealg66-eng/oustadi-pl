@@ -8,7 +8,6 @@ import { apiRequest } from '@/lib/api';
 import { getAvatarUrl } from '@/lib/asset';
 import { Button } from '@oustadi/ui';
 import { ArrowRight, Send, AlertTriangle, User, Calendar, Clock, Shield } from 'lucide-react';
-import { format } from 'date-fns';
 
 export default function DisputePage() {
   const { id } = useParams<{ id: string }>();
@@ -67,72 +66,69 @@ export default function DisputePage() {
      rejected: 'bg-gray-100 text-gray-500',
    };
 
+   function fmtTime(date: string | Date) {
+      if (!date) return '';
+      return new Date(date).toLocaleTimeString('ar-MA', { hour: '2-digit', minute: '2-digit' });
+    }
+
    function getTimelineItems() {
-     const items = [];
-     if (dispute.booking) {
-       // Request sent
-       items.push({
-         title: t('timelineRequestSent'),
-         description: t('timelineRequestSentDesc', { teacher: dispute.teacher?.fullName, student: dispute.student?.fullName }),
-         time: format(new Date(dispute.booking.createdAt), 'HH:mm', { locale: 'ar' })
-       });
-       // Teacher accepted
-       if (dispute.booking.status === 'ACCEPTED' || dispute.booking.status === 'accepted') {
-         items.push({
-           title: t('timelineTeacherAccepted'),
-           description: t('timelineTeacherAcceptedDesc'),
-           time: format(new Date(dispute.booking.updatedAt), 'HH:mm', { locale: 'ar' })
-         });
-       }
-       // Teacher proposed new schedule
-       if (dispute.booking.proposedDate || dispute.booking.proposedTime) {
-         items.push({
-           title: t('timelineTeacherProposedSchedule'),
-           description: t('timelineTeacherProposedScheduleDesc'),
-           time: format(new Date(dispute.booking.updatedAt), 'HH:mm', { locale: 'ar' })
-         });
-       }
-       // Student accepted proposed schedule
-       if (dispute.booking.status === 'ACCEPTED' && (dispute.booking.proposedDate || dispute.booking.proposedTime)) {
-         items.push({
-           title: t('timelineStudentAcceptedSchedule'),
-           description: t('timelineStudentAcceptedScheduleDesc'),
-           time: format(new Date(dispute.booking.updatedAt), 'HH:mm', { locale: 'ar' })
-         });
-       }
-       // Lesson completed (if applicable)
-       if (dispute.booking.status === 'COMPLETED' || dispute.booking.status === 'completed') {
-         items.push({
-           title: t('timelineLessonCompleted'),
-           description: t('timelineLessonCompletedDesc'),
-           time: format(new Date(dispute.booking.updatedAt), 'HH:mm', { locale: 'ar' })
-         });
-       }
-     }
-     // Dispute opened
-     items.push({
-       title: t('timelineDisputeOpened'),
-       description: t('timelineDisputeOpenedDesc', { reason: dispute.reason }),
-       time: format(new Date(dispute.createdAt), 'HH:mm', { locale: 'ar' })
-     });
-     // Review started
-     if (dispute.status === 'reviewing' || dispute.status === 'under_review') {
-       items.push({
-         title: t('timelineReviewStarted'),
-         description: t('timelineReviewStartedDesc'),
-         time: format(new Date(dispute.updatedAt), 'HH:mm', { locale: 'ar' })
-       });
-     }
-     // Dispute resolved
-     if (dispute.status === 'resolved') {
-       items.push({
-         title: t('timelineDisputeResolved'),
-         description: t('timelineDisputeResolvedDesc'),
-         time: format(new Date(dispute.updatedAt), 'HH:mm', { locale: 'ar' })
-       });
-     }
-     return items;
-   }
+      const items = [];
+      if (dispute.booking) {
+        items.push({
+          title: t('timelineRequestSent'),
+          description: t('timelineRequestSentDesc', { teacher: dispute.teacher?.fullName, student: dispute.student?.fullName }),
+          time: fmtTime(dispute.booking.createdAt)
+        });
+        if (dispute.booking.status === 'ACCEPTED' || dispute.booking.status === 'accepted') {
+          items.push({
+            title: t('timelineTeacherAccepted'),
+            description: t('timelineTeacherAcceptedDesc'),
+            time: fmtTime(dispute.booking.updatedAt)
+          });
+        }
+        if (dispute.booking.proposedDate || dispute.booking.proposedTime) {
+          items.push({
+            title: t('timelineTeacherProposedSchedule'),
+            description: t('timelineTeacherProposedScheduleDesc'),
+            time: fmtTime(dispute.booking.updatedAt)
+          });
+        }
+        if (dispute.booking.status === 'ACCEPTED' && (dispute.booking.proposedDate || dispute.booking.proposedTime)) {
+          items.push({
+            title: t('timelineStudentAcceptedSchedule'),
+            description: t('timelineStudentAcceptedScheduleDesc'),
+            time: fmtTime(dispute.booking.updatedAt)
+          });
+        }
+        if (dispute.booking.status === 'COMPLETED' || dispute.booking.status === 'completed') {
+          items.push({
+            title: t('timelineLessonCompleted'),
+            description: t('timelineLessonCompletedDesc'),
+            time: fmtTime(dispute.booking.updatedAt)
+          });
+        }
+      }
+      items.push({
+        title: t('timelineDisputeOpened'),
+        description: t('timelineDisputeOpenedDesc', { reason: dispute.reason }),
+        time: fmtTime(dispute.createdAt)
+      });
+      if (dispute.status === 'reviewing' || dispute.status === 'under_review') {
+        items.push({
+          title: t('timelineReviewStarted'),
+          description: t('timelineReviewStartedDesc'),
+          time: fmtTime(dispute.updatedAt)
+        });
+      }
+      if (dispute.status === 'resolved') {
+        items.push({
+          title: t('timelineDisputeResolved'),
+          description: t('timelineDisputeResolvedDesc'),
+          time: fmtTime(dispute.updatedAt)
+        });
+      }
+      return items;
+    }
 
   return (
     <div className="flex h-screen flex-col bg-gray-50">
