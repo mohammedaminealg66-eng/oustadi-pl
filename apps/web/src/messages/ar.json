@@ -358,7 +358,9 @@
     "timelineDisputeOpened": "فتح النزاع",
     "timelineMsgToTeacher": "رسالة من الإدارة إلى الأستاذ",
     "timelineMsgToStudent": "رسالة من الإدارة إلى التلميذ",
-    "timelineAdminAction": "إجراء من الإدارة"
+    "timelineAdminAction": "إجراء من الإدارة",
+    "timelineReviewStarted": "بدء المراجعة",
+    "timelineDisputeResolved": "حل النزاع"
   },
   "dispute": {
     "title": "النزاع",
@@ -370,7 +372,24 @@
     "reason": "سبب النزاع",
     "typeMessage": "اكتب ردك...",
     "sendToTeacher": "إرسال إلى الأستاذ",
-    "sendToStudent": "إرسال إلى التلميذ"
+    "sendToStudent": "إرسال إلى التلميذ",
+    "timeline": "سجل الأحداث",
+    "timelineRequestSent": "تم إرسال الطلب",
+    "timelineRequestSentDesc": "أرسل {student} طلب تدريس إلى {teacher}",
+    "timelineTeacherAccepted": "قبل الأستاذ الطلب",
+    "timelineTeacherAcceptedDesc": "قبل الأستاذ طلب التدريس",
+    "timelineTeacherProposedSchedule": "اقترح الأستاذ موعداً جديداً",
+    "timelineTeacherProposedScheduleDesc": "اقترح الأستاذ موعداً جديداً للحصة",
+    "timelineStudentAcceptedSchedule": "وافق التلميذ على الموعد",
+    "timelineStudentAcceptedScheduleDesc": "قبل التلميذ الموعد المقترح للحصة",
+    "timelineLessonCompleted": "تم إكمال الحصة",
+    "timelineLessonCompletedDesc": "تم إكمال الحصة بنجاح",
+    "timelineDisputeOpened": "فتح نزاع",
+    "timelineDisputeOpenedDesc": "فتح نزاع: {reason}",
+    "timelineReviewStarted": "بدأت المراجعة",
+    "timelineReviewStartedDesc": "بدأت إدارة المنصة مراجعة النزاع",
+    "timelineDisputeResolved": "تم حل النزاع",
+    "timelineDisputeResolvedDesc": "تم حل النزاع من طرف إدارة المنصة"
   },
   "support": {
     "supportTitle": "دعم المنصة",

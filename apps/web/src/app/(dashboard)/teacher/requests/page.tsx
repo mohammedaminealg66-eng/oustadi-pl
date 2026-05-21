@@ -71,6 +71,9 @@ export default function TeacherRequests() {
     if (bookingStatus === 'under_review') {
       return <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-700">🟡 قيد المراجعة من طرف إدارة المنصة</span>;
     }
+    if (bookingStatus === 'resolved') {
+      return <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">🟢 تم حل النزاع</span>;
+    }
     return null;
   }
 
@@ -104,6 +107,12 @@ export default function TeacherRequests() {
                     <div className="mt-3 rounded-lg border border-yellow-200 bg-yellow-50 p-3">
                       <p className="flex items-center gap-1 text-sm font-medium text-yellow-700">🟡 قيد المراجعة من طرف إدارة المنصة</p>
                       <p className="mt-1 text-sm text-yellow-600">بدأت إدارة المنصة بمراجعة النزاع الخاص بهذه الحصة</p>
+                    </div>
+                  )}
+                  {req.bookingStatus === 'resolved' && (
+                    <div className="mt-3 rounded-lg border border-green-200 bg-green-50 p-3">
+                      <p className="flex items-center gap-1 text-sm font-medium text-green-700"><CheckCircle className="h-4 w-4" /> تم حل النزاع</p>
+                      <p className="mt-1 text-sm text-green-600">تمت مراجعة النزاع وحل المشكلة من طرف إدارة المنصة</p>
                     </div>
                   )}
                 </div>

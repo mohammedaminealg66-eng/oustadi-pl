@@ -1274,6 +1274,9 @@ Phase 3 (Scale)
 | Admin reports management UI | ✅ Complete | Listing + resolving reports |
 | Admin document verification UI | ✅ Complete | View/verify/reject documents |
 | File upload UI components | 🟡 Partial | Backend complete, frontend uploaders pending |
+| Dispute system — timeline (user + admin) | ✅ Complete | Timeline with real booking/dispute events, i18n keys added |
+| Dispute system — booking flow lock | ✅ Complete | Guards prevent confirm/dispute during active disputes; bookingStatus='resolved' on resolve |
+| Dispute system — status sync on resolve | ✅ Complete | `resolveDispute` now updates bookingStatus to 'resolved', synced across all user roles |
 
 ---
 

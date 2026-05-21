@@ -81,7 +81,12 @@ export class RequestsService {
     const data: any = { status, teacherNotes };
     if (status === 'ACCEPTED') data.bookingStatus = 'accepted';
     else if (status === 'REJECTED') data.bookingStatus = 'rejected';
-    else if (status === 'COMPLETED') data.bookingStatus = 'waiting_confirmation';
+    else if (status === 'COMPLETED') {
+      if (request.bookingStatus === 'disputed' || request.bookingStatus === 'under_review' || request.bookingStatus === 'resolved') {
+        throw new ForbiddenException('Cannot complete lesson during an active or resolved dispute');
+      }
+      data.bookingStatus = 'waiting_confirmation';
+    }
     else if (status === 'CANCELLED') data.bookingStatus = 'cancelled';
 
     const updated = await this.prisma.lessonRequest.update({
@@ -303,6 +308,9 @@ export class RequestsService {
     if (!request) throw new NotFoundException('Request not found');
     if (request.studentId !== userId) throw new ForbiddenException('Only the student can confirm completion');
     if (request.status !== 'COMPLETED') throw new ForbiddenException('Lesson must be marked as completed by teacher first');
+    if (request.bookingStatus === 'disputed' || request.bookingStatus === 'under_review' || request.bookingStatus === 'resolved') {
+      throw new ForbiddenException('Cannot confirm completion while dispute is active or resolved');
+    }
 
     if (confirmed) {
       const updated = await this.prisma.lessonRequest.update({
@@ -383,6 +391,9 @@ export class RequestsService {
     if (!request) throw new NotFoundException('Request not found');
     if (request.studentId !== userId && request.teacherId !== userId) {
       throw new ForbiddenException('Only student or teacher can dispute');
+    }
+    if (request.bookingStatus === 'disputed' || request.bookingStatus === 'under_review' || request.bookingStatus === 'resolved') {
+      throw new ForbiddenException('A dispute already exists for this booking');
     }
 
     const updated = await this.prisma.lessonRequest.update({

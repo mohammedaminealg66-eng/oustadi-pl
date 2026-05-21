@@ -80,6 +80,66 @@ export default function AdminDisputeDetail() {
     return <span className={`rounded-full px-3 py-1 text-xs font-medium ${styles[status] || ''}`}>{labels[status] || status}</span>;
   }
 
+  function formatDate(date: string | Date) {
+    if (!date) return '';
+    return new Date(date).toLocaleTimeString('ar-MA', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function formatDisplayDate(date: string) {
+    if (!date) return '';
+    return new Date(date).toLocaleDateString('ar-MA');
+  }
+
+  function getTimelineItems() {
+    const items: { title: string; time: string; description?: string }[] = [];
+    const b = dispute.booking;
+
+    if (b) {
+      items.push({
+        title: t('timelineBookingCreated'),
+        time: formatDate(b.createdAt),
+        description: `${dispute.student?.fullName} → ${dispute.teacher?.fullName}`,
+      });
+
+      if (b.status === 'ACCEPTED') {
+        items.push({
+          title: t('timelineBookingAccepted'),
+          time: formatDate(b.updatedAt),
+        });
+      }
+
+      if (b.proposedDate || b.proposedTime) {
+        items.push({
+          title: t('timelineTimeProposed'),
+          time: formatDate(b.updatedAt),
+          description: b.proposedDate && b.proposedTime ? `${formatDisplayDate(b.proposedDate)} ${b.proposedTime}` : '',
+        });
+      }
+
+      if (b.status === 'COMPLETED') {
+        items.push({
+          title: t('timelineLessonCompleted'),
+          time: formatDate(b.updatedAt),
+        });
+      }
+    }
+
+    items.push({
+      title: t('timelineDisputeOpened'),
+      time: formatDate(dispute.createdAt),
+      description: dispute.reason,
+    });
+
+    if (dispute.status === 'resolved') {
+      items.push({
+        title: t('disputeResolved'),
+        time: formatDate(dispute.resolvedAt || dispute.updatedAt),
+      });
+    }
+
+    return items;
+  }
+
   return (
     <div>
       <div className="mb-6 flex items-center gap-3">
@@ -163,6 +223,27 @@ export default function AdminDisputeDetail() {
           <div className="mt-3 rounded-lg bg-red-50 p-3">
             <p className="flex items-center gap-1 text-sm font-medium text-red-700"><AlertTriangle className="h-4 w-4" /> {t('disputeReason')}</p>
             <p className="mt-1 text-sm text-red-600">{dispute.reason}</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Timeline */}
+      <Card className="mt-6">
+        <CardContent className="p-4">
+          <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700"><Clock className="h-4 w-4" /> {t('disputeTimeline')}</h3>
+          <div className="space-y-4">
+            {getTimelineItems().map((item, index) => (
+              <div key={index} className="flex items-start gap-3">
+                <div className="mt-1 flex-shrink-0 h-2.5 w-2.5 rounded-full bg-gray-300" />
+                <div className="flex-1 space-y-0.5">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium text-gray-900">{item.title}</span>
+                    <span className="text-xs text-gray-500">{item.time}</span>
+                  </div>
+                  {item.description && <p className="text-xs text-gray-600">{item.description}</p>}
+                </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>

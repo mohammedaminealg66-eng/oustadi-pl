@@ -359,7 +359,9 @@
     "timelineDisputeOpened": "Différend ouvert",
     "timelineMsgToTeacher": "Message de l'admin à l'enseignant",
     "timelineMsgToStudent": "Message de l'admin à l'étudiant",
-    "timelineAdminAction": "Action de l'admin"
+    "timelineAdminAction": "Action de l'admin",
+    "timelineReviewStarted": "Révision commencée",
+    "timelineDisputeResolved": "Différend résolu"
   },
   "dispute": {
     "title": "Différend",
@@ -371,7 +373,24 @@
     "reason": "Motif du différend",
     "typeMessage": "Écrivez votre réponse...",
     "sendToTeacher": "Envoyer à l'enseignant",
-    "sendToStudent": "Envoyer à l'étudiant"
+    "sendToStudent": "Envoyer à l'étudiant",
+    "timeline": "Chronologie",
+    "timelineRequestSent": "Demande envoyée",
+    "timelineRequestSentDesc": "{student} a envoyé une demande à {teacher}",
+    "timelineTeacherAccepted": "Enseignant a accepté",
+    "timelineTeacherAcceptedDesc": "L'enseignant a accepté la demande",
+    "timelineTeacherProposedSchedule": "Nouveau créneau proposé",
+    "timelineTeacherProposedScheduleDesc": "L'enseignant a proposé un nouveau créneau",
+    "timelineStudentAcceptedSchedule": "Étudiant a accepté le créneau",
+    "timelineStudentAcceptedScheduleDesc": "L'étudiant a accepté le créneau proposé",
+    "timelineLessonCompleted": "Cours terminé",
+    "timelineLessonCompletedDesc": "Le cours a été terminé avec succès",
+    "timelineDisputeOpened": "Différend ouvert",
+    "timelineDisputeOpenedDesc": "Différend ouvert : {reason}",
+    "timelineReviewStarted": "Révision commencée",
+    "timelineReviewStartedDesc": "L'administration a commencé la révision",
+    "timelineDisputeResolved": "Différend résolu",
+    "timelineDisputeResolvedDesc": "Le différend a été résolu par l'administration"
   },
   "support": {
     "supportTitle": "Support de la plateforme",

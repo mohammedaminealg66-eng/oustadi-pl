@@ -87,6 +87,9 @@ export default function StudentRequests() {
     if (bookingStatus === 'under_review') {
       return <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-700">🟡 قيد المراجعة من طرف إدارة المنصة</span>;
     }
+    if (bookingStatus === 'resolved') {
+      return <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">🟢 تم حل النزاع</span>;
+    }
     return null;
   }
 
@@ -152,11 +155,17 @@ export default function StudentRequests() {
                   </Button>
                 </div>
               )}
-              {req.status === 'COMPLETED' && req.bookingStatus !== 'completed' && req.bookingStatus !== 'disputed' && (
+              {req.bookingStatus === 'waiting_confirmation' && (
                 <div className="mt-4 flex gap-2 border-t pt-4">
                   <Button size="sm" onClick={() => setConfirmModal(req.id)}>
                     <CheckCircle className="ml-1 h-4 w-4" /> {d('confirmLesson')}
                   </Button>
+                </div>
+              )}
+              {req.bookingStatus === 'resolved' && (
+                <div className="mt-4 rounded-lg border border-green-200 bg-green-50 p-3">
+                  <p className="flex items-center gap-1 text-sm font-medium text-green-700"><CheckCircle className="h-4 w-4" /> تم حل النزاع</p>
+                  <p className="mt-1 text-sm text-green-600">تمت مراجعة النزاع وحل المشكلة من طرف إدارة المنصة</p>
                 </div>
               )}
             </CardContent>

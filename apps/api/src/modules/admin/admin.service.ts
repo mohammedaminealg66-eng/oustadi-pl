@@ -177,6 +177,11 @@ export class AdminService {
       },
     });
 
+    await this.prisma.lessonRequest.update({
+      where: { id: dispute.bookingId },
+      data: { bookingStatus: 'resolved' },
+    });
+
     await this.prisma.notification.create({
       data: {
         userId: dispute.studentId,
