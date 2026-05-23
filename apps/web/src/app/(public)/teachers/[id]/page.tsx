@@ -119,9 +119,9 @@ export default function TeacherProfilePage() {
         const existing = res.data.find((r: any) => r.teacherId === profile?.id);
         if (existing) { setCanReview(false); return; }
       }
-      apiRequest<any[]>('/requests', { skipAuth: false }).then((r2: any) => {
+      apiRequest<any>('/requests', { skipAuth: false }).then((r2: any) => {
         if (r2.success && r2.data) {
-          const completed = r2.data.some((req: any) =>
+          const completed = (r2.data.sent || []).some((req: any) =>
             req.teacherId === profile?.userId && req.status === 'COMPLETED'
           );
           setCanReview(completed);
