@@ -149,6 +149,7 @@ export default function TeachersPage() {
   const [teachers, setTeachers] = useState<any[]>([]);
   const [subjects, setSubjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [cursor, setCursor] = useState<string | null>(null);
@@ -200,6 +201,9 @@ export default function TeachersPage() {
       else setTeachers(res.data!.data);
       setHasMore(res.data!.hasMore);
       setCursor(res.data!.cursor);
+      setError(null);
+    } else {
+      setError(res.error || c('noResults'));
     }
     setLoading(false);
   }, [buildQuery]);
@@ -269,6 +273,8 @@ export default function TeachersPage() {
                   <Card key={i}><CardContent className="h-40 animate-pulse bg-gray-100" /></Card>
                 ))}
               </div>
+            ) : error ? (
+              <div className="py-16 text-center text-red-500">{error}</div>
             ) : teachers.length === 0 ? (
               <div className="py-16 text-center text-gray-500">{c('noResults')}</div>
             ) : (

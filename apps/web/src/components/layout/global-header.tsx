@@ -64,7 +64,7 @@ export function GlobalHeader() {
           <div className="relative h-8 w-8 overflow-hidden">
             <Image src="/logo.png" alt="Oustadi" width={32} height={32} className="h-full w-full object-contain" priority unoptimized />
           </div>
-          <span className="hidden sm:inline text-lg font-bold text-primary-600">أستادي</span>
+          <span className="hidden sm:inline text-lg font-bold text-primary-600">{t('common.appName')}</span>
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
