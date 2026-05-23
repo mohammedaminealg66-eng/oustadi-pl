@@ -31,15 +31,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  if (pathname.startsWith('/admin') && role !== 'ADMIN') {
+  if ((pathname === '/admin' || pathname.startsWith('/admin/')) && role !== 'ADMIN') {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  if (pathname.startsWith('/teacher') && role !== 'TEACHER') {
+  if ((pathname === '/teacher' || pathname.startsWith('/teacher/')) && role !== 'TEACHER') {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  if (pathname.startsWith('/student') && role !== 'STUDENT') {
+  if ((pathname === '/student' || pathname.startsWith('/student/')) && role !== 'STUDENT') {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
