@@ -140,7 +140,7 @@ export default function StudentRequests() {
                   </div>
                   <div className="flex gap-1.5">
                     {(req.status === 'ACCEPTED' || req.status === 'COMPLETED') && (
-                      <Button size="sm" variant="outline" onClick={() => window.location.href = '/chat'}><MessageSquare className="ml-1 h-3 w-3" /></Button>
+                      <Button size="sm" variant="outline" onClick={() => window.location.href = '/student/chat'}><MessageSquare className="ml-1 h-3 w-3" /></Button>
                     )}
                   </div>
                 </div>

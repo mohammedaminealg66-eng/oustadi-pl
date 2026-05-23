@@ -195,12 +195,36 @@ oustadi/
 │   │   │   │   ├── (public)/         # Public routes group
 │   │   │   │   │   ├── teachers/     # Teacher directory + profiles
 │   │   │   │   │   └── page.tsx      # Landing page
-│   │   │   │   ├── (dashboard)/      # Protected dashboard routes
-│   │   │   │   │   ├── student/
-│   │   │   │   │   ├── teacher/
-│   │   │   │   │   └── admin/
-│   │   │   │   ├── chat/             # Chat pages
-│   │   │   │   ├── settings/
+│   │   │   │   ├── student/          # Student role namespace
+│   │   │   │   │   ├── page.tsx      # Dashboard
+│   │   │   │   │   ├── layout.tsx    # Student layout + sidebar
+│   │   │   │   │   ├── requests/
+│   │   │   │   │   ├── favorites/
+│   │   │   │   │   ├── chat/
+│   │   │   │   │   ├── settings/
+│   │   │   │   │   └── disputes/[id]/
+│   │   │   │   ├── teacher/          # Teacher role namespace
+│   │   │   │   │   ├── page.tsx      # Dashboard
+│   │   │   │   │   ├── layout.tsx    # Teacher layout + sidebar
+│   │   │   │   │   ├── profile/
+│   │   │   │   │   ├── requests/
+│   │   │   │   │   ├── chat/
+│   │   │   │   │   ├── settings/
+│   │   │   │   │   └── disputes/[id]/
+│   │   │   │   ├── admin/            # Admin role namespace
+│   │   │   │   │   ├── page.tsx      # Dashboard
+│   │   │   │   │   ├── layout.tsx    # Admin layout + sidebar
+│   │   │   │   │   ├── users/
+│   │   │   │   │   ├── teachers/
+│   │   │   │   │   ├── subjects/
+│   │   │   │   │   ├── documents/
+│   │   │   │   │   ├── reports/
+│   │   │   │   │   ├── disputes/
+│   │   │   │   │   ├── chat/
+│   │   │   │   │   └── settings/
+│   │   │   │   ├── chat/             # Redirect → /{role}/chat
+│   │   │   │   ├── settings/         # Redirect → /{role}/settings
+│   │   │   │   ├── disputes/[id]/    # Redirect → /{role}/disputes/[id]
 │   │   │   │   └── error.tsx
 │   │   │   ├── components/           # Shared components
 │   │   │   │   ├── ui/               # shadcn/ui components
@@ -1413,6 +1437,7 @@ Phase 3 (Scale)
 - [x] Fixed teacher profile navigation from student requests (was using User.id instead of TeacherProfile.id)
 - [x] Inline review form on teacher profile page (replaced modal, shows for students with completed lessons)
 - [x] Fixed canReview logic: /requests returns { sent, received } object, not array
+- [x] Routes reorganization: role-based namespaces (/student/*, /teacher/*, /admin/*) with dedicated layouts, sidebar, middleware enforcement, redirect pages at /chat/settings/disputes
 
 **Pending:**
 - [ ] Production deployment on Ubuntu VPS

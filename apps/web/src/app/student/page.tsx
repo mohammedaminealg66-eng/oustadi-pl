@@ -50,7 +50,7 @@ export default function StudentDashboard() {
                         req.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
                       }`}>{req.status === 'ACCEPTED' ? d('accepted') : req.status === 'REJECTED' ? d('rejected') : d('pending')}</span>
                       {req.status === 'ACCEPTED' && (
-                        <Link href="/chat"><Button size="sm" variant="outline">{d('message')}</Button></Link>
+                        <Link href="/student/chat"><Button size="sm" variant="outline">{d('message')}</Button></Link>
                       )}
                     </div>
                   </div>

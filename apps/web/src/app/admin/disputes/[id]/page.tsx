@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { apiRequest } from '@/lib/api';
 import { getAvatarUrl } from '@/lib/asset';
 import { Card, CardContent, Button } from '@oustadi/ui';
-import { ArrowRight, AlertTriangle, CheckCircle, Shield, User, Calendar, Clock, MessageSquare, FileText, Send } from 'lucide-react';
+import { ArrowRight, AlertTriangle, CheckCircle, Shield, User, Calendar, Clock, MessageSquare, FileText } from 'lucide-react';
 
 export default function AdminDisputeDetail() {
   const { id } = useParams<{ id: string }>();
@@ -53,7 +53,7 @@ export default function AdminDisputeDetail() {
       body: JSON.stringify(body),
     });
     if (res.success && res.data) {
-      router.push('/chat');
+      router.push('/admin/chat');
     }
   }
 
@@ -157,7 +157,6 @@ export default function AdminDisputeDetail() {
       )}
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Teacher info + message button */}
         <Card>
           <CardContent className="p-4">
             <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700"><User className="h-4 w-4" /> {t('teacher')}</h3>
@@ -177,7 +176,6 @@ export default function AdminDisputeDetail() {
           </CardContent>
         </Card>
 
-        {/* Student info + message button */}
         <Card>
           <CardContent className="p-4">
             <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700"><User className="h-4 w-4" /> {t('student')}</h3>
@@ -198,7 +196,6 @@ export default function AdminDisputeDetail() {
         </Card>
       </div>
 
-      {/* Booking details */}
       <Card className="mt-6">
         <CardContent className="p-4">
           <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700"><Calendar className="h-4 w-4" /> {t('bookingDetails')}</h3>
@@ -227,7 +224,6 @@ export default function AdminDisputeDetail() {
         </CardContent>
       </Card>
 
-      {/* Timeline */}
       <Card className="mt-6">
         <CardContent className="p-4">
           <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700"><Clock className="h-4 w-4" /> {t('disputeTimeline')}</h3>
@@ -248,7 +244,6 @@ export default function AdminDisputeDetail() {
         </CardContent>
       </Card>
 
-      {/* Actions */}
       {dispute.status !== 'resolved' && dispute.status !== 'closed' && dispute.status !== 'rejected' && (
         <Card className="mt-6">
           <CardContent className="p-4">

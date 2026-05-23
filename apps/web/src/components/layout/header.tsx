@@ -107,7 +107,7 @@ export function Header() {
           )}
           {isAuthenticated ? (
             <>
-              <Link href="/settings">
+              <Link href={user?.role === 'TEACHER' ? '/teacher/settings' : user?.role === 'ADMIN' ? '/admin/settings' : '/student/settings'}>
                 <Button variant="ghost" size="sm">{user?.email}</Button>
               </Link>
               <Button variant="outline" size="sm" onClick={logout}>{t('common.logout')}</Button>

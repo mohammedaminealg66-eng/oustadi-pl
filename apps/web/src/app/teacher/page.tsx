@@ -79,7 +79,7 @@ export default function TeacherDashboard() {
                     </div>
                   )}
                   {req.status === 'ACCEPTED' && (
-                    <Link href="/chat"><Button size="sm" variant="outline">{d('message')}</Button></Link>
+                    <Link href="/teacher/chat"><Button size="sm" variant="outline">{d('message')}</Button></Link>
                   )}
                   <span className={`rounded-full px-3 py-1 text-xs font-medium ${
                     req.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :

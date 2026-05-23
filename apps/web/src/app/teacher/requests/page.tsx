@@ -132,12 +132,12 @@ export default function TeacherRequests() {
                       <>
                         <Button size="sm" onClick={() => handleAction(req.id, 'complete')}><CheckCircle className="ml-1 h-3 w-3" /> {d('complete')}</Button>
                         <Button size="sm" variant="outline" onClick={() => setProposing(req.id)}><RefreshCw className="ml-1 h-3 w-3" /> {d('propose')}</Button>
-                        <Button size="sm" variant="outline" onClick={() => router.push('/chat')}><MessageSquare className="ml-1 h-3 w-3" /></Button>
+                        <Button size="sm" variant="outline" onClick={() => router.push('/teacher/chat')}><MessageSquare className="ml-1 h-3 w-3" /></Button>
                         <Button size="sm" variant="ghost" className="text-red-500" onClick={() => handleAction(req.id, 'cancel')}><XCircle className="h-3 w-3" /></Button>
                       </>
                     )}
                     {req.status === 'COMPLETED' && (
-                      <Button size="sm" variant="outline" onClick={() => router.push('/chat')}><MessageSquare className="ml-1 h-3 w-3" /></Button>
+                      <Button size="sm" variant="outline" onClick={() => router.push('/teacher/chat')}><MessageSquare className="ml-1 h-3 w-3" /></Button>
                     )}
                   </div>
                 </div>
