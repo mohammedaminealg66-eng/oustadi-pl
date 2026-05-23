@@ -7,7 +7,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { apiRequest } from '@/lib/api';
 import { subjectName } from '@/lib/subject';
 import { getAvatarUrl } from '@/lib/asset';
-import { Header } from '@/components/layout/header';
+
 import { Footer } from '@/components/layout/footer';
 import { Button, Card, CardContent } from '@oustadi/ui';
 import { MapPin, SlidersHorizontal, X, Star, Filter, Search, ChevronDown } from 'lucide-react';
@@ -236,7 +236,6 @@ export default function TeachersPage() {
 
   return (
     <>
-      <Header />
       <main className="mx-auto max-w-7xl px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-gray-900">{h('searchTeachers')}</h1>

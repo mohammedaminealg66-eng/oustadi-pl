@@ -7,7 +7,7 @@ import { apiRequest } from '@/lib/api';
 import { subjectName } from '@/lib/subject';
 import { getAvatarUrl, getYouTubeEmbedUrl } from '@/lib/asset';
 import { useAuth } from '@/providers/auth-provider';
-import { Header } from '@/components/layout/header';
+
 import { Footer } from '@/components/layout/footer';
 import { Button, Card, CardContent } from '@oustadi/ui';
 import {
@@ -214,14 +214,13 @@ export default function TeacherProfilePage() {
 
   const certDocs = useMemo(() => profile?.documents.filter((d) => d.type === 'certificate') || [], [profile]);
 
-  if (loading) return <><Header /><div className="mx-auto max-w-6xl px-4 py-8"><div className="h-96 animate-pulse rounded-xl bg-gray-100" /></div></>;
-  if (!profile) return <><Header /><div className="py-16 text-center text-gray-500">{t('notFound')}</div></>;
+  if (loading) return <div className="mx-auto max-w-6xl px-4 py-8"><div className="h-96 animate-pulse rounded-xl bg-gray-100" /></div>;
+  if (!profile) return <div className="py-16 text-center text-gray-500">{t('notFound')}</div>;
 
   const mainSubject = profile.subjects[0];
 
   return (
     <>
-      <Header />
       <main className="mx-auto max-w-6xl px-4 py-6 lg:py-8">
         <div className="lg:flex lg:gap-8">
           <div className="flex-1 space-y-6">

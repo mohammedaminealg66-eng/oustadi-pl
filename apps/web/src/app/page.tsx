@@ -1,5 +1,4 @@
 import { getTranslations } from 'next-intl/server';
-import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { CtaButtons } from '@/components/cta-buttons';
 
@@ -8,7 +7,6 @@ export default async function HomePage() {
 
   return (
     <>
-      <Header />
       <main>
         <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-secondary-50 py-20">
           <div className="mx-auto max-w-7xl px-4 text-center">

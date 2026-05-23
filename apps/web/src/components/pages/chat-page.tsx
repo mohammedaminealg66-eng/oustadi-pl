@@ -286,7 +286,7 @@ export default function ChatPage({ dashboardHref }: { dashboardHref: string }) {
   if (authLoading) return <div className="flex min-h-screen items-center justify-center text-gray-500">{c('loading')}</div>;
 
   return (
-    <div className="flex h-screen bg-gray-50" dir={locale === 'fr' ? 'ltr' : 'rtl'}>
+    <div className="flex h-[calc(100vh-3.5rem)] bg-gray-50" dir={locale === 'fr' ? 'ltr' : 'rtl'}>
       <div className={`${showMobileList ? 'flex' : 'hidden'} w-full flex-col border-l bg-white lg:flex lg:w-80 ${activeConv ? 'lg:flex' : ''}`}>
         <div className="flex items-center gap-3 border-b px-4 py-3">
           <Link href={dashboardHref} className="rounded-lg p-1 text-gray-500 hover:bg-gray-100">

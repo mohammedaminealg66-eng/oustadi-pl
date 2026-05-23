@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getLocale } from 'next-intl/server';
 import { Providers } from '@/providers/providers';
+import { GlobalHeader } from '@/components/layout/global-header';
 import { NotifierShell } from '@/components/notifier-shell';
 import './globals.css';
 
@@ -24,7 +25,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'} suppressHydrationWarning>
       <body className="min-h-screen bg-gray-50 text-gray-900 antialiased">
         <NextIntlClientProvider messages={messages}>
-          <Providers><NotifierShell>{children}</NotifierShell></Providers>
+          <Providers>
+            <NotifierShell>
+              <GlobalHeader />
+              {children}
+            </NotifierShell>
+          </Providers>
         </NextIntlClientProvider>
       </body>
     </html>

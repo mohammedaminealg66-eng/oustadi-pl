@@ -29,9 +29,9 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
   ];
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-[calc(100vh-3.5rem)]">
       <aside className="w-64 border-l bg-white p-4">
-        <Link href="/" className="mb-6 block text-xl font-bold text-primary-600">{t('common.appName')}</Link>
+        <Link href="/" className="mb-6 block text-lg font-bold text-primary-600">أستادي</Link>
         <nav className="space-y-1">
           {nav.map((item) => (
             <Link

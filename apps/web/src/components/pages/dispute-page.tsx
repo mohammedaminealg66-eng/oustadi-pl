@@ -129,7 +129,7 @@ export default function DisputePage() {
   }
 
   return (
-    <div className="flex h-screen flex-col bg-gray-50">
+    <div className="flex h-[calc(100vh-3.5rem)] flex-col bg-gray-50">
       <div className="flex items-center gap-3 border-b bg-white px-4 py-3">
         <button onClick={() => router.back()} className="rounded-lg p-1 text-gray-500 hover:bg-gray-100">
           <ArrowRight className="h-5 w-5 rotate-180" />

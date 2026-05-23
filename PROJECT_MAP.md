@@ -1438,6 +1438,8 @@ Phase 3 (Scale)
 - [x] Inline review form on teacher profile page (replaced modal, shows for students with completed lessons)
 - [x] Fixed canReview logic: /requests returns { sent, received } object, not array
 - [x] Routes reorganization: role-based namespaces (/student/*, /teacher/*, /admin/*) with dedicated layouts, sidebar, middleware enforcement, redirect pages at /chat/settings/disputes
+- [x] GlobalHeader component with logo, notifications, language switcher, profile dropdown — shared across all pages
+- [x] New platform logo integrated in header, sidebar, and root layout
 
 **Pending:**
 - [ ] Production deployment on Ubuntu VPS
