@@ -77,11 +77,11 @@ export default function TeacherProfilePage() {
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [lessonType, setLessonType] = useState<'ONLINE' | 'IN_PERSON'>('ONLINE');
   const [bookingMsg, setBookingMsg] = useState('');
-  const [showReview, setShowReview] = useState(false);
   const [canReview, setCanReview] = useState(false);
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewComment, setReviewComment] = useState('');
   const [reviewing, setReviewing] = useState(false);
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
   const dn = locale === 'fr' ? dayNamesFr : dayNames;
 
@@ -136,6 +136,31 @@ export default function TeacherProfilePage() {
     const res = await apiRequest(`/students/favorites/${profile?.id}`, { method: 'POST' });
     setToggling(false);
     if (res.success) setFaved(res.data?.favorited ?? !faved);
+  }
+
+  async function submitReview() {
+    if (!profile || !reviewRating) return;
+    setReviewing(true);
+    const res = await apiRequest('/students/reviews', {
+      method: 'POST',
+      body: JSON.stringify({ teacherId: profile.id, rating: reviewRating, comment: reviewComment }),
+    });
+    setReviewing(false);
+    if (res.success && res.data) {
+      const newReview = res.data;
+      setProfile({
+        ...profile,
+        reviews: [newReview, ...profile.reviews],
+        avgRating: profile.reviews.length > 0
+          ? (profile.reviews.reduce((s, r) => s + r.rating, 0) + reviewRating) / (profile.reviews.length + 1)
+          : reviewRating,
+        _count: { ...profile._count, reviews: profile._count.reviews + 1 },
+      });
+      setReviewRating(0);
+      setReviewComment('');
+      setCanReview(false);
+      setReviewSubmitted(true);
+    }
   }
 
   async function sendRequest() {
@@ -400,6 +425,34 @@ export default function TeacherProfilePage() {
               </Card>
             )}
 
+            {canReview && (
+              <Card className="border-primary-200 bg-primary-50/50">
+                <CardContent className="p-6">
+                  <h2 className="text-lg font-semibold text-gray-900">{t('reviewPromptSection')}</h2>
+                  <p className="mt-2 text-sm text-gray-600">{t('reviewCompletedLesson')}</p>
+                  <div className="mt-4 flex justify-center gap-2">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <button key={i} onClick={() => setReviewRating(i)} type="button">
+                        <Star className={`h-10 w-10 transition ${i <= reviewRating ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200 hover:fill-yellow-200 hover:text-yellow-200'}`} />
+                      </button>
+                    ))}
+                  </div>
+                  <textarea value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} placeholder={t('reviewPlaceholder')} className="mt-4 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm" rows={3} />
+                  <Button className="mt-3 w-full" disabled={!reviewRating || reviewing} onClick={submitReview}>
+                    {reviewing ? c('loading') : t('submitReview')}
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {reviewSubmitted && (
+              <Card className="border-green-200 bg-green-50">
+                <CardContent className="p-6 text-center">
+                  <p className="text-sm font-medium text-green-700">{t('reviewSubmitted')}</p>
+                </CardContent>
+              </Card>
+            )}
+
             <Card>
               <CardContent className="p-6">
                 <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
@@ -418,7 +471,10 @@ export default function TeacherProfilePage() {
                             <p className="text-sm font-medium text-gray-900">{r.student.fullName}</p>
                             <StarRating rating={r.rating} size="sm" />
                           </div>
-                          <span className="mr-auto text-xs text-gray-400">{new Date(r.createdAt).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'ar-MA', { year: 'numeric', month: 'short' })}</span>
+                          <div className="mr-auto flex flex-col items-end gap-1">
+                            <span className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-medium text-green-700">{t('verifiedLesson')}</span>
+                            <span className="text-xs text-gray-400">{new Date(r.createdAt).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'ar-MA', { year: 'numeric', month: 'short' })}</span>
+                          </div>
                         </div>
                         {r.comment && <p className="mt-2 text-sm text-gray-600">{r.comment}</p>}
                       </div>
@@ -426,11 +482,6 @@ export default function TeacherProfilePage() {
                   </div>
                 ) : (
                   <p className="mt-4 text-sm text-gray-400">{t('noReviewsYet')}</p>
-                )}
-                {canReview && (
-                  <Button className="mt-4 w-full" variant="outline" onClick={() => setShowReview(true)}>
-                    <Star className="ml-2 h-4 w-4" /> {t('addReview')}
-                  </Button>
                 )}
               </CardContent>
             </Card>
@@ -653,36 +704,6 @@ export default function TeacherProfilePage() {
                 </Button>
               </>
             )}
-          </div>
-        </div>
-      )}
-
-      {showReview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">{t('addReview')}</h3>
-              <button onClick={() => setShowReview(false)}><X className="h-5 w-5 text-gray-400" /></button>
-            </div>
-            <div className="flex justify-center gap-2">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <button key={i} onClick={() => setReviewRating(i)}>
-                  <Star className={`h-10 w-10 ${i <= reviewRating ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200'}`} />
-                </button>
-              ))}
-            </div>
-            <textarea value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} placeholder={t('reviewPlaceholder')} className="mt-4 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm" rows={3} />
-            <Button className="mt-4 w-full" disabled={!reviewRating || reviewing} onClick={async () => {
-              setReviewing(true);
-              const res = await apiRequest('/students/reviews', {
-                method: 'POST',
-                body: JSON.stringify({ teacherId: profile.id, rating: reviewRating, comment: reviewComment }),
-              });
-              setReviewing(false);
-              if (res.success) { setShowReview(false); setReviewRating(0); setReviewComment(''); setCanReview(false); }
-            }}>
-              {reviewing ? c('loading') : t('submitReview')}
-            </Button>
           </div>
         </div>
       )}

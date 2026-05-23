@@ -1411,6 +1411,7 @@ Phase 3 (Scale)
 - [x] Report teacher system with admin resolution
 - [x] Fixed critical search bug (isVerified: false → removed filter)
 - [x] Fixed teacher profile navigation from student requests (was using User.id instead of TeacherProfile.id)
+- [x] Inline review form on teacher profile page (replaced modal, shows for students with completed lessons)
 
 **Pending:**
 - [ ] Production deployment on Ubuntu VPS
