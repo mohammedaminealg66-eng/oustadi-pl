@@ -62,7 +62,7 @@ export function GlobalHeader() {
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <div className="relative h-8 w-8 overflow-hidden">
-            <Image src="/logo.png" alt="Oustadi" width={32} height={32} className="h-full w-full object-contain" priority />
+            <Image src="/logo.png" alt="Oustadi" width={32} height={32} className="h-full w-full object-contain" priority unoptimized />
           </div>
           <span className="hidden sm:inline text-lg font-bold text-primary-600">أستادي</span>
         </Link>
