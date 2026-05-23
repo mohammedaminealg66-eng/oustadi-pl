@@ -55,7 +55,7 @@ export class RequestsService {
     const sent = await this.prisma.lessonRequest.findMany({
       where: { studentId: userId },
       include: {
-        teacher: { select: { id: true, fullName: true, avatarKey: true } },
+        teacher: { select: { id: true, fullName: true, avatarKey: true, teacherProfile: { select: { id: true } } } },
         subject: true,
       },
       orderBy: { createdAt: 'desc' },

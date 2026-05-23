@@ -1410,6 +1410,7 @@ Phase 3 (Scale)
 - [x] Share profile button with navigator.share + clipboard fallback
 - [x] Report teacher system with admin resolution
 - [x] Fixed critical search bug (isVerified: false → removed filter)
+- [x] Fixed teacher profile navigation from student requests (was using User.id instead of TeacherProfile.id)
 
 **Pending:**
 - [ ] Production deployment on Ubuntu VPS

@@ -203,7 +203,7 @@ export default function StudentRequests() {
           <div className="w-full max-w-md rounded-2xl bg-white p-6">
             <h3 className="text-lg font-bold text-gray-900">{d('reviewPrompt')}</h3>
             <div className="mt-4 flex gap-3">
-              <Button className="flex-1" onClick={() => { setShowReviewPrompt(null); router.push(`/teachers/${requests.sent?.find((r: any) => r.id === showReviewPrompt)?.teacherId}`); }}>
+              <Button className="flex-1" onClick={() => { setShowReviewPrompt(null); const req = requests.sent?.find((r: any) => r.id === showReviewPrompt); const teacherProfileId = req?.teacher?.teacherProfile?.id; if (teacherProfileId) router.push(`/teachers/${teacherProfileId}`); }}>
                 <Star className="ml-1 h-4 w-4" /> {t('addReview')}
               </Button>
               <Button variant="outline" className="flex-1" onClick={() => setShowReviewPrompt(null)}>
