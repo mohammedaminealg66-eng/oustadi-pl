@@ -6,7 +6,14 @@ import { AuthService } from './auth.service';
 import { EmailService } from './email.service';
 import { JwtStrategy } from './jwt.strategy';
 import { GoogleStrategy } from './google.strategy';
+import { GoogleConfigGuard } from './google-config.guard';
 import { EmailVerifiedGuard } from '../../common/guards/email-verified.guard';
+
+const providers: any[] = [AuthService, EmailService, JwtStrategy, EmailVerifiedGuard, GoogleConfigGuard];
+
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  providers.push(GoogleStrategy);
+}
 
 @Module({
   imports: [
@@ -17,7 +24,7 @@ import { EmailVerifiedGuard } from '../../common/guards/email-verified.guard';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, EmailService, JwtStrategy, GoogleStrategy, EmailVerifiedGuard],
+  providers,
   exports: [JwtModule, PassportModule, JwtStrategy, EmailService, EmailVerifiedGuard],
 })
 export class AuthModule {}

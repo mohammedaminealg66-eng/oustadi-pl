@@ -7,6 +7,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { GoogleConfigGuard } from './google-config.guard';
 import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
@@ -52,11 +53,11 @@ export class AuthController {
   }
 
   @Get('google')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleConfigGuard, AuthGuard('google'))
   googleAuth() {}
 
   @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleConfigGuard, AuthGuard('google'))
   googleCallback(@Req() req: any, @Res() res: any) {
     const result = req.user;
     const webUrl = process.env.WEB_URL || 'http://localhost:3000';
