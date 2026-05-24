@@ -22,6 +22,17 @@ services:
     ports:
       - "6379:6379"
 
+  maildev:
+    image: maildev/maildev:latest
+    container_name: oustadi-maildev
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "1080:1080"
+    environment:
+      MAILDEV_SMTP_PORT: 1025
+      MAILDEV_WEB_PORT: 1080
+
 volumes:
   postgres_data_dev:
   redis_data_dev:
