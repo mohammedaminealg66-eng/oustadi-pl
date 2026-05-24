@@ -39,7 +39,7 @@ export class AuthService {
       },
     });
 
-    this.email.sendVerification(dto.email, verificationToken);
+    this.email.sendVerification(dto.email, verificationToken).catch((err) => this.logger.error(`Verification email failed: ${err.message}`));
 
     return this.generateTokens(user.id, user.email, user.role);
   }
@@ -88,7 +88,7 @@ export class AuthService {
       data: { resetPasswordToken: hashed, resetPasswordExpires: new Date(Date.now() + 30 * 60 * 1000) },
     });
 
-    this.email.sendPasswordReset(email, raw);
+    this.email.sendPasswordReset(email, raw).catch((err) => this.logger.error(`Password reset email failed: ${err.message}`));
     return { message: 'If that email exists, a reset link has been sent.' };
   }
 
@@ -146,7 +146,7 @@ export class AuthService {
       data: { emailVerificationToken: verificationToken },
     });
 
-    this.email.sendVerification(email, verificationToken);
+    this.email.sendVerification(email, verificationToken).catch((err) => this.logger.error(`Resend verification email failed: ${err.message}`));
     return { message: 'Verification email sent.' };
   }
 
