@@ -25,7 +25,7 @@ export class AdminService {
       orderBy: { createdAt: 'desc' },
       select: {
         id: true, email: true, fullName: true, role: true,
-        isActive: true, isSuspended: true, emailVerified: true,
+        isActive: true, isSuspended: true, emailVerified: true, authProvider: true,
         createdAt: true,
       },
     });

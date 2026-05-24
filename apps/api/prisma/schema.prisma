@@ -48,6 +48,11 @@ model User {
   avatarKey      String?
   language       String    @default("ar")
   emailVerified  Boolean   @default(false)
+  emailVerificationToken String? @unique
+  authProvider   String   @default("local")
+  googleId       String?  @unique
+  resetPasswordToken   String? @unique
+  resetPasswordExpires DateTime?
   isActive       Boolean   @default(true)
   isSuspended    Boolean   @default(false)
   suspensionReason String?

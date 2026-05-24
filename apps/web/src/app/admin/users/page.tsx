@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { apiRequest } from '@/lib/api';
+import { CheckCircle, XCircle } from 'lucide-react';
 
 export default function AdminUsers() {
   const t = useTranslations('admin');
@@ -40,6 +41,8 @@ export default function AdminUsers() {
               <th className="pb-3 font-medium text-gray-500">{t('name')}</th>
               <th className="pb-3 font-medium text-gray-500">{t('email')}</th>
               <th className="pb-3 font-medium text-gray-500">{t('role')}</th>
+              <th className="pb-3 font-medium text-gray-500">{t('emailVerified')}</th>
+              <th className="pb-3 font-medium text-gray-500">{t('provider')}</th>
               <th className="pb-3 font-medium text-gray-500">{t('status')}</th>
               <th className="pb-3 font-medium text-gray-500"></th>
             </tr>
@@ -50,6 +53,12 @@ export default function AdminUsers() {
                 <td className="py-3">{user.fullName}</td>
                 <td className="py-3 text-gray-500">{user.email}</td>
                 <td className="py-3">{roleLabel(user.role)}</td>
+                <td className="py-3">
+                  {user.emailVerified
+                    ? <CheckCircle className="h-4 w-4 text-emerald-500" />
+                    : <XCircle className="h-4 w-4 text-red-400" />}
+                </td>
+                <td className="py-3 text-xs text-gray-400">{user.authProvider || 'local'}</td>
                 <td className="py-3">
                   <span className={`rounded-full px-2 py-0.5 text-xs ${user.isSuspended ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
                     {user.isSuspended ? t('suspended') : t('active')}

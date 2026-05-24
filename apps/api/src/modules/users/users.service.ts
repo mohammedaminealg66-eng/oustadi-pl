@@ -17,6 +17,7 @@ export class UsersService {
         avatarKey: true,
         language: true,
         emailVerified: true,
+        authProvider: true,
         studentProfile: true,
         teacherProfile: {
           include: {
