@@ -2,6 +2,7 @@ import { Controller, Get, Post, Patch, Param, Body, UseGuards } from '@nestjs/co
 import { AuthGuard } from '@nestjs/passport';
 import { RequestsService } from './requests.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { EmailVerifiedGuard } from '../../common/guards/email-verified.guard';
 import { RequestStatus } from '@prisma/client';
 
 @Controller('requests')
@@ -10,6 +11,7 @@ export class RequestsController {
   constructor(private requests: RequestsService) {}
 
   @Post()
+  @UseGuards(EmailVerifiedGuard)
   create(
     @CurrentUser('userId') userId: string,
     @Body() body: { teacherId: string; subjectId: string; message: string; lessonType?: string; bookedDate?: string; bookedTime?: string },

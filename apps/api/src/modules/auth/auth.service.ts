@@ -155,6 +155,8 @@ export class AuthService {
       where: { OR: [{ googleId: googleUser.googleId }, { email: googleUser.email }] },
     });
 
+    let isNew = false;
+
     if (user && !user.googleId) {
       await this.prisma.user.update({
         where: { id: user.id },
@@ -163,6 +165,7 @@ export class AuthService {
     }
 
     if (!user) {
+      isNew = true;
       user = await this.prisma.user.create({
         data: {
           email: googleUser.email,
@@ -188,7 +191,7 @@ export class AuthService {
       },
     });
 
-    return { ...tokens, isNew: !user.googleId };
+    return { ...tokens, isNew };
   }
 
   async refresh(refreshToken: string) {

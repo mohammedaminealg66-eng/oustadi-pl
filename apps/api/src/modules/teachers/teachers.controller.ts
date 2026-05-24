@@ -3,6 +3,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { TeachersService } from './teachers.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { EmailVerifiedGuard } from '../../common/guards/email-verified.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 
@@ -102,7 +103,7 @@ export class TeachersController {
   }
 
   @Post(':id/report')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), EmailVerifiedGuard)
   reportTeacher(
     @CurrentUser('userId') userId: string,
     @Param('id') teacherId: string,

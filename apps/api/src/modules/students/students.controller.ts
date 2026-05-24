@@ -3,6 +3,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { StudentsService } from './students.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { EmailVerifiedGuard } from '../../common/guards/email-verified.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 
@@ -43,6 +44,7 @@ export class StudentsController {
   }
 
   @Post('reviews')
+  @UseGuards(EmailVerifiedGuard)
   createReview(
     @CurrentUser('userId') userId: string,
     @Body() body: { teacherId: string; rating: number; comment?: string },

@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 import { EmailService } from './email.service';
 import { JwtStrategy } from './jwt.strategy';
 import { GoogleStrategy } from './google.strategy';
+import { EmailVerifiedGuard } from '../../common/guards/email-verified.guard';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { GoogleStrategy } from './google.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, EmailService, JwtStrategy, GoogleStrategy],
-  exports: [JwtModule, PassportModule, JwtStrategy, EmailService],
+  providers: [AuthService, EmailService, JwtStrategy, GoogleStrategy, EmailVerifiedGuard],
+  exports: [JwtModule, PassportModule, JwtStrategy, EmailService, EmailVerifiedGuard],
 })
 export class AuthModule {}
