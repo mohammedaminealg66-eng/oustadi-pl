@@ -61,10 +61,8 @@ export function GlobalHeader() {
     <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur-sm">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 shrink-0">
-          <div className="relative h-8 w-8 overflow-hidden">
-            <Image src="/logo.png" alt="Oustadi" width={32} height={32} className="h-full w-full object-contain" priority unoptimized />
-          </div>
-          <span className="hidden sm:inline text-lg font-bold text-primary-600">{t('common.appName')}</span>
+          <Image src="/logo.png" alt="Oustadi" width={36} height={36} className="shrink-0" priority sizes="36px" />
+          <span className="text-lg font-bold text-primary-600 whitespace-nowrap">{t('common.appName')}</span>
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
