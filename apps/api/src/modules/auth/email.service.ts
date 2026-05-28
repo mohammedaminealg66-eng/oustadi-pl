@@ -17,7 +17,7 @@ export class EmailService {
   }
 
   async sendPasswordReset(email: string, token: string): Promise<void> {
-    const url = `${process.env.WEB_URL || 'http://localhost:3000'}/reset-password/${token}`;
+    const url = `${process.env.WEB_URL}/reset-password/${token}`;
     await this.deliver({
       to: email,
       subject: 'Reset your password — Oustadi',
@@ -30,7 +30,7 @@ export class EmailService {
   }
 
   async sendVerification(email: string, token: string): Promise<void> {
-    const url = `${process.env.WEB_URL || 'http://localhost:3000'}/verify-email/${token}`;
+    const url = `${process.env.WEB_URL}/verify-email/${token}`;
     await this.deliver({
       to: email,
       subject: 'Verify your email — Oustadi',

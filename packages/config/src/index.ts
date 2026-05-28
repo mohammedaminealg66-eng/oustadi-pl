@@ -8,15 +8,15 @@ export const config = {
     maxFileSize: parseInt(process.env.MAX_FILE_SIZE || '10485760', 10),
   },
   redis: {
-    url: process.env.REDIS_URL || 'redis://localhost:6379',
+    url: process.env.REDIS_URL,
   },
   database: {
-    url: process.env.DATABASE_URL || 'postgresql://oustadi:changeme@localhost:5432/oustadi',
+    url: process.env.DATABASE_URL,
   },
   api: {
-    url: process.env.API_URL || 'http://localhost:3001',
+    url: process.env.API_URL,
   },
   web: {
-    url: process.env.WEB_URL || 'http://localhost:3000',
+    url: process.env.WEB_URL,
   },
 };

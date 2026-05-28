@@ -60,7 +60,7 @@ export class AuthController {
   @UseGuards(GoogleConfigGuard, AuthGuard('google'))
   googleCallback(@Req() req: any, @Res() res: any) {
     const result = req.user;
-    const webUrl = process.env.WEB_URL || 'http://localhost:3000';
+    const webUrl = process.env.WEB_URL;
     res.redirect(`${webUrl}/auth/callback?accessToken=${result.accessToken}&refreshToken=${result.refreshToken}&isNew=${result.isNew}`);
   }
 
