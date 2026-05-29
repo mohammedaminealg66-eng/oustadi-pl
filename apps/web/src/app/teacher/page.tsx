@@ -7,7 +7,7 @@ import { apiRequest } from '@/lib/api';
 import { useAuth } from '@/providers/auth-provider';
 import { Card, CardContent, Button, Badge, Skeleton, cn } from '@oustadi/ui';
 import {
-  Inbox, CheckCircle, Clock, MessageCircle,
+  Users, Inbox, CheckCircle, Clock, MessageCircle,
   User, Calendar as CalendarIcon, Settings, Sparkles, X, Check,
   ExternalLink, ArrowUpRight, GraduationCap, BookOpen,
   TrendingUp, TrendingDown, MoreHorizontal, ChevronRight,
