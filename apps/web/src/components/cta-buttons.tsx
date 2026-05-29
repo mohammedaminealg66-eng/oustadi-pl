@@ -13,14 +13,14 @@ export function CtaButtons() {
     <>
       <Link
         href="/teachers"
-        className="rounded-xl bg-primary-600 px-8 py-3 text-sm font-medium text-white transition hover:bg-primary-700"
+        className="rounded-xl bg-white px-8 py-3 text-sm font-semibold text-primary-700 shadow-sm transition hover:bg-gray-100"
       >
         {h('browseTeachers')}
       </Link>
       {!isAuthenticated && (
         <Link
           href="/register"
-          className="rounded-xl border border-gray-300 bg-white px-8 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+          className="rounded-xl border border-white/30 bg-white/10 px-8 py-3 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20"
         >
           {c('freeRegister')}
         </Link>

@@ -50,7 +50,14 @@
     "cardTeacherDesc": "Créez votre profil professionnel, présentez vos services et connectez avec les étudiants intéressés.",
     "cardConnectTitle": "Connectez-vous",
     "cardConnectDesc": "Discutez avec vos enseignants ou étudiants via la plateforme et organisez des sessions d'apprentissage.",
-    "searchTeachers": "Rechercher des enseignants"
+    "searchTeachers": "Rechercher des enseignants",
+    "heroBadge": "Plateforme de confiance pour des milliers d'étudiants et d'enseignants",
+    "statTeachers": "Enseignants inscrits",
+    "statStudents": "Étudiants actifs",
+    "statRating": "Note moyenne",
+    "statLessons": "Leçons terminées",
+    "ctaTitle": "Commencez votre parcours éducatif aujourd'hui",
+    "ctaSubtitle": "Rejoignez des milliers d'étudiants et d'enseignants au Maroc"
   },
   "auth": {
     "email": "Email",

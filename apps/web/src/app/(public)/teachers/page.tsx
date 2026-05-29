@@ -9,7 +9,8 @@ import { subjectName } from '@/lib/subject';
 import { getAvatarUrl } from '@/lib/asset';
 
 import { Footer } from '@/components/layout/footer';
-import { Button, Card, CardContent } from '@oustadi/ui';
+import { Button, Card, CardContent, Skeleton, Breadcrumbs } from '@oustadi/ui';
+import { OfficialBadge, VerifiedBadge } from '@/components/teacher/status-badges';
 import { MapPin, SlidersHorizontal, X, Star, Filter, Search, ChevronDown } from 'lucide-react';
 
 const levels = ['primaire', 'collège', 'lycée', 'bac', 'université'];
@@ -240,21 +241,28 @@ export default function TeachersPage() {
 
   return (
     <>
-      <main className="mx-auto max-w-7xl px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">{h('searchTeachers')}</h1>
+      <main className="mx-auto max-w-7xl px-4 py-8 lg:py-12 text-right">
+        <Breadcrumbs 
+          locale={locale}
+          items={[{ label: locale === 'fr' ? 'Profs' : 'الأساتذة' }]} 
+        />
+        <div className="flex flex-col gap-6 mb-10 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-black text-gray-900 tracking-tight lg:text-4xl">{h('searchTeachers')}</h1>
+            <p className="mt-1 text-sm font-bold text-gray-400">{teachers.length} {locale === 'fr' ? 'enseignants trouvés' : 'أستاذ متاح حالياً'}</p>
+          </div>
           <div className="flex items-center gap-3">
             <select value={filters.sort} onChange={(e) => setFilter('sort', e.target.value)}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm">
+              className="rounded-xl border-2 border-gray-100 px-4 py-2.5 text-sm font-black focus:border-primary-500 outline-none transition-all">
               {sortOptions.map((o) => (
                 <option key={o.value} value={o.value}>{locale === 'fr' ? o.fr : o.ar}</option>
               ))}
             </select>
-            <Button variant="outline" size="sm" className="lg:hidden" onClick={() => setShowFilters(true)}>
-              <SlidersHorizontal className="ml-1 h-4 w-4" /> {t('filters')}
+            <Button variant="outline" className="lg:hidden h-11 px-5 rounded-xl border-2 font-black" onClick={() => setShowFilters(true)}>
+              <SlidersHorizontal className="ml-2 h-4 w-4" /> {t('filters')}
             </Button>
             {hasActiveFilters && (
-              <button onClick={resetFilters} className="text-xs text-red-500 hover:underline">{c('reset')}</button>
+              <button onClick={resetFilters} className="text-xs font-black text-red-500 hover:text-red-700 transition-colors mr-2">{c('reset')}</button>
             )}
           </div>
         </div>
@@ -270,7 +278,24 @@ export default function TeachersPage() {
             {loading && teachers.length === 0 ? (
               <div className="grid gap-6 md:grid-cols-2">
                 {[1, 2, 3, 4].map((i) => (
-                  <Card key={i}><CardContent className="h-40 animate-pulse bg-gray-100" /></Card>
+                  <Card key={i} className="overflow-hidden">
+                    <CardContent className="p-5">
+                      <div className="flex items-start gap-4">
+                        <Skeleton className="h-14 w-14 rounded-full" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-4 w-1/3" />
+                          <Skeleton className="h-3 w-1/4" />
+                          <Skeleton className="h-3 w-1/5" />
+                        </div>
+                      </div>
+                      <Skeleton className="mt-4 h-3 w-full" />
+                      <Skeleton className="mt-2 h-3 w-2/3" />
+                      <div className="mt-4 flex gap-2">
+                        <Skeleton className="h-5 w-16 rounded-full" />
+                        <Skeleton className="h-5 w-16 rounded-full" />
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             ) : error ? (
@@ -279,54 +304,61 @@ export default function TeachersPage() {
               <div className="py-16 text-center text-gray-500">{c('noResults')}</div>
             ) : (
               <>
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-2">
                   {teachers.map((teacher) => (
                     <Link key={teacher.id} href={`/teachers/${teacher.id}`}>
                       <Card className="transition hover:shadow-md h-full">
-                        <CardContent className="p-5">
-                          <div className="flex items-start gap-4">
+                        <CardContent className="p-4">
+                          <div className="flex items-start gap-3">
                             <div className="relative shrink-0">
-                              <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-lg font-bold text-primary-600">
+                              <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-base font-bold text-primary-600">
                                 {teacher.avatarKey
                                   ? <img src={getAvatarUrl(teacher.avatarKey)} alt="" className="h-full w-full object-cover" />
                                   : teacher.fullName?.charAt(0)}
                               </div>
-                              {teacher.isOnline && <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-green-500" />}
+                              {teacher.isOnline && <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-green-500" />}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-1 flex-wrap">
-                                <h3 className="font-semibold text-gray-900 truncate">{teacher.fullName}</h3>
-                                {teacher.isOfficial && <span className="shrink-0 text-sm">🔵</span>}
-                                {teacher.isVerified && !teacher.isOfficial && <span className="shrink-0 text-[10px] text-green-600">✅</span>}
-                                {teacher.gender && <span className="text-[10px] text-gray-400">{teacher.gender === 'MALE' ? '♂' : '♀'}</span>}
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <h3 className="font-bold text-gray-900 truncate">{teacher.fullName}</h3>
+                                {teacher.isOfficial ? (
+                                  <OfficialBadge className="scale-[0.8] origin-right" />
+                                ) : teacher.isVerified ? (
+                                  <VerifiedBadge className="scale-[0.8] origin-right" />
+                                ) : null}
                               </div>
                               {teacher.city && (
                                 <p className="mt-0.5 flex items-center gap-1 text-xs text-gray-500">
                                   <MapPin className="h-3 w-3" /> {teacher.city}
                                 </p>
                               )}
-                              <p className="mt-0.5 text-[10px] text-gray-400">
+                              <p className="mt-0.5 text-[11px] text-gray-400">
                                 {teacher.isOnline ? t('online') : lastSeenText(teacher.lastSeen, locale, t)}
                               </p>
                             </div>
+                            {teacher.price && (
+                              <div className="shrink-0 text-right">
+                                <p className="text-sm font-bold text-primary-600">{teacher.price} {t('dh')}</p>
+                                <p className="text-[10px] text-gray-400">{t('dhPerHour')}</p>
+                              </div>
+                            )}
                           </div>
-                          {teacher.bio && <p className="mt-2 text-sm text-gray-600 line-clamp-2">{teacher.bio}</p>}
-                          <div className="mt-3 flex flex-wrap gap-1.5">
+                          {teacher.bio && <p className="mt-2 text-xs text-gray-500 line-clamp-2">{teacher.bio}</p>}
+                          <div className="mt-2.5 flex flex-wrap gap-1.5">
                             {teacher.subjects?.slice(0, 3).map((s: any) => (
-                              <span key={s.id} className="rounded-full bg-primary-50 px-2.5 py-0.5 text-[11px] text-primary-700">
+                              <span key={s.id} className="rounded-full bg-primary-50 px-2 py-0.5 text-[11px] font-medium text-primary-700">
                                 {subjectName(s, locale)}
                               </span>
                             ))}
                           </div>
-                          <div className="mt-3 flex items-center justify-between text-xs">
-                            <span className="text-gray-500">{teacher.experience || 0} {t('yearsExperience')}</span>
-                            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-600">
+                          <div className="mt-2.5 flex items-center gap-3 text-[11px] text-gray-500">
+                            <span>{teacher.experience || 0} {t('yearsExperience')}</span>
+                            <span className="rounded-full bg-gray-100 px-2 py-0.5">
                               {teacher.teachingMode === 'ONLINE' ? t('online') : teacher.teachingMode === 'IN_PERSON' ? t('inPerson') : t('both')}
                             </span>
-                            <div className="flex items-center gap-1">
-                              {teacher.reviewCount > 0 && <span className="flex items-center gap-0.5 text-yellow-500"><Star className="h-3 w-3 fill-current" /></span>}
-                              <span className="font-semibold text-primary-600">{teacher.price ? `${teacher.price} ${t('dh')}` : ''}</span>
-                            </div>
+                            {teacher.reviewCount > 0 && (
+                              <span className="flex items-center gap-0.5"><Star className="h-3 w-3 fill-yellow-400 text-yellow-400" /> {teacher.reviewCount}</span>
+                            )}
                           </div>
                         </CardContent>
                       </Card>
