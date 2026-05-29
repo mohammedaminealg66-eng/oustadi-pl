@@ -8,6 +8,8 @@ interface User {
   email: string;
   role: 'STUDENT' | 'TEACHER' | 'ADMIN';
   language?: string;
+  fullName?: string;
+  avatarKey?: string | null;
 }
 
 interface AuthContextType {
@@ -29,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const token = getTokens().accessToken;
     if (!token) { setLoading(false); return; }
 
-    const res = await apiRequest<{ userId: string; email: string; role: string }>('/auth/me');
+    const res = await apiRequest<{ userId: string; email: string; role: string; fullName?: string; avatarKey?: string | null }>('/auth/me');
     if (res.success && res.data) {
       setUser(res.data as User);
     } else {

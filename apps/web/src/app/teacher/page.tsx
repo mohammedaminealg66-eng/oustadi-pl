@@ -162,7 +162,7 @@ export default function TeacherDashboard() {
                                 <Button size="sm" className="rounded-xl px-4 font-black" onClick={() => handleAction(req.id, 'accept')}>
                                   <Check className="ml-1.5 h-4 w-4" /> {d('accept')}
                                 </Button>
-                                <Button size="sm" variant="destructive" className="rounded-xl px-4 font-black" onClick={() => { handleAction(req.id, 'reject'); setRejecting((r) => ({ ...r, [req.id]: false })); }}>
+                                <Button size="sm" variant="outline" className="rounded-xl px-4 font-black text-red-600 border-red-200 hover:bg-red-50" onClick={() => { handleAction(req.id, 'reject'); setRejecting((r) => ({ ...r, [req.id]: false })); }}>
                                   <X className="ml-1.5 h-4 w-4" /> {d('reject')}
                                 </Button>
                                 <button onClick={() => setRejecting((r) => ({ ...r, [req.id]: false }))} className="text-xs font-black text-gray-400 hover:text-gray-600 transition-colors mr-2">{c('cancel')}</button>

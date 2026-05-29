@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/providers/auth-provider';
 import { apiRequest } from '@/lib/api';
+import { getAvatarUrl } from '@/lib/asset';
 import { Button } from '@oustadi/ui';
 import { Bell, LogOut, ChevronDown, Menu, X } from 'lucide-react';
 
@@ -136,7 +137,7 @@ export function GlobalHeader() {
               <div className="relative">
                 <button onClick={(e) => { e.stopPropagation(); setProfileOpen(!profileOpen); }} className="flex items-center gap-2 rounded-xl border border-transparent px-2 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:border-gray-200 transition-all">
                   <div className="h-7 w-7 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center font-bold text-[10px]">
-                    {user?.avatarKey ? <Image src={apiRequest(`/upload/avatar/${user.avatarKey}`)} alt="" width={28} height={28} className="rounded-full" /> : user?.fullName?.charAt(0) || 'U'}
+                    {user?.avatarKey ? <Image src={getAvatarUrl(user.avatarKey)} alt="" width={28} height={28} className="rounded-full" /> : user?.fullName?.charAt(0) || 'U'}
                   </div>
                   <ChevronDown className="h-4 w-4 text-gray-400" />
                 </button>
