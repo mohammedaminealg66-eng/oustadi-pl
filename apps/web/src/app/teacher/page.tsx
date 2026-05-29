@@ -48,7 +48,7 @@ export default function TeacherDashboard() {
   const studentGrowth = { count: 48, growth: 8.2, data: [30, 32, 35, 40, 42, 45, 48] };
   const profileCompletion = 85;
 
-  const upcomingLessons = useMemo(() => {
+  const upcomingLessons: Array<{ id: string; type: string; time: string; date: string; student?: { fullName?: string }; subject?: string }> = useMemo(() => {
      // In a real app, this would come from a /lessons or /schedule API
      // For now, we derive from accepted requests
      return (requests.received || [])
