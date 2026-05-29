@@ -25,7 +25,14 @@
     "noNotifications": "Aucune notification",
     "online": "En ligne",
     "or": "ou",
-    "copyright": "© {year} Oustadi — Plateforme éducative marocaine. Tous droits réservés."
+    "copyright": "© {year} Oustadi — Plateforme éducative marocaine. Tous droits réservés.",
+    "notFound": "Page non trouvée",
+    "backToHome": "Retour à l'accueil",
+    "errorOccurred": "Une erreur est survenue",
+    "retry": "Réessayer",
+    "redirecting": "Redirection...",
+    "completingSignIn": "Connexion en cours...",
+    "signInFailed": "Échec de la connexion. Redirection..."
   },
   "home": {
     "heroTitle": "Trouvez votre <span>professeur</span> idéal",

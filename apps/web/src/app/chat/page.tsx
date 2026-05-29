@@ -3,10 +3,12 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/auth-provider';
+import { useTranslations } from 'next-intl';
 
 export default function ChatRedirect() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const t = useTranslations();
 
   useEffect(() => {
     if (loading) return;
@@ -15,5 +17,5 @@ export default function ChatRedirect() {
     router.replace(`${role}/chat`);
   }, [user, loading, router]);
 
-  return <div className="flex min-h-screen items-center justify-center text-gray-500">{loading ? '...' : 'جارٍ التوجيه...'}</div>;
+  return <div className="flex min-h-screen items-center justify-center text-gray-500">{loading ? '...' : t('common.redirecting')}</div>;
 }

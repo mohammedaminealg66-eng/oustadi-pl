@@ -34,7 +34,7 @@ export default function StudentFavorites() {
     <div>
       <div className="mb-4">
         <Link href="/student" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary-600">
-          <ArrowRight className="h-4 w-4" /> {d('backToDashboard')}
+          <ArrowRight className="h-4 w-4 rtl:rotate-180" /> {d('backToDashboard')}
         </Link>
       </div>
       <h1 className="text-2xl font-bold text-gray-900">{d('favorites')}</h1>

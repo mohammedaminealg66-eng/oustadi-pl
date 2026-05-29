@@ -45,7 +45,7 @@ export default function ForgotPasswordPage() {
               </div>
               <p className="text-sm text-gray-600">{t('resetSent')}</p>
               <Link href="/login" className="inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700">
-                <ArrowLeft className="h-4 w-4" /> {c('login')}
+                <ArrowLeft className="h-4 w-4 rtl:rotate-180" /> {c('login')}
               </Link>
             </div>
           ) : (

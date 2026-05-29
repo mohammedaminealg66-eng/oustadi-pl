@@ -3,11 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { setTokens } from '@/lib/api';
+import { useTranslations } from 'next-intl';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
   const sp = useSearchParams();
-  const [msg, setMsg] = useState('Completing sign-in...');
+  const t = useTranslations();
+  const [msg, setMsg] = useState(t('common.completingSignIn'));
 
   useEffect(() => {
     const accessToken = sp.get('accessToken');
@@ -16,7 +18,7 @@ export default function AuthCallbackPage() {
       setTokens(accessToken, refreshToken);
       window.location.href = '/';
     } else {
-      setMsg('Sign-in failed. Redirecting...');
+      setMsg(t('common.signInFailed'));
       setTimeout(() => router.push('/login'), 2000);
     }
   }, []);
