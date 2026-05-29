@@ -404,7 +404,7 @@ export default function TeacherProfilePage() {
         </div>
       </main>
 
-      <Footer locale={locale} />
+      <Footer />
     </div>
   );
 }
