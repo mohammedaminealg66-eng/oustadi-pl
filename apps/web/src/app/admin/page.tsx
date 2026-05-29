@@ -6,7 +6,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { apiRequest } from '@/lib/api';
 import { Card, CardContent, Button, Badge, Skeleton, cn } from '@oustadi/ui';
 import {
-  Users, GraduationCap, BookOpen, FileText, AlertTriangle, 
+  User, Users, GraduationCap, BookOpen, FileText, AlertTriangle, 
   BarChart3, TrendingUp, TrendingDown, Activity, Zap, 
   ShieldCheck, Bell, ChevronRight, Plus, Search,
   ArrowUpRight, Clock, MoreHorizontal, Globe, Smartphone,
